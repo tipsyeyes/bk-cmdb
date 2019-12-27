@@ -10,6 +10,9 @@ src/web*/*server
 src/web*/cmdb_*
 src/ui/config/index.js
 
+src/web/*
+src/ui/node_modules/
+
 .idea/
 pid/
 
