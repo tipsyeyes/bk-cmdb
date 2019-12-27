@@ -11,5 +11,6 @@ src/web*/cmdb_*
 src/ui/config/index.js
 
 .idea/
+pid/
 
 *.exe
