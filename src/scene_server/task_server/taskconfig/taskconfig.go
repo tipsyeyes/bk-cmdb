@@ -13,8 +13,8 @@
 package taskconfig
 
 import (
-	"configcenter/src/common/blog"
-	"configcenter/src/common/types"
+	"configdatabase/src/common/blog"
+	"configdatabase/src/common/types"
 )
 
 type CodeTaskConfig struct {

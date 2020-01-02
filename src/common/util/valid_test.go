@@ -15,8 +15,8 @@ package util
 import (
 	"testing"
 
-	"configcenter/src/common"
-	"configcenter/src/common/errors"
+	"configdatabase/src/common"
+	"configdatabase/src/common/errors"
 )
 
 type errif struct {

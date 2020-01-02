@@ -13,8 +13,8 @@
 package inst
 
 import (
-	"configcenter/src/scene_server/topo_server/core/model"
-	"configcenter/src/scene_server/topo_server/core/types"
+	"configdatabase/src/scene_server/topo_server/core/model"
+	"configdatabase/src/scene_server/topo_server/core/types"
 )
 
 // Factory used to all inst

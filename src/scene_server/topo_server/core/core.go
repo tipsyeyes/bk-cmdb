@@ -13,12 +13,12 @@
 package core
 
 import (
-	"configcenter/src/apimachinery"
-	"configcenter/src/auth/extensions"
-	"configcenter/src/scene_server/topo_server/core/inst"
-	"configcenter/src/scene_server/topo_server/core/model"
-	"configcenter/src/scene_server/topo_server/core/operation"
-	"configcenter/src/scene_server/topo_server/core/settemplate"
+	"configdatabase/src/apimachinery"
+	"configdatabase/src/auth/extensions"
+	"configdatabase/src/scene_server/topo_server/core/inst"
+	"configdatabase/src/scene_server/topo_server/core/model"
+	"configdatabase/src/scene_server/topo_server/core/operation"
+	"configdatabase/src/scene_server/topo_server/core/settemplate"
 )
 
 // Core Provides management interfaces for models and instances

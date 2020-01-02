@@ -13,10 +13,10 @@
 package instances
 
 import (
-	"configcenter/src/common"
-	"configcenter/src/common/errors"
-	"configcenter/src/common/metadata"
-	"configcenter/src/source_controller/coreservice/core"
+	"configdatabase/src/common"
+	"configdatabase/src/common/errors"
+	"configdatabase/src/common/metadata"
+	"configdatabase/src/source_controller/coreservice/core"
 )
 
 type validator struct {

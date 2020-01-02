@@ -17,12 +17,12 @@ import (
 	"net/http"
 	"strconv"
 
-	"configcenter/src/common"
-	"configcenter/src/common/blog"
-	"configcenter/src/common/errors"
-	"configcenter/src/common/mapstruct"
-	"configcenter/src/common/metadata"
-	"configcenter/src/common/util"
+	"configdatabase/src/common"
+	"configdatabase/src/common/blog"
+	"configdatabase/src/common/errors"
+	"configdatabase/src/common/mapstruct"
+	"configdatabase/src/common/metadata"
+	"configdatabase/src/common/util"
 
 	"github.com/emicklei/go-restful"
 )

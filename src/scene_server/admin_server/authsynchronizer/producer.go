@@ -16,15 +16,15 @@ import (
 	"context"
 	"time"
 
-	"configcenter/src/apimachinery"
-	"configcenter/src/auth/extensions"
-	"configcenter/src/common"
-	"configcenter/src/common/backbone"
-	"configcenter/src/common/blog"
-	"configcenter/src/common/mapstr"
-	"configcenter/src/common/metadata"
-	"configcenter/src/scene_server/admin_server/authsynchronizer/meta"
-	"configcenter/src/scene_server/admin_server/authsynchronizer/utils"
+	"configdatabase/src/apimachinery"
+	"configdatabase/src/auth/extensions"
+	"configdatabase/src/common"
+	"configdatabase/src/common/backbone"
+	"configdatabase/src/common/blog"
+	"configdatabase/src/common/mapstr"
+	"configdatabase/src/common/metadata"
+	"configdatabase/src/scene_server/admin_server/authsynchronizer/meta"
+	"configdatabase/src/scene_server/admin_server/authsynchronizer/utils"
 )
 
 // Producer producer WorkRequest and enqueue it

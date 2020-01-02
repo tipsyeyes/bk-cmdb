@@ -13,10 +13,10 @@
 package options
 
 import (
-	"configcenter/src/common/auth"
-	"configcenter/src/common/core/cc/config"
-	"configcenter/src/storage/dal/mongo"
-	"configcenter/src/storage/dal/redis"
+	"configdatabase/src/common/auth"
+	"configdatabase/src/common/core/cc/config"
+	"configdatabase/src/storage/dal/mongo"
+	"configdatabase/src/storage/dal/redis"
 
 	"github.com/spf13/pflag"
 )

@@ -13,9 +13,9 @@
 package service
 
 import (
-	"configcenter/src/common/http/httpserver"
-	"configcenter/src/common/mapstr"
-	"configcenter/src/source_controller/coreservice/core"
+	"configdatabase/src/common/http/httpserver"
+	"configdatabase/src/common/mapstr"
+	"configdatabase/src/source_controller/coreservice/core"
 )
 
 // LogicFunc the core core function definition

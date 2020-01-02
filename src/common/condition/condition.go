@@ -16,9 +16,9 @@ import (
 	"errors"
 	"reflect"
 
-	"configcenter/src/common"
-	types "configcenter/src/common/mapstr"
-	"configcenter/src/common/metadata"
+	"configdatabase/src/common"
+	types "configdatabase/src/common/mapstr"
+	"configdatabase/src/common/metadata"
 )
 
 // CreateCondition create a condition object

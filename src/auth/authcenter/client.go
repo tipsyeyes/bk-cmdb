@@ -19,10 +19,10 @@ import (
 	"net/http"
 	"strings"
 
-	"configcenter/src/apimachinery/rest"
-	"configcenter/src/auth/meta"
-	"configcenter/src/common/metadata"
-	"configcenter/src/common/util"
+	"configdatabase/src/apimachinery/rest"
+	"configdatabase/src/auth/meta"
+	"configdatabase/src/common/metadata"
+	"configdatabase/src/common/util"
 )
 
 // clients contains all the client api which is used to

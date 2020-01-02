@@ -15,11 +15,11 @@ package core
 import (
 	"fmt"
 
-	"configcenter/src/common/blog"
-	"configcenter/src/storage/mongodb"
-	"configcenter/src/storage/rpc"
-	"configcenter/src/storage/tmserver/core/session"
-	"configcenter/src/storage/types"
+	"configdatabase/src/common/blog"
+	"configdatabase/src/storage/mongodb"
+	"configdatabase/src/storage/rpc"
+	"configdatabase/src/storage/tmserver/core/session"
+	"configdatabase/src/storage/types"
 )
 
 // Core logics operation methods

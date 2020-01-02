@@ -19,14 +19,14 @@ import (
 	restful "github.com/emicklei/go-restful"
 	"github.com/stretchr/testify/require"
 
-	"configcenter/src/common"
-	"configcenter/src/common/backbone"
-	"configcenter/src/storage/dal/mongo"
-	mgo "configcenter/src/storage/mongodb/driver"
-	"configcenter/src/storage/tmserver/app/options"
-	"configcenter/src/storage/tmserver/service"
+	"configdatabase/src/common"
+	"configdatabase/src/common/backbone"
+	"configdatabase/src/storage/dal/mongo"
+	mgo "configdatabase/src/storage/mongodb/driver"
+	"configdatabase/src/storage/tmserver/app/options"
+	"configdatabase/src/storage/tmserver/service"
 
-	_ "configcenter/src/storage/tmserver/core/command" // init all database operation
+	_ "configdatabase/src/storage/tmserver/core/command" // init all database operation
 )
 
 var defaultHeader = func() http.Header {

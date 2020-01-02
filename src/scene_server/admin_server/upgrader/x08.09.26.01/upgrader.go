@@ -15,12 +15,12 @@ package x08_09_26_01
 import (
 	"context"
 
-	"configcenter/src/common"
-	"configcenter/src/common/mapstr"
-	"configcenter/src/common/metadata"
-	mCommon "configcenter/src/scene_server/admin_server/common"
-	"configcenter/src/scene_server/admin_server/upgrader"
-	"configcenter/src/storage/dal"
+	"configdatabase/src/common"
+	"configdatabase/src/common/mapstr"
+	"configdatabase/src/common/metadata"
+	mCommon "configdatabase/src/scene_server/admin_server/common"
+	"configdatabase/src/scene_server/admin_server/upgrader"
+	"configdatabase/src/storage/dal"
 )
 
 type inputDatas struct {

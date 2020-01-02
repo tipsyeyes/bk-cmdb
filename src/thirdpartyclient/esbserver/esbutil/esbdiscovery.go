@@ -14,7 +14,7 @@ package esbutil
 import (
 	"sync"
 
-	"configcenter/src/common/blog"
+	"configdatabase/src/common/blog"
 )
 
 type EsbConfigSrv struct {

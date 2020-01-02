@@ -17,7 +17,7 @@ import (
 	"reflect"
 	"time"
 
-	"configcenter/src/common/util"
+	"configdatabase/src/common/util"
 )
 
 var (

@@ -15,7 +15,7 @@ package output
 import (
 	"sync"
 
-	"configcenter/src/framework/core/output/module/inst"
+	"configdatabase/src/framework/core/output/module/inst"
 )
 
 // MapOutputer the outputer storage

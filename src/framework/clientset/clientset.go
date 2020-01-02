@@ -15,13 +15,13 @@ package clientset
 import (
 	"fmt"
 
-	"configcenter/src/apimachinery/flowctrl"
-	"configcenter/src/framework/clientset/business"
-	"configcenter/src/framework/clientset/discovery"
-	"configcenter/src/framework/clientset/host"
-	"configcenter/src/framework/clientset/model"
-	"configcenter/src/framework/common/http"
-	"configcenter/src/framework/common/rest"
+	"configdatabase/src/apimachinery/flowctrl"
+	"configdatabase/src/framework/clientset/business"
+	"configdatabase/src/framework/clientset/discovery"
+	"configdatabase/src/framework/clientset/host"
+	"configdatabase/src/framework/clientset/model"
+	"configdatabase/src/framework/common/http"
+	"configdatabase/src/framework/common/rest"
 )
 
 type ClientConfig struct {

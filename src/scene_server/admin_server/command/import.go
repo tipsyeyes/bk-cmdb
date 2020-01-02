@@ -22,10 +22,10 @@ import (
 	"strings"
 	"time"
 
-	"configcenter/src/common"
-	"configcenter/src/common/blog"
-	"configcenter/src/common/metadata"
-	"configcenter/src/storage/dal"
+	"configdatabase/src/common"
+	"configdatabase/src/common/blog"
+	"configdatabase/src/common/metadata"
+	"configdatabase/src/storage/dal"
 )
 
 func backup(ctx context.Context, db dal.RDB, opt *option) error {

@@ -15,7 +15,7 @@ package plugin
 import (
 	"sync"
 
-	"configcenter/src/common/metric"
+	"configdatabase/src/common/metric"
 )
 
 type CounterInterface interface {

@@ -18,11 +18,11 @@ import (
 	"net/http"
 	"time"
 
-	"configcenter/src/common"
-	"configcenter/src/common/blog"
-	"configcenter/src/common/mapstr"
-	"configcenter/src/common/querybuilder"
-	"configcenter/src/common/util"
+	"configdatabase/src/common"
+	"configdatabase/src/common/blog"
+	"configdatabase/src/common/mapstr"
+	"configdatabase/src/common/querybuilder"
+	"configdatabase/src/common/util"
 )
 
 type DeleteHostBatchOpt struct {

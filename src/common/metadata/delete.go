@@ -12,7 +12,7 @@
 
 package metadata
 
-import "configcenter/src/common/mapstr"
+import "configdatabase/src/common/mapstr"
 
 // DeleteOption common delete condition options
 type DeleteOption struct {

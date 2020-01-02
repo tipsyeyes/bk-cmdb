@@ -1,18 +1,18 @@
 package parser
 
 import (
-	"configcenter/src/common/blog"
-	"configcenter/src/common/util"
+	"configdatabase/src/common/blog"
+	"configdatabase/src/common/util"
 	"fmt"
 	"net/http"
 	"regexp"
 	"strconv"
 
-	"configcenter/src/auth/meta"
-	"configcenter/src/common"
-	"configcenter/src/common/json"
-	"configcenter/src/common/metadata"
-	"configcenter/src/framework/core/errors"
+	"configdatabase/src/auth/meta"
+	"configdatabase/src/common"
+	"configdatabase/src/common/json"
+	"configdatabase/src/common/metadata"
+	"configdatabase/src/framework/core/errors"
 
 	"github.com/tidwall/gjson"
 )

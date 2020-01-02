@@ -17,7 +17,7 @@ import (
 	"fmt"
 	"net/http"
 
-	"configcenter/src/common/metadata"
+	"configdatabase/src/common/metadata"
 )
 
 func (c *cloud) CreateCloudSyncTask(ctx context.Context, header http.Header, input interface{}) (resp *metadata.Uint64DataResponse, err error) {

@@ -16,11 +16,11 @@ import (
 	"context"
 	"net/http"
 
-	"configcenter/src/common"
-	"configcenter/src/common/blog"
-	"configcenter/src/common/condition"
-	"configcenter/src/common/metadata"
-	"configcenter/src/common/util"
+	"configdatabase/src/common"
+	"configdatabase/src/common/blog"
+	"configdatabase/src/common/condition"
+	"configdatabase/src/common/metadata"
+	"configdatabase/src/common/util"
 )
 
 func (lgc *Logics) getAssociationData(ctx context.Context, header http.Header, objID string, instAsstArr []*metadata.InstAsst, meta *metadata.Metadata) (map[string]map[int64][]PropertyPrimaryVal, error) {

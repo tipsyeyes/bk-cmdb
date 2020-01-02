@@ -18,9 +18,9 @@ import (
 	"net/http"
 	"strings"
 
-	"configcenter/src/auth/authcenter"
-	authmeta "configcenter/src/auth/meta"
-	"configcenter/src/common/blog"
+	"configdatabase/src/auth/authcenter"
+	authmeta "configdatabase/src/auth/meta"
+	"configdatabase/src/common/blog"
 )
 
 func (ih *IAMHandler) getIamResources(taskName string, ra *authmeta.ResourceAttribute, iamIDPrefix string) ([]authmeta.BackendResource, error) {

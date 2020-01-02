@@ -20,12 +20,12 @@ import (
 	"strings"
 	"time"
 
-	"configcenter/src/common"
-	"configcenter/src/common/backbone"
-	"configcenter/src/common/blog"
-	"configcenter/src/storage/dal"
-	"configcenter/src/storage/rpc"
-	"configcenter/src/storage/types"
+	"configdatabase/src/common"
+	"configdatabase/src/common/backbone"
+	"configdatabase/src/common/blog"
+	"configdatabase/src/storage/dal"
+	"configdatabase/src/storage/rpc"
+	"configdatabase/src/storage/types"
 
 	"github.com/prometheus/client_golang/prometheus"
 )

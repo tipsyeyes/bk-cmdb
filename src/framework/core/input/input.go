@@ -17,8 +17,8 @@ import (
 	"sync"
 	"time"
 
-	"configcenter/src/framework/common"
-	"configcenter/src/framework/core/log"
+	"configdatabase/src/framework/common"
+	"configdatabase/src/framework/core/log"
 )
 
 // manager implements the Manager interface

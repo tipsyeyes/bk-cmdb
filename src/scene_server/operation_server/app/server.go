@@ -18,15 +18,15 @@ import (
 	"os"
 	"time"
 
-	"configcenter/src/auth"
-	"configcenter/src/auth/extensions"
-	"configcenter/src/common"
-	"configcenter/src/common/backbone"
-	"configcenter/src/common/blog"
-	"configcenter/src/common/types"
-	"configcenter/src/common/version"
-	"configcenter/src/scene_server/operation_server/app/options"
-	"configcenter/src/scene_server/operation_server/service"
+	"configdatabase/src/auth"
+	"configdatabase/src/auth/extensions"
+	"configdatabase/src/common"
+	"configdatabase/src/common/backbone"
+	"configdatabase/src/common/blog"
+	"configdatabase/src/common/types"
+	"configdatabase/src/common/version"
+	"configdatabase/src/scene_server/operation_server/app/options"
+	"configdatabase/src/scene_server/operation_server/service"
 )
 
 func Run(ctx context.Context, cancel context.CancelFunc, op *options.ServerOption) error {

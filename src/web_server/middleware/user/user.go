@@ -15,8 +15,8 @@ package user
 import (
 	"plugin"
 
-	"configcenter/src/common/backbone"
-	"configcenter/src/web_server/app/options"
+	"configdatabase/src/common/backbone"
+	"configdatabase/src/web_server/app/options"
 
 	"github.com/gin-gonic/gin"
 	"gopkg.in/redis.v5"

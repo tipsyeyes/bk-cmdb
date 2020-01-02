@@ -13,11 +13,11 @@
 package v3
 
 import (
-	cccommon "configcenter/src/common"
-	"configcenter/src/framework/common"
-	"configcenter/src/framework/core/log"
+	cccommon "configdatabase/src/common"
+	"configdatabase/src/framework/common"
+	"configdatabase/src/framework/core/log"
 
-	"configcenter/src/framework/core/types"
+	"configdatabase/src/framework/core/types"
 	"encoding/json"
 	"errors"
 	"fmt"

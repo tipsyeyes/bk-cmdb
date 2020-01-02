@@ -15,14 +15,14 @@ package service
 import (
 	"plugin"
 
-	"configcenter/src/common"
-	"configcenter/src/common/backbone"
-	"configcenter/src/common/metadata"
-	"configcenter/src/common/metric"
-	"configcenter/src/common/types"
-	"configcenter/src/web_server/app/options"
-	"configcenter/src/web_server/logics"
-	"configcenter/src/web_server/middleware"
+	"configdatabase/src/common"
+	"configdatabase/src/common/backbone"
+	"configdatabase/src/common/metadata"
+	"configdatabase/src/common/metric"
+	"configdatabase/src/common/types"
+	"configdatabase/src/web_server/app/options"
+	"configdatabase/src/web_server/logics"
+	"configdatabase/src/web_server/middleware"
 
 	"github.com/gin-gonic/gin"
 	"github.com/holmeswang/contrib/sessions"

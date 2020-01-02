@@ -15,7 +15,7 @@ package plugin
 import (
 	"sync/atomic"
 
-	"configcenter/src/common/metric"
+	"configdatabase/src/common/metric"
 )
 
 //integer

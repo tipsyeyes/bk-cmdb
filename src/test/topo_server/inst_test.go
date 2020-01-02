@@ -6,8 +6,8 @@ import (
 	"fmt"
 	"strconv"
 
-	"configcenter/src/common/metadata"
-	"configcenter/src/test"
+	"configdatabase/src/common/metadata"
+	"configdatabase/src/test"
 
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"

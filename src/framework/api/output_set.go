@@ -13,7 +13,7 @@
 package api
 
 import (
-	"configcenter/src/framework/common"
+	"configdatabase/src/framework/common"
 )
 
 // CreateSet create a new set object

@@ -15,10 +15,10 @@ package service
 import (
 	"strconv"
 
-	"configcenter/src/auth/meta"
-	"configcenter/src/common"
-	"configcenter/src/common/http/rest"
-	"configcenter/src/common/metadata"
+	"configdatabase/src/auth/meta"
+	"configdatabase/src/common"
+	"configdatabase/src/common/http/rest"
+	"configdatabase/src/common/metadata"
 )
 
 // create a process template for a service template.

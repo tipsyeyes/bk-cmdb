@@ -15,14 +15,14 @@ package identifier
 import (
 	"strconv"
 
-	"configcenter/src/common"
-	"configcenter/src/common/blog"
-	"configcenter/src/common/condition"
-	"configcenter/src/common/metadata"
-	"configcenter/src/common/util"
-	"configcenter/src/source_controller/coreservice/core"
-	hostutil "configcenter/src/source_controller/coreservice/core/host/util"
-	"configcenter/src/storage/dal"
+	"configdatabase/src/common"
+	"configdatabase/src/common/blog"
+	"configdatabase/src/common/condition"
+	"configdatabase/src/common/metadata"
+	"configdatabase/src/common/util"
+	"configdatabase/src/source_controller/coreservice/core"
+	hostutil "configdatabase/src/source_controller/coreservice/core/host/util"
+	"configdatabase/src/storage/dal"
 )
 
 type Identifier struct {

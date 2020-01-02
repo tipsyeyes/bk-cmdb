@@ -20,12 +20,12 @@ import (
 	"strconv"
 	"time"
 
-	"configcenter/src/common"
-	"configcenter/src/common/blog"
-	"configcenter/src/common/metadata"
-	"configcenter/src/common/util"
-	"configcenter/src/scene_server/event_server/types"
-	"configcenter/src/storage/dal"
+	"configdatabase/src/common"
+	"configdatabase/src/common/blog"
+	"configdatabase/src/common/metadata"
+	"configdatabase/src/common/util"
+	"configdatabase/src/scene_server/event_server/types"
+	"configdatabase/src/storage/dal"
 
 	"gopkg.in/redis.v5"
 )

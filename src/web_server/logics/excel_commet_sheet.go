@@ -13,14 +13,14 @@
 package logics
 
 import (
-	"configcenter/src/common/util"
+	"configdatabase/src/common/util"
 	"context"
 	"encoding/json"
 	"strings"
 
-	"configcenter/src/common"
-	"configcenter/src/common/blog"
-	lang "configcenter/src/common/language"
+	"configdatabase/src/common"
+	"configdatabase/src/common/blog"
+	lang "configdatabase/src/common/language"
 
 	"github.com/rentiansheng/xlsx"
 )

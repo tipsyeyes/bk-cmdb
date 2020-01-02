@@ -13,17 +13,17 @@
 package local
 
 import (
-	"configcenter/src/common"
-	"configcenter/src/common/blog"
+	"configdatabase/src/common"
+	"configdatabase/src/common/blog"
 	"context"
 	"errors"
 	"strings"
 	"time"
 
-	// "configcenter/src/common/blog"
-	"configcenter/src/common/util"
-	"configcenter/src/storage/dal"
-	"configcenter/src/storage/types"
+	// "configdatabase/src/common/blog"
+	"configdatabase/src/common/util"
+	"configdatabase/src/storage/dal"
+	"configdatabase/src/storage/types"
 
 	"gopkg.in/mgo.v2"
 	"gopkg.in/mgo.v2/bson"

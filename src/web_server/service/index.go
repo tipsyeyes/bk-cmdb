@@ -13,8 +13,8 @@
 package service
 
 import (
-	"configcenter/src/common"
-	"configcenter/src/common/version"
+	"configdatabase/src/common"
+	"configdatabase/src/common/version"
 
 	"github.com/gin-gonic/gin"
 	"github.com/holmeswang/contrib/sessions"

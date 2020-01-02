@@ -15,12 +15,12 @@ package middleware
 import (
 	"net/http"
 
-	"configcenter/src/apimachinery"
-	"configcenter/src/common"
-	"configcenter/src/common/blog"
-	"configcenter/src/common/json"
-	"configcenter/src/common/metadata"
-	"configcenter/src/common/util"
+	"configdatabase/src/apimachinery"
+	"configdatabase/src/common"
+	"configdatabase/src/common/blog"
+	"configdatabase/src/common/json"
+	"configdatabase/src/common/metadata"
+	"configdatabase/src/common/util"
 )
 
 func GetAuditLogHeader(clientSet apimachinery.ClientSetInterface, header http.Header, objID string) ([]metadata.Header, error) {

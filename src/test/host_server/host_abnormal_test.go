@@ -18,10 +18,10 @@ import (
 	"strconv"
 	"strings"
 
-	"configcenter/src/common/mapstr"
-	"configcenter/src/common/metadata"
-	params "configcenter/src/common/paraparse"
-	"configcenter/src/test"
+	"configdatabase/src/common/mapstr"
+	"configdatabase/src/common/metadata"
+	params "configdatabase/src/common/paraparse"
+	"configdatabase/src/test"
 
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"

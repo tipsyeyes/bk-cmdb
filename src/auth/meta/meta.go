@@ -13,7 +13,7 @@
 package meta
 
 import (
-	"configcenter/src/common/metadata"
+	"configdatabase/src/common/metadata"
 )
 
 type AuthAttribute struct {

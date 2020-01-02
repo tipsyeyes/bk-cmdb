@@ -16,11 +16,11 @@ import (
 	"context"
 	"net/http"
 
-	"configcenter/src/common/blog"
-	"configcenter/src/common/errors"
-	"configcenter/src/common/metadata"
-	"configcenter/src/common/selector"
-	"configcenter/src/common/util"
+	"configdatabase/src/common/blog"
+	"configdatabase/src/common/errors"
+	"configdatabase/src/common/metadata"
+	"configdatabase/src/common/selector"
+	"configdatabase/src/common/util"
 )
 
 func (l *label) AddLabel(ctx context.Context, h http.Header, tableName string, option selector.LabelAddOption) errors.CCErrorCoder {

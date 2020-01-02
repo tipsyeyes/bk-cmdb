@@ -15,9 +15,9 @@ package rest
 import (
 	"net/http"
 
-	"configcenter/src/apimachinery/flowctrl"
-	"configcenter/src/framework/clientset/discovery"
-	chttp "configcenter/src/framework/common/http"
+	"configdatabase/src/apimachinery/flowctrl"
+	"configdatabase/src/framework/clientset/discovery"
+	chttp "configdatabase/src/framework/common/http"
 )
 
 // http request verb type

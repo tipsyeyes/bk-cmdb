@@ -13,8 +13,8 @@
 package service
 
 import (
-	"configcenter/src/common/http/rest"
-	"configcenter/src/common/metadata"
+	"configdatabase/src/common/http/rest"
+	"configdatabase/src/common/metadata"
 )
 
 func (s *Service) CreateTask(ctx *rest.Contexts) {

@@ -15,8 +15,8 @@ import (
 	"context"
 	"net/http"
 
-	"configcenter/src/common/metadata"
-	"configcenter/src/thirdpartyclient/esbserver/esbutil"
+	"configdatabase/src/common/metadata"
+	"configdatabase/src/thirdpartyclient/esbserver/esbutil"
 )
 
 func (p *user) GetAllUsers(ctx context.Context, h http.Header) (resp *metadata.EsbUserListResponse, err error) {

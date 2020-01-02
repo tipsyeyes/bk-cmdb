@@ -24,8 +24,8 @@ import (
 	"sync/atomic"
 	"time"
 
-	"configcenter/src/common/blog"
-	"configcenter/src/common/util"
+	"configdatabase/src/common/blog"
+	"configdatabase/src/common/util"
 )
 
 var (

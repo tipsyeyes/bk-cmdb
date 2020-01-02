@@ -17,7 +17,7 @@ import (
 	"os"
 	"runtime"
 
-	"configcenter/src/tools/cmdb_ctl/app"
+	"configdatabase/src/tools/cmdb_ctl/app"
 )
 
 func main() {

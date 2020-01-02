@@ -15,7 +15,7 @@ import (
 	"context"
 	"net/http"
 
-	"configcenter/src/common/metadata"
+	"configdatabase/src/common/metadata"
 )
 
 func (tq *taskQueue) Post(ctx context.Context, header http.Header, path string, data interface{}) (resp *metadata.Response, err error) {

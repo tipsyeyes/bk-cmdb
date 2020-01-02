@@ -13,7 +13,7 @@
 package common
 
 import (
-	"configcenter/src/framework/core/types"
+	"configdatabase/src/framework/core/types"
 )
 
 // CreateCondition create a condition object

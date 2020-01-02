@@ -13,15 +13,15 @@
 package mainline
 
 import (
-	"configcenter/src/common/util"
+	"configdatabase/src/common/util"
 	"context"
 	"fmt"
 
-	"configcenter/src/common"
-	"configcenter/src/common/blog"
-	"configcenter/src/common/metadata"
-	"configcenter/src/common/universalsql/mongo"
-	"configcenter/src/storage/dal"
+	"configdatabase/src/common"
+	"configdatabase/src/common/blog"
+	"configdatabase/src/common/metadata"
+	"configdatabase/src/common/universalsql/mongo"
+	"configdatabase/src/storage/dal"
 )
 
 type ModelMainline struct {

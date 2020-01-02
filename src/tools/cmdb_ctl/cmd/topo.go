@@ -18,11 +18,11 @@ import (
 	"os"
 	"strconv"
 
-	"configcenter/src/common"
-	"configcenter/src/common/metadata"
-	"configcenter/src/common/universalsql/mongo"
-	"configcenter/src/common/util"
-	"configcenter/src/tools/cmdb_ctl/app/config"
+	"configdatabase/src/common"
+	"configdatabase/src/common/metadata"
+	"configdatabase/src/common/universalsql/mongo"
+	"configdatabase/src/common/util"
+	"configdatabase/src/tools/cmdb_ctl/app/config"
 
 	"github.com/spf13/cobra"
 )

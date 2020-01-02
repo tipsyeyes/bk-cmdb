@@ -18,13 +18,13 @@ import (
 	"strconv"
 	"strings"
 
-	"configcenter/src/common"
-	"configcenter/src/common/blog"
-	"configcenter/src/common/errors"
-	"configcenter/src/common/mapstr"
-	"configcenter/src/common/metadata"
-	hostParse "configcenter/src/common/paraparse"
-	"configcenter/src/common/util"
+	"configdatabase/src/common"
+	"configdatabase/src/common/blog"
+	"configdatabase/src/common/errors"
+	"configdatabase/src/common/mapstr"
+	"configdatabase/src/common/metadata"
+	hostParse "configdatabase/src/common/paraparse"
+	"configdatabase/src/common/util"
 )
 
 func (lgc *Logics) SearchHost(ctx context.Context, data *metadata.HostCommonSearch, isDetail bool) (*metadata.SearchHost, error) {

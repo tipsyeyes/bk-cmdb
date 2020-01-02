@@ -19,12 +19,12 @@ import (
 	"reflect"
 	"strings"
 
-	"configcenter/src/auth/extensions"
-	"configcenter/src/common"
-	"configcenter/src/common/blog"
-	"configcenter/src/common/mapstr"
-	"configcenter/src/common/metadata"
-	"configcenter/src/scene_server/admin_server/authsynchronizer/meta"
+	"configdatabase/src/auth/extensions"
+	"configdatabase/src/common"
+	"configdatabase/src/common/blog"
+	"configdatabase/src/common/mapstr"
+	"configdatabase/src/common/metadata"
+	"configdatabase/src/scene_server/admin_server/authsynchronizer/meta"
 )
 
 var (

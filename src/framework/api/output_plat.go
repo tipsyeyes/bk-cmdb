@@ -16,7 +16,7 @@ import (
 	"io"
 	"strings"
 
-	"configcenter/src/framework/common"
+	"configdatabase/src/framework/common"
 )
 
 // CreatePlat create a new plat object

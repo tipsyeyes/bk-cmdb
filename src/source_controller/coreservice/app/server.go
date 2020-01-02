@@ -18,16 +18,16 @@ import (
 	"os"
 	"time"
 
-	"configcenter/src/common"
-	"configcenter/src/common/backbone"
-	cc "configcenter/src/common/backbone/configcenter"
-	"configcenter/src/common/blog"
-	"configcenter/src/common/types"
-	"configcenter/src/common/version"
-	"configcenter/src/source_controller/coreservice/app/options"
-	coresvr "configcenter/src/source_controller/coreservice/service"
-	"configcenter/src/storage/dal/mongo"
-	"configcenter/src/storage/dal/redis"
+	"configdatabase/src/common"
+	"configdatabase/src/common/backbone"
+	cc "configdatabase/src/common/backbone/configcenter"
+	"configdatabase/src/common/blog"
+	"configdatabase/src/common/types"
+	"configdatabase/src/common/version"
+	"configdatabase/src/source_controller/coreservice/app/options"
+	coresvr "configdatabase/src/source_controller/coreservice/service"
+	"configdatabase/src/storage/dal/mongo"
+	"configdatabase/src/storage/dal/redis"
 )
 
 // CoreServer the core server

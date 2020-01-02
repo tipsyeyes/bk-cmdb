@@ -13,8 +13,8 @@
 package instances
 
 import (
-	"configcenter/src/common/metadata"
-	"configcenter/src/source_controller/coreservice/core"
+	"configdatabase/src/common/metadata"
+	"configdatabase/src/source_controller/coreservice/core"
 )
 
 // ATTENTIONS: the dependent methods of the other module

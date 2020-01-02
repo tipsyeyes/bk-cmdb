@@ -17,8 +17,8 @@ import (
 	"fmt"
 	"net/http"
 
-	"configcenter/src/common/metadata"
-	params "configcenter/src/common/paraparse"
+	"configdatabase/src/common/metadata"
+	params "configdatabase/src/common/paraparse"
 )
 
 func (hs *hostServer) DeleteHostBatch(ctx context.Context, h http.Header, dat interface{}) (resp *metadata.Response, err error) {

@@ -13,11 +13,11 @@
 package inst
 
 import (
-	"configcenter/src/framework/common"
-	"configcenter/src/framework/core/errors"
-	"configcenter/src/framework/core/output/module/client"
-	"configcenter/src/framework/core/output/module/model"
-	"configcenter/src/framework/core/types"
+	"configdatabase/src/framework/common"
+	"configdatabase/src/framework/core/errors"
+	"configdatabase/src/framework/core/output/module/client"
+	"configdatabase/src/framework/core/output/module/model"
+	"configdatabase/src/framework/core/types"
 )
 
 var _ BusinessInterface = (*business)(nil)

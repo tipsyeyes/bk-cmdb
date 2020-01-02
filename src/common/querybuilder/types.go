@@ -17,7 +17,7 @@ import (
 	"regexp"
 	"time"
 
-	"configcenter/src/common"
+	"configdatabase/src/common"
 )
 
 type Rule interface {

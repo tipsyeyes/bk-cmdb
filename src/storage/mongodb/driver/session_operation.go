@@ -13,7 +13,7 @@
 package driver
 
 import (
-	"configcenter/src/storage/mongodb"
+	"configdatabase/src/storage/mongodb"
 )
 
 var _ mongodb.SessionOperation = (*sessionOperation)(nil)

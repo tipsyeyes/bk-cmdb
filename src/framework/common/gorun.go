@@ -13,7 +13,7 @@
 package common
 
 import (
-	"configcenter/src/framework/core/log"
+	"configdatabase/src/framework/core/log"
 	"runtime/debug"
 )
 

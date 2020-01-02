@@ -13,11 +13,11 @@
 package model
 
 import (
-	"configcenter/src/common"
-	"configcenter/src/common/mapstr"
-	"configcenter/src/common/metadata"
-	"configcenter/src/common/universalsql"
-	"configcenter/src/source_controller/coreservice/core"
+	"configdatabase/src/common"
+	"configdatabase/src/common/mapstr"
+	"configdatabase/src/common/metadata"
+	"configdatabase/src/common/universalsql"
+	"configdatabase/src/source_controller/coreservice/core"
 )
 
 func (g *modelAttributeGroup) count(ctx core.ContextParams, cond universalsql.Condition) (count int64, err error) {

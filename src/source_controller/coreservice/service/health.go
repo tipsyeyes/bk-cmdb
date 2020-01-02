@@ -15,10 +15,10 @@ package service
 import (
 	"github.com/emicklei/go-restful"
 
-	"configcenter/src/common"
-	"configcenter/src/common/metadata"
-	"configcenter/src/common/metric"
-	"configcenter/src/common/types"
+	"configdatabase/src/common"
+	"configdatabase/src/common/metadata"
+	"configdatabase/src/common/metric"
+	"configdatabase/src/common/types"
 )
 
 func (s *coreService) Healthz(req *restful.Request, resp *restful.Response) {

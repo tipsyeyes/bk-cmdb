@@ -18,8 +18,8 @@ import (
 	"net/http"
 	"strconv"
 
-	"configcenter/src/auth/meta"
-	"configcenter/src/common/blog"
+	"configdatabase/src/auth/meta"
+	"configdatabase/src/common/blog"
 )
 
 func (ac *AuthCenter) Init(ctx context.Context, configs meta.InitConfig) error {

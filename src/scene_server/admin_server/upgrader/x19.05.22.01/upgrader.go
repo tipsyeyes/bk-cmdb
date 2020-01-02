@@ -15,9 +15,9 @@ package x19_05_22_01
 import (
 	"context"
 
-	"configcenter/src/common"
-	"configcenter/src/scene_server/admin_server/upgrader"
-	"configcenter/src/storage/dal"
+	"configdatabase/src/common"
+	"configdatabase/src/scene_server/admin_server/upgrader"
+	"configdatabase/src/storage/dal"
 
 	"gopkg.in/mgo.v2"
 )

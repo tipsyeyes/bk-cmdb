@@ -30,7 +30,7 @@ import (
 	"syscall"
 	"time"
 
-	"configcenter/src/common/blog"
+	"configdatabase/src/common/blog"
 )
 
 // map[url]responseDataString

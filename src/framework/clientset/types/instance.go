@@ -12,7 +12,7 @@
 
 package types
 
-import "configcenter/src/framework/core/types"
+import "configdatabase/src/framework/core/types"
 
 type CreateInstanceCtx struct {
 	BaseCtx

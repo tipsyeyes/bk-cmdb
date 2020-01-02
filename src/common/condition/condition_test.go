@@ -16,7 +16,7 @@ import (
 	"encoding/json"
 	"testing"
 
-	"configcenter/src/common/mapstr"
+	"configdatabase/src/common/mapstr"
 )
 
 func TestCondition(t *testing.T) {

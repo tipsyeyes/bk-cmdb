@@ -16,11 +16,11 @@ import (
 	"context"
 	"fmt"
 
-	"configcenter/src/auth/extensions"
-	authmeta "configcenter/src/auth/meta"
-	"configcenter/src/common/blog"
-	"configcenter/src/scene_server/admin_server/authsynchronizer/meta"
-	"configcenter/src/scene_server/admin_server/authsynchronizer/utils"
+	"configdatabase/src/auth/extensions"
+	authmeta "configdatabase/src/auth/meta"
+	"configdatabase/src/common/blog"
+	"configdatabase/src/scene_server/admin_server/authsynchronizer/meta"
+	"configdatabase/src/scene_server/admin_server/authsynchronizer/utils"
 )
 
 // HandleServiceTemplateSync do sync service template of one business

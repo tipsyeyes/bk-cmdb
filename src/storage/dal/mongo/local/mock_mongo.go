@@ -18,8 +18,8 @@ import (
 	"errors"
 	"strings"
 
-	"configcenter/src/storage/dal"
-	"configcenter/src/storage/types"
+	"configdatabase/src/storage/dal"
+	"configdatabase/src/storage/types"
 
 	"gopkg.in/mgo.v2"
 	"gopkg.in/mgo.v2/bson"

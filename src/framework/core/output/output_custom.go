@@ -13,9 +13,9 @@
 package output
 
 import (
-	"configcenter/src/framework/common"
-	"configcenter/src/framework/core/log"
-	"configcenter/src/framework/core/types"
+	"configdatabase/src/framework/common"
+	"configdatabase/src/framework/core/log"
+	"configdatabase/src/framework/core/types"
 )
 
 func (cli *manager) AddOutputer(target Outputer) OutputerKey {

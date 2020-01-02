@@ -15,11 +15,11 @@ package inst
 import (
 	"errors"
 
-	"configcenter/src/framework/common"
-	"configcenter/src/framework/core/log"
-	"configcenter/src/framework/core/output/module/client"
-	"configcenter/src/framework/core/output/module/model"
-	"configcenter/src/framework/core/types"
+	"configdatabase/src/framework/common"
+	"configdatabase/src/framework/core/log"
+	"configdatabase/src/framework/core/output/module/client"
+	"configdatabase/src/framework/core/output/module/model"
+	"configdatabase/src/framework/core/types"
 )
 
 var _ ModuleInterface = (*module)(nil)

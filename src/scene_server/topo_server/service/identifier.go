@@ -15,10 +15,10 @@ package service
 import (
 	"encoding/json"
 
-	"configcenter/src/common"
-	"configcenter/src/common/mapstr"
-	"configcenter/src/common/metadata"
-	"configcenter/src/scene_server/topo_server/core/types"
+	"configdatabase/src/common"
+	"configdatabase/src/common/mapstr"
+	"configdatabase/src/common/metadata"
+	"configdatabase/src/scene_server/topo_server/core/types"
 )
 
 func (s *Service) ParseSearchIdentifierOriginData(data []byte) (mapstr.MapStr, error) {

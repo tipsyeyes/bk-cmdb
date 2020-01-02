@@ -21,12 +21,12 @@ import (
 	"path/filepath"
 	"strings"
 
-	"configcenter/src/common/backbone/service_mange/zk"
-	"configcenter/src/common/blog"
-	"configcenter/src/common/confregdiscover"
-	"configcenter/src/common/errors"
-	"configcenter/src/common/language"
-	"configcenter/src/common/types"
+	"configdatabase/src/common/backbone/service_mange/zk"
+	"configdatabase/src/common/blog"
+	"configdatabase/src/common/confregdiscover"
+	"configdatabase/src/common/errors"
+	"configdatabase/src/common/language"
+	"configdatabase/src/common/types"
 )
 
 // ConfCenter discover configure changed. get, update configures

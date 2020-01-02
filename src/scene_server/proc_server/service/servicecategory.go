@@ -13,11 +13,11 @@
 package service
 
 import (
-	"configcenter/src/common"
-	"configcenter/src/common/blog"
-	"configcenter/src/common/errors"
-	"configcenter/src/common/http/rest"
-	"configcenter/src/common/metadata"
+	"configdatabase/src/common"
+	"configdatabase/src/common/blog"
+	"configdatabase/src/common/errors"
+	"configdatabase/src/common/http/rest"
+	"configdatabase/src/common/metadata"
 )
 
 func (ps *ProcServer) ListServiceCategoryWithStatistics(ctx *rest.Contexts) {

@@ -19,7 +19,7 @@ import (
 
 	"gopkg.in/mgo.v2"
 
-	"configcenter/src/common/util"
+	"configdatabase/src/common/util"
 )
 
 type CMDBConfig struct {

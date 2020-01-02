@@ -15,8 +15,8 @@ package backbone
 import (
 	"net/http"
 
-	"configcenter/src/apimachinery"
-	"configcenter/src/common/types"
+	"configdatabase/src/apimachinery"
+	"configdatabase/src/common/types"
 )
 
 type Config struct {

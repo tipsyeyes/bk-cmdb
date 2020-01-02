@@ -15,9 +15,9 @@ package inst
 import (
 	"fmt"
 
-	"configcenter/src/framework/core/log"
-	"configcenter/src/framework/core/output/module/client"
-	"configcenter/src/framework/core/output/module/client/v3"
+	"configdatabase/src/framework/core/log"
+	"configdatabase/src/framework/core/output/module/client"
+	"configdatabase/src/framework/core/output/module/client/v3"
 )
 
 // TransferInterface host trnasfer operation

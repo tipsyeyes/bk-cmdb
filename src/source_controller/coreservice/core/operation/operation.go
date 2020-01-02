@@ -15,13 +15,13 @@ package operation
 import (
 	"fmt"
 
-	"configcenter/src/common"
-	"configcenter/src/common/blog"
-	"configcenter/src/common/mapstr"
-	"configcenter/src/common/metadata"
-	"configcenter/src/source_controller/coreservice/core"
-	"configcenter/src/source_controller/coreservice/core/instances"
-	"configcenter/src/storage/dal"
+	"configdatabase/src/common"
+	"configdatabase/src/common/blog"
+	"configdatabase/src/common/mapstr"
+	"configdatabase/src/common/metadata"
+	"configdatabase/src/source_controller/coreservice/core"
+	"configdatabase/src/source_controller/coreservice/core/instances"
+	"configdatabase/src/storage/dal"
 )
 
 var _ core.StatisticOperation = (*operationManager)(nil)

@@ -21,17 +21,17 @@ import (
 
 	"github.com/emicklei/go-restful"
 
-	"configcenter/src/common"
-	"configcenter/src/common/backbone"
-	cc "configcenter/src/common/backbone/configcenter"
-	//"configcenter/src/common/blog"
-	"configcenter/src/common/types"
-	"configcenter/src/common/version"
-	"configcenter/src/scene_server/synchronize_server/app/options"
-	synchronizeService "configcenter/src/scene_server/synchronize_server/service"
-	//"configcenter/src/storage/dal/redis"
-	synchronizeClient "configcenter/src/apimachinery/synchronize"
-	synchronizeUtil "configcenter/src/apimachinery/synchronize/util"
+	"configdatabase/src/common"
+	"configdatabase/src/common/backbone"
+	cc "configdatabase/src/common/backbone/configcenter"
+	//"configdatabase/src/common/blog"
+	"configdatabase/src/common/types"
+	"configdatabase/src/common/version"
+	"configdatabase/src/scene_server/synchronize_server/app/options"
+	synchronizeService "configdatabase/src/scene_server/synchronize_server/service"
+	//"configdatabase/src/storage/dal/redis"
+	synchronizeClient "configdatabase/src/apimachinery/synchronize"
+	synchronizeUtil "configdatabase/src/apimachinery/synchronize/util"
 )
 
 func Run(ctx context.Context, cancel context.CancelFunc, op *options.ServerOption) error {

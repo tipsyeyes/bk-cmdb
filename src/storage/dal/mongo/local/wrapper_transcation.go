@@ -16,7 +16,7 @@ import (
 	"context"
 	"net/http"
 
-	"configcenter/src/storage/dal"
+	"configdatabase/src/storage/dal"
 )
 
 // AutoRun Interface for automatic processing of encapsulated transactions

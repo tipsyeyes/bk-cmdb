@@ -13,10 +13,10 @@
 package host
 
 import (
-	"configcenter/src/common/blog"
-	"configcenter/src/common/metadata"
-	"configcenter/src/source_controller/coreservice/core"
-	"configcenter/src/source_controller/coreservice/core/host/identifier"
+	"configdatabase/src/common/blog"
+	"configdatabase/src/common/metadata"
+	"configdatabase/src/source_controller/coreservice/core"
+	"configdatabase/src/source_controller/coreservice/core/host/identifier"
 )
 
 func (hm *hostManager) Identifier(ctx core.ContextParams, input *metadata.SearchHostIdentifierParam) ([]metadata.HostIdentifier, error) {

@@ -18,8 +18,8 @@ import (
 	"testing"
 	"time"
 
-	"configcenter/src/common"
-	"configcenter/src/storage/dal"
+	"configdatabase/src/common"
+	"configdatabase/src/storage/dal"
 
 	"github.com/stretchr/testify/require"
 )

@@ -13,8 +13,8 @@
 package app
 
 import (
-	"configcenter/src/tools/cmdb_ctl/app/config"
-	"configcenter/src/tools/cmdb_ctl/cmd"
+	"configdatabase/src/tools/cmdb_ctl/app/config"
+	"configdatabase/src/tools/cmdb_ctl/cmd"
 )
 
 func Run() error {

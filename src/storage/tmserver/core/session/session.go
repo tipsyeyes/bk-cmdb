@@ -13,8 +13,8 @@
 package session
 
 import (
-	"configcenter/src/storage/mongodb"
-	"configcenter/src/storage/types"
+	"configdatabase/src/storage/mongodb"
+	"configdatabase/src/storage/types"
 )
 
 // Session transaction session

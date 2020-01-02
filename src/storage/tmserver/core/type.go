@@ -16,8 +16,8 @@ import (
 	"context"
 	"time"
 
-	"configcenter/src/storage/mongodb"
-	"configcenter/src/storage/types"
+	"configdatabase/src/storage/mongodb"
+	"configdatabase/src/storage/types"
 )
 
 // ContextParams the logics function params

@@ -16,10 +16,10 @@ import (
 	"context"
 	"fmt"
 
-	authmeta "configcenter/src/auth/meta"
-	"configcenter/src/common/blog"
-	"configcenter/src/scene_server/admin_server/authsynchronizer/meta"
-	"configcenter/src/scene_server/admin_server/authsynchronizer/utils"
+	authmeta "configdatabase/src/auth/meta"
+	"configdatabase/src/common/blog"
+	"configdatabase/src/scene_server/admin_server/authsynchronizer/meta"
+	"configdatabase/src/scene_server/admin_server/authsynchronizer/utils"
 )
 
 // HandleBusinessSync do sync all business to iam

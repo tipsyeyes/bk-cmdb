@@ -13,8 +13,8 @@
 package core
 
 import (
-	"configcenter/src/storage/rpc"
-	"configcenter/src/storage/types"
+	"configdatabase/src/storage/rpc"
+	"configdatabase/src/storage/types"
 )
 
 var (

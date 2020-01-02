@@ -11,7 +11,7 @@
  */
 package metadata
 
-import "configcenter/src/common/mapstr"
+import "configdatabase/src/common/mapstr"
 
 // UpdateOption common update options
 type UpdateOption struct {

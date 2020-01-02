@@ -13,7 +13,7 @@
 package condition
 
 import (
-	types "configcenter/src/common/mapstr"
+	types "configdatabase/src/common/mapstr"
 )
 
 // Field create a field

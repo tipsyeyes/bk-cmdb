@@ -16,7 +16,7 @@ import (
 	"fmt"
 	"net/http"
 
-	"configcenter/src/thirdpartyclient/esbserver/esbutil"
+	"configdatabase/src/thirdpartyclient/esbserver/esbutil"
 )
 
 func (p *nodeman) SearchPackage(ctx context.Context, h http.Header, processname string) (resp *SearchPluginPackageResult, err error) {

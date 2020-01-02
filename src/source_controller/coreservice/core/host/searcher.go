@@ -13,8 +13,8 @@
 package host
 
 import (
-	"configcenter/src/common/metadata"
-	"configcenter/src/source_controller/coreservice/core"
+	"configdatabase/src/common/metadata"
+	"configdatabase/src/source_controller/coreservice/core"
 )
 
 func (hm *hostManager) ListHosts(ctx core.ContextParams, input metadata.ListHosts) (*metadata.ListHostResult, error) {

@@ -16,7 +16,7 @@ import (
 	"encoding/json"
 	"fmt"
 
-	"configcenter/src/common/mapstr"
+	"configdatabase/src/common/mapstr"
 )
 
 type RuleGroup struct {

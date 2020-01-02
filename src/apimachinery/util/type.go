@@ -15,8 +15,8 @@ package util
 import (
 	"fmt"
 
-	"configcenter/src/apimachinery/discovery"
-	"configcenter/src/apimachinery/flowctrl"
+	"configdatabase/src/apimachinery/discovery"
+	"configdatabase/src/apimachinery/flowctrl"
 	"github.com/prometheus/client_golang/prometheus"
 )
 

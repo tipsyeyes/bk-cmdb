@@ -15,9 +15,9 @@ package operation
 import (
 	"time"
 
-	"configcenter/src/common/mapstr"
-	"configcenter/src/common/metadata"
-	"configcenter/src/scene_server/topo_server/core/model"
+	"configdatabase/src/common/mapstr"
+	"configdatabase/src/common/metadata"
+	"configdatabase/src/scene_server/topo_server/core/model"
 )
 
 type opcondition struct {

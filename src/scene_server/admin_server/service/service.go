@@ -15,16 +15,16 @@ package service
 import (
 	"context"
 
-	"configcenter/src/auth/authcenter"
-	"configcenter/src/common"
-	"configcenter/src/common/backbone"
-	"configcenter/src/common/errors"
-	"configcenter/src/common/metadata"
-	"configcenter/src/common/metric"
-	"configcenter/src/common/rdapi"
-	"configcenter/src/common/types"
-	"configcenter/src/scene_server/admin_server/app/options"
-	"configcenter/src/storage/dal"
+	"configdatabase/src/auth/authcenter"
+	"configdatabase/src/common"
+	"configdatabase/src/common/backbone"
+	"configdatabase/src/common/errors"
+	"configdatabase/src/common/metadata"
+	"configdatabase/src/common/metric"
+	"configdatabase/src/common/rdapi"
+	"configdatabase/src/common/types"
+	"configdatabase/src/scene_server/admin_server/app/options"
+	"configdatabase/src/storage/dal"
 
 	"github.com/emicklei/go-restful"
 )

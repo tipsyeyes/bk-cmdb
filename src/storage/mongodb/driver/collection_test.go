@@ -17,10 +17,10 @@ import (
 	"encoding/json"
 	"testing"
 
-	"configcenter/src/common/mapstr"
-	"configcenter/src/common/universalsql/mongo"
-	"configcenter/src/storage/mongodb"
-	"configcenter/src/storage/mongodb/options/findopt"
+	"configdatabase/src/common/mapstr"
+	"configdatabase/src/common/universalsql/mongo"
+	"configdatabase/src/storage/mongodb"
+	"configdatabase/src/storage/mongodb/options/findopt"
 
 	"github.com/mongodb/mongo-go-driver/bson"
 	"github.com/mongodb/mongo-go-driver/x/bsonx"

@@ -19,11 +19,11 @@ import (
 	"strconv"
 	"time"
 
-	"configcenter/src/common"
-	"configcenter/src/common/backbone/configcenter"
-	"configcenter/src/common/types"
-	ccRedis "configcenter/src/storage/dal/redis"
-	"configcenter/src/tools/cmdb_ctl/app/config"
+	"configdatabase/src/common"
+	"configdatabase/src/common/backbone/configcenter"
+	"configdatabase/src/common/types"
+	ccRedis "configdatabase/src/storage/dal/redis"
+	"configdatabase/src/tools/cmdb_ctl/app/config"
 
 	"github.com/spf13/cobra"
 	"gopkg.in/redis.v5"

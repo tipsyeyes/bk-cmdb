@@ -17,10 +17,10 @@ import (
 	"sync"
 	"time"
 
-	"configcenter/src/common/blog"
-	"configcenter/src/common/util"
-	"configcenter/src/storage/dal"
-	"configcenter/src/storage/rpc"
+	"configdatabase/src/common/blog"
+	"configdatabase/src/common/util"
+	"configdatabase/src/storage/dal"
+	"configdatabase/src/storage/rpc"
 )
 
 type pool struct {

@@ -17,10 +17,10 @@ import (
 	"fmt"
 	"strconv"
 
-	"configcenter/src/common/blog"
-	"configcenter/src/common/json"
-	"configcenter/src/common/mapstr"
-	"configcenter/src/common/util"
+	"configdatabase/src/common/blog"
+	"configdatabase/src/common/json"
+	"configdatabase/src/common/mapstr"
+	"configdatabase/src/common/util"
 )
 
 type ModelKind string

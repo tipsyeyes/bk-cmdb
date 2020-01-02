@@ -20,10 +20,10 @@ import (
 	"sync"
 	"time"
 
-	"configcenter/src/auth/extensions"
-	"configcenter/src/common"
-	"configcenter/src/common/blog"
-	"configcenter/src/storage/dal"
+	"configdatabase/src/auth/extensions"
+	"configdatabase/src/common"
+	"configdatabase/src/common/blog"
+	"configdatabase/src/storage/dal"
 
 	"github.com/tidwall/gjson"
 	"gopkg.in/redis.v5"

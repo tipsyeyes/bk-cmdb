@@ -23,10 +23,10 @@ import (
 
 	"gopkg.in/redis.v5"
 
-	"configcenter/src/common/blog"
-	"configcenter/src/common/http/httpclient"
-	"configcenter/src/common/metadata"
-	"configcenter/src/scene_server/event_server/types"
+	"configdatabase/src/common/blog"
+	"configdatabase/src/common/http/httpclient"
+	"configdatabase/src/common/metadata"
+	"configdatabase/src/scene_server/event_server/types"
 )
 
 func (dh *DistHandler) SendCallback(receiver *metadata.Subscription, event string) (err error) {

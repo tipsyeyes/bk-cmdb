@@ -13,11 +13,11 @@
 package association
 
 import (
-	"configcenter/src/common"
-	"configcenter/src/common/mapstr"
-	"configcenter/src/common/metadata"
-	"configcenter/src/common/universalsql/mongo"
-	"configcenter/src/source_controller/coreservice/core"
+	"configdatabase/src/common"
+	"configdatabase/src/common/mapstr"
+	"configdatabase/src/common/metadata"
+	"configdatabase/src/common/universalsql/mongo"
+	"configdatabase/src/source_controller/coreservice/core"
 )
 
 func (m *associationKind) isExists(ctx core.ContextParams, associationKindID string) (origin *metadata.AssociationKind, exists bool, err error) {

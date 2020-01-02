@@ -15,7 +15,7 @@ package datacollection
 import (
 	"time"
 
-	"configcenter/src/common"
+	"configdatabase/src/common"
 )
 
 const (

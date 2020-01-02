@@ -21,12 +21,12 @@ import (
 
 	"gopkg.in/redis.v5"
 
-	"configcenter/src/common"
-	"configcenter/src/common/blog"
-	"configcenter/src/common/util"
-	"configcenter/src/scene_server/event_server/identifier"
-	"configcenter/src/storage/dal"
-	"configcenter/src/storage/rpc"
+	"configdatabase/src/common"
+	"configdatabase/src/common/blog"
+	"configdatabase/src/common/util"
+	"configdatabase/src/scene_server/event_server/identifier"
+	"configdatabase/src/storage/dal"
+	"configdatabase/src/storage/rpc"
 )
 
 func Start(ctx context.Context, cache *redis.Client, db dal.RDB, rc rpc.Client) error {

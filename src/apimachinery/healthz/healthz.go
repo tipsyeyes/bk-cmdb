@@ -17,11 +17,11 @@ import (
 	"errors"
 	"fmt"
 
-	"configcenter/src/apimachinery/discovery"
-	"configcenter/src/apimachinery/rest"
-	"configcenter/src/apimachinery/util"
-	"configcenter/src/common/metric"
-	"configcenter/src/common/types"
+	"configdatabase/src/apimachinery/discovery"
+	"configdatabase/src/apimachinery/rest"
+	"configdatabase/src/apimachinery/util"
+	"configdatabase/src/common/metric"
+	"configdatabase/src/common/types"
 )
 
 type HealthzInterface interface {

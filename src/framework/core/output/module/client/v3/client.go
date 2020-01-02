@@ -13,10 +13,10 @@
 package v3
 
 import (
-	"configcenter/src/common"
-	"configcenter/src/common/http/httpclient"
-	"configcenter/src/framework/core/config"
-	"configcenter/src/framework/core/discovery"
+	"configdatabase/src/common"
+	"configdatabase/src/common/http/httpclient"
+	"configdatabase/src/framework/core/config"
+	"configdatabase/src/framework/core/discovery"
 )
 
 type CCV3Interface interface {

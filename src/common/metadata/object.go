@@ -13,8 +13,8 @@
 package metadata
 
 import (
-	"configcenter/src/common"
-	"configcenter/src/common/mapstr"
+	"configdatabase/src/common"
+	"configdatabase/src/common/mapstr"
 )
 
 const (

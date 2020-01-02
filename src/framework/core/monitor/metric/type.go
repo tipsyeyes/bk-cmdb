@@ -13,7 +13,7 @@
 package metric
 
 import (
-	"configcenter/src/framework/core/httpserver"
+	"configdatabase/src/framework/core/httpserver"
 )
 
 // Metric interface

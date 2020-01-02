@@ -19,8 +19,8 @@ import (
 	"github.com/rs/xid"
 	"github.com/stretchr/testify/require"
 
-	"configcenter/src/common/mapstr"
-	"configcenter/src/storage/dal/mongo/remote"
+	"configdatabase/src/common/mapstr"
+	"configdatabase/src/storage/dal/mongo/remote"
 )
 
 func TestTransaction(t *testing.T) {

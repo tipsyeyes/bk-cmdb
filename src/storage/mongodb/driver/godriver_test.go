@@ -14,8 +14,8 @@ package driver_test
 import (
 	"testing"
 
-	"configcenter/src/storage/mongodb"
-	"configcenter/src/storage/mongodb/driver"
+	"configdatabase/src/storage/mongodb"
+	"configdatabase/src/storage/mongodb/driver"
 
 	"github.com/stretchr/testify/require"
 )

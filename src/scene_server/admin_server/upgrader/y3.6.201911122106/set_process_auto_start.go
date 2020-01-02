@@ -15,9 +15,9 @@ package y3_6_201911122106
 import (
 	"context"
 
-	"configcenter/src/common"
-	"configcenter/src/scene_server/admin_server/upgrader"
-	"configcenter/src/storage/dal"
+	"configdatabase/src/common"
+	"configdatabase/src/scene_server/admin_server/upgrader"
+	"configdatabase/src/storage/dal"
 )
 
 // set process model's attribute auto_start's bk_isapi field value to true

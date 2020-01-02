@@ -15,13 +15,13 @@ package operation
 import (
 	"context"
 
-	"configcenter/src/apimachinery"
-	"configcenter/src/auth/extensions"
-	"configcenter/src/common"
-	"configcenter/src/common/blog"
-	"configcenter/src/common/condition"
-	"configcenter/src/common/metadata"
-	"configcenter/src/scene_server/topo_server/core/types"
+	"configdatabase/src/apimachinery"
+	"configdatabase/src/auth/extensions"
+	"configdatabase/src/common"
+	"configdatabase/src/common/blog"
+	"configdatabase/src/common/condition"
+	"configdatabase/src/common/metadata"
+	"configdatabase/src/scene_server/topo_server/core/types"
 )
 
 // UniqueOperationInterface group operation methods

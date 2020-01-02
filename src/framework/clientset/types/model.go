@@ -15,7 +15,7 @@ package types
 import (
 	"time"
 
-	"configcenter/src/framework/core/types"
+	"configdatabase/src/framework/core/types"
 )
 
 type CreateModelCtx struct {

@@ -17,9 +17,9 @@ import (
 	"errors"
 	"fmt"
 
-	"configcenter/src/common"
-	"configcenter/src/scene_server/admin_server/upgrader"
-	"configcenter/src/storage/dal"
+	"configdatabase/src/common"
+	"configdatabase/src/scene_server/admin_server/upgrader"
+	"configdatabase/src/storage/dal"
 )
 
 // change set name of 集成平台 to PaaS平台 in blueking business

@@ -18,12 +18,12 @@ import (
 	"strconv"
 	"strings"
 
-	"configcenter/src/common"
-	"configcenter/src/common/blog"
-	"configcenter/src/common/errors"
-	"configcenter/src/common/mapstr"
-	meta "configcenter/src/common/metadata"
-	"configcenter/src/common/util"
+	"configdatabase/src/common"
+	"configdatabase/src/common/blog"
+	"configdatabase/src/common/errors"
+	"configdatabase/src/common/mapstr"
+	meta "configdatabase/src/common/metadata"
+	"configdatabase/src/common/util"
 )
 
 type InstNameAsst struct {

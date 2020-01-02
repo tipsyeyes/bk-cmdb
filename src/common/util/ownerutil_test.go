@@ -16,7 +16,7 @@ import (
 	"reflect"
 	"testing"
 
-	"configcenter/src/common"
+	"configdatabase/src/common"
 )
 
 func TestSetQueryOwner(t *testing.T) {

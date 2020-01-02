@@ -17,9 +17,9 @@ import (
 	"strings"
 	"unicode/utf8"
 
-	"configcenter/src/common"
-	"configcenter/src/common/mapstr"
-	"configcenter/src/scene_server/topo_server/core/types"
+	"configdatabase/src/common"
+	"configdatabase/src/common/mapstr"
+	"configdatabase/src/scene_server/topo_server/core/types"
 )
 
 // FieldValid field valid method

@@ -13,11 +13,11 @@
 package command
 
 import (
-	"configcenter/src/common/blog"
-	"configcenter/src/storage/rpc"
-	"configcenter/src/storage/tmserver/core"
-	"configcenter/src/storage/tmserver/core/session"
-	"configcenter/src/storage/types"
+	"configdatabase/src/common/blog"
+	"configdatabase/src/storage/rpc"
+	"configdatabase/src/storage/tmserver/core"
+	"configdatabase/src/storage/tmserver/core/session"
+	"configdatabase/src/storage/types"
 )
 
 func init() {

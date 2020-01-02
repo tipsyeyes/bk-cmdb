@@ -16,9 +16,9 @@ import (
 	"context"
 	"errors"
 
-	"configcenter/src/common"
-	"configcenter/src/storage/dal"
-	"configcenter/src/storage/types"
+	"configdatabase/src/common"
+	"configdatabase/src/storage/dal"
+	"configdatabase/src/storage/types"
 )
 
 // Start create a new transaction

@@ -19,10 +19,10 @@ import (
 	"runtime/debug"
 	"time"
 
-	"configcenter/src/common"
-	"configcenter/src/common/blog"
-	"configcenter/src/common/metadata"
-	"configcenter/src/scene_server/event_server/types"
+	"configdatabase/src/common"
+	"configdatabase/src/common/blog"
+	"configdatabase/src/common/metadata"
+	"configdatabase/src/scene_server/event_server/types"
 )
 
 func (dh *DistHandler) StartDistribute() (err error) {

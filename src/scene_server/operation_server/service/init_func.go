@@ -15,8 +15,8 @@ package service
 import (
 	"net/http"
 
-	"configcenter/src/common"
-	"configcenter/src/common/util"
+	"configdatabase/src/common"
+	"configdatabase/src/common/util"
 )
 
 func (o *OperationServer) InitFunc() {

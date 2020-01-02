@@ -16,11 +16,11 @@ import (
 	"context"
 	"errors"
 
-	"configcenter/src/common"
-	"configcenter/src/storage/dal"
-	"configcenter/src/storage/mongodb"
-	//"configcenter/src/storage/rpc"
-	"configcenter/src/storage/types"
+	"configdatabase/src/common"
+	"configdatabase/src/storage/dal"
+	"configdatabase/src/storage/mongodb"
+	//"configdatabase/src/storage/rpc"
+	"configdatabase/src/storage/types"
 )
 
 // Collection implement client.Collection interface

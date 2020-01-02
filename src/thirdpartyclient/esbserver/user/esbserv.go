@@ -15,9 +15,9 @@ import (
 	"context"
 	"net/http"
 
-	"configcenter/src/apimachinery/rest"
-	"configcenter/src/common/metadata"
-	"configcenter/src/thirdpartyclient/esbserver/esbutil"
+	"configdatabase/src/apimachinery/rest"
+	"configdatabase/src/common/metadata"
+	"configdatabase/src/thirdpartyclient/esbserver/esbutil"
 )
 
 type UserClientInterface interface {

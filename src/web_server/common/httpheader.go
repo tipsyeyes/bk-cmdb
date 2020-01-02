@@ -13,7 +13,7 @@
 package common
 
 import (
-	"configcenter/src/common"
+	"configdatabase/src/common"
 
 	"github.com/gin-gonic/gin"
 	"github.com/holmeswang/contrib/sessions"

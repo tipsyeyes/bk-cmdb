@@ -17,10 +17,10 @@ import (
 	"fmt"
 	"net/http"
 
-	"configcenter/src/apimachinery/rest"
-	"configcenter/src/apimachinery/util"
-	"configcenter/src/common/metadata"
-	params "configcenter/src/common/paraparse"
+	"configdatabase/src/apimachinery/rest"
+	"configdatabase/src/apimachinery/util"
+	"configdatabase/src/common/metadata"
+	params "configdatabase/src/common/paraparse"
 )
 
 type HostServerClientInterface interface {

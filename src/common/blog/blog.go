@@ -20,7 +20,7 @@ import (
 	"sync"
 	"time"
 
-	"configcenter/src/common/blog/glog"
+	"configdatabase/src/common/blog/glog"
 )
 
 // This is temporary until we agree on log dirs and put those into each cmd.

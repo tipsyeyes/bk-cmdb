@@ -15,7 +15,7 @@ package driver
 import (
 	"context"
 
-	"configcenter/src/storage/mongodb"
+	"configdatabase/src/storage/mongodb"
 
 	"github.com/mongodb/mongo-go-driver/mongo"
 )

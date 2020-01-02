@@ -13,11 +13,11 @@
 package settemplate
 
 import (
-	"configcenter/src/common"
-	"configcenter/src/common/blog"
-	"configcenter/src/common/errors"
-	"configcenter/src/common/metadata"
-	"configcenter/src/source_controller/coreservice/core"
+	"configdatabase/src/common"
+	"configdatabase/src/common/blog"
+	"configdatabase/src/common/errors"
+	"configdatabase/src/common/metadata"
+	"configdatabase/src/source_controller/coreservice/core"
 )
 
 func (p *setTemplateOperation) UpdateSetTemplateSyncStatus(ctx core.ContextParams, setID int64, option metadata.SetTemplateSyncStatus) errors.CCErrorCoder {

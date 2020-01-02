@@ -20,11 +20,11 @@ import (
 	"regexp"
 	"strings"
 
-	"configcenter/src/auth/meta"
-	"configcenter/src/common"
-	"configcenter/src/common/backbone"
-	"configcenter/src/common/metadata"
-	"configcenter/src/common/util"
+	"configdatabase/src/auth/meta"
+	"configdatabase/src/common"
+	"configdatabase/src/common/backbone"
+	"configdatabase/src/common/metadata"
+	"configdatabase/src/common/util"
 
 	"github.com/emicklei/go-restful"
 )

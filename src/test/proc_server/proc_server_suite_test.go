@@ -5,10 +5,10 @@ import (
 	"strconv"
 	"testing"
 
-	"configcenter/src/common/mapstr"
-	params "configcenter/src/common/paraparse"
-	"configcenter/src/test"
-	"configcenter/src/test/reporter"
+	"configdatabase/src/common/mapstr"
+	params "configdatabase/src/common/paraparse"
+	"configdatabase/src/test"
+	"configdatabase/src/test/reporter"
 
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"

@@ -20,8 +20,8 @@ import (
 	"os"
 	"strings"
 
-	"configcenter/src/framework/core/log"
-	"configcenter/src/framework/core/option"
+	"configdatabase/src/framework/core/log"
+	"configdatabase/src/framework/core/option"
 )
 
 const separator = "."

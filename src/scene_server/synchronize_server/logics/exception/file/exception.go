@@ -21,8 +21,8 @@ import (
 	"sort"
 	"strings"
 
-	"configcenter/src/common/blog"
-	"configcenter/src/common/metadata"
+	"configdatabase/src/common/blog"
+	"configdatabase/src/common/metadata"
 )
 
 // Dir  exception file directory

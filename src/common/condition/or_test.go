@@ -16,8 +16,8 @@ import (
 	"encoding/json"
 	"testing"
 
-	//"configcenter/src/common/blog"
-	types "configcenter/src/common/mapstr"
+	//"configdatabase/src/common/blog"
+	types "configdatabase/src/common/mapstr"
 )
 
 func TestORField(t *testing.T) {

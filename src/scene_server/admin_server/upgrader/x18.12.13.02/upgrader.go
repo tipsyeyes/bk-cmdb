@@ -16,9 +16,9 @@ import (
 	"context"
 	"gopkg.in/mgo.v2"
 
-	"configcenter/src/common"
-	"configcenter/src/scene_server/admin_server/upgrader"
-	"configcenter/src/storage/dal"
+	"configdatabase/src/common"
+	"configdatabase/src/scene_server/admin_server/upgrader"
+	"configdatabase/src/storage/dal"
 )
 
 func addCloudTaskTable(ctx context.Context, db dal.RDB, conf *upgrader.Config) error {

@@ -18,12 +18,12 @@ import (
 	"net/http"
 	"strconv"
 
-	"configcenter/src/apimachinery"
-	"configcenter/src/auth/meta"
-	"configcenter/src/common"
-	"configcenter/src/common/blog"
-	"configcenter/src/common/metadata"
-	"configcenter/src/common/util"
+	"configdatabase/src/apimachinery"
+	"configdatabase/src/auth/meta"
+	"configdatabase/src/common"
+	"configdatabase/src/common/blog"
+	"configdatabase/src/common/metadata"
+	"configdatabase/src/common/util"
 )
 
 var NotEnoughLayer = fmt.Errorf("not enough layer")

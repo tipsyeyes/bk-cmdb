@@ -6,8 +6,8 @@ import (
 	"fmt"
 	"strconv"
 
-	"configcenter/src/common/metadata"
-	params "configcenter/src/common/paraparse"
+	"configdatabase/src/common/metadata"
+	params "configdatabase/src/common/paraparse"
 
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"

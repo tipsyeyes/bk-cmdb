@@ -19,9 +19,9 @@ import (
 	"strings"
 	"time"
 
-	"configcenter/src/common"
-	"configcenter/src/common/blog"
-	"configcenter/src/common/util"
+	"configdatabase/src/common"
+	"configdatabase/src/common/blog"
+	"configdatabase/src/common/util"
 
 	"github.com/emicklei/go-restful"
 	"github.com/mssola/user_agent"

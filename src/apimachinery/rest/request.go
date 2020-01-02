@@ -31,9 +31,9 @@ import (
 	"syscall"
 	"time"
 
-	"configcenter/src/apimachinery/util"
-	"configcenter/src/common/blog"
-	commonUtil "configcenter/src/common/util"
+	"configdatabase/src/apimachinery/util"
+	"configdatabase/src/common/blog"
+	commonUtil "configdatabase/src/common/util"
 )
 
 // map[url]responseDataString

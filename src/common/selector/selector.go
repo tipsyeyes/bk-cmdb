@@ -15,8 +15,8 @@ import (
 	"errors"
 	"fmt"
 
-	"configcenter/src/common"
-	"configcenter/src/common/util"
+	"configdatabase/src/common"
+	"configdatabase/src/common/util"
 )
 
 type LabelAddOption struct {

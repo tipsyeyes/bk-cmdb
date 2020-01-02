@@ -16,9 +16,9 @@ import (
 	"context"
 	"net/http"
 
-	"configcenter/src/apimachinery/rest"
-	"configcenter/src/common/errors"
-	"configcenter/src/common/metadata"
+	"configdatabase/src/apimachinery/rest"
+	"configdatabase/src/common/errors"
+	"configdatabase/src/common/metadata"
 )
 
 type ProcessInterface interface {

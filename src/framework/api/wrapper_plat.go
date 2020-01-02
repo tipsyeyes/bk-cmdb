@@ -13,9 +13,9 @@
 package api
 
 import (
-	"configcenter/src/framework/core/output/module/inst"
-	"configcenter/src/framework/core/output/module/model"
-	"configcenter/src/framework/core/types"
+	"configdatabase/src/framework/core/output/module/inst"
+	"configdatabase/src/framework/core/output/module/model"
+	"configdatabase/src/framework/core/types"
 )
 
 // PlatIteratorWrapper the plat iterator wrapper

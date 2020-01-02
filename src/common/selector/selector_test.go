@@ -17,7 +17,7 @@ import (
 	"strings"
 	"testing"
 
-	"configcenter/src/common/selector"
+	"configdatabase/src/common/selector"
 
 	"github.com/stretchr/testify/assert"
 )

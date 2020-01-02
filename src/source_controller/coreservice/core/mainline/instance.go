@@ -17,9 +17,9 @@ import (
 	"encoding/json"
 	"fmt"
 
-	"configcenter/src/common/blog"
-	"configcenter/src/common/metadata"
-	"configcenter/src/common/util"
+	"configdatabase/src/common/blog"
+	"configdatabase/src/common/metadata"
+	"configdatabase/src/common/util"
 )
 
 // SearchMainlineBusinessTopo get topo tree of mainline model

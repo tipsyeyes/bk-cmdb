@@ -19,8 +19,8 @@ import (
 
 	"gopkg.in/mgo.v2/bson"
 
-	"configcenter/src/common/blog"
-	"configcenter/src/storage/dal"
+	"configdatabase/src/common/blog"
+	"configdatabase/src/storage/dal"
 )
 
 // Upsert inset row but update it without ignores key if exists same value with keys

@@ -13,11 +13,11 @@
 package extensions
 
 import (
-	"configcenter/src/apimachinery"
-	"configcenter/src/auth"
-	"configcenter/src/common"
-	"configcenter/src/common/mapstr"
-	"configcenter/src/common/util"
+	"configdatabase/src/apimachinery"
+	"configdatabase/src/auth"
+	"configdatabase/src/common"
+	"configdatabase/src/common/mapstr"
+	"configdatabase/src/common/util"
 )
 
 type AuthManager struct {

@@ -15,10 +15,10 @@ package core
 import (
 	"context"
 
-	"configcenter/src/common/errors"
-	"configcenter/src/common/mapstr"
-	"configcenter/src/common/metadata"
-	"configcenter/src/common/selector"
+	"configdatabase/src/common/errors"
+	"configdatabase/src/common/mapstr"
+	"configdatabase/src/common/metadata"
+	"configdatabase/src/common/selector"
 )
 
 // ModelAttributeGroup model attribute group methods definitions

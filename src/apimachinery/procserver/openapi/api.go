@@ -16,9 +16,9 @@ import (
 	"context"
 	"net/http"
 
-	"configcenter/src/apimachinery/rest"
-	"configcenter/src/common/mapstr"
-	"configcenter/src/common/metadata"
+	"configdatabase/src/apimachinery/rest"
+	"configdatabase/src/common/mapstr"
+	"configdatabase/src/common/metadata"
 )
 
 type OpenAPIClientInterface interface {

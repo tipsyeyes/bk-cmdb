@@ -13,7 +13,7 @@
 package meta
 
 import (
-	"configcenter/src/common"
+	"configdatabase/src/common"
 )
 
 type ResourceType string

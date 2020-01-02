@@ -16,8 +16,8 @@ import (
 	"context"
 	"strings"
 
-	"configcenter/src/scene_server/admin_server/upgrader"
-	"configcenter/src/storage/dal"
+	"configdatabase/src/scene_server/admin_server/upgrader"
+	"configdatabase/src/storage/dal"
 )
 
 func dropIndex(ctx context.Context, db dal.RDB, conf *upgrader.Config) (err error) {

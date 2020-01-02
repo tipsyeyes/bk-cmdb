@@ -21,9 +21,9 @@ import (
 	"strings"
 	"sync/atomic"
 
-	"configcenter/src/common"
-	"configcenter/src/common/errors"
-	"configcenter/src/storage/dal"
+	"configdatabase/src/common"
+	"configdatabase/src/common/errors"
+	"configdatabase/src/storage/dal"
 
 	"github.com/emicklei/go-restful"
 	"github.com/gin-gonic/gin"

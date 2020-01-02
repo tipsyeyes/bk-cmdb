@@ -16,15 +16,15 @@ import (
 	"context"
 	"net/http"
 
-	"configcenter/src/common"
-	"configcenter/src/common/blog"
-	"configcenter/src/common/errors"
-	"configcenter/src/common/http/rest"
-	"configcenter/src/common/mapstr"
-	"configcenter/src/common/mapstruct"
-	"configcenter/src/common/metadata"
-	"configcenter/src/common/selector"
-	"configcenter/src/common/util"
+	"configdatabase/src/common"
+	"configdatabase/src/common/blog"
+	"configdatabase/src/common/errors"
+	"configdatabase/src/common/http/rest"
+	"configdatabase/src/common/mapstr"
+	"configdatabase/src/common/mapstruct"
+	"configdatabase/src/common/metadata"
+	"configdatabase/src/common/selector"
+	"configdatabase/src/common/util"
 )
 
 // createServiceInstances 创建服务实例

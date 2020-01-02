@@ -18,12 +18,12 @@ import (
 	"os"
 	"runtime"
 
-	"configcenter/src/common"
-	"configcenter/src/common/blog"
-	"configcenter/src/common/types"
-	"configcenter/src/common/util"
-	"configcenter/src/scene_server/event_server/app"
-	"configcenter/src/scene_server/event_server/app/options"
+	"configdatabase/src/common"
+	"configdatabase/src/common/blog"
+	"configdatabase/src/common/types"
+	"configdatabase/src/common/util"
+	"configdatabase/src/scene_server/event_server/app"
+	"configdatabase/src/scene_server/event_server/app/options"
 
 	"github.com/spf13/pflag"
 )

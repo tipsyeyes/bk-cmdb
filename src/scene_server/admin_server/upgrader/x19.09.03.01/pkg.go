@@ -13,11 +13,11 @@
 package x19_09_03_01
 
 import (
-	"configcenter/src/common/blog"
+	"configdatabase/src/common/blog"
 	"context"
 
-	"configcenter/src/scene_server/admin_server/upgrader"
-	"configcenter/src/storage/dal"
+	"configdatabase/src/scene_server/admin_server/upgrader"
+	"configdatabase/src/storage/dal"
 )
 
 func init() {

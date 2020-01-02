@@ -13,7 +13,7 @@
 package input
 
 import (
-	"configcenter/src/framework/common"
+	"configdatabase/src/framework/common"
 )
 
 // create a new inputer key

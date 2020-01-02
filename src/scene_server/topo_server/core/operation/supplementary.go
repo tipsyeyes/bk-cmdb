@@ -13,9 +13,9 @@
 package operation
 
 import (
-	"configcenter/src/apimachinery"
-	"configcenter/src/scene_server/topo_server/core/model"
-	"configcenter/src/scene_server/topo_server/core/types"
+	"configdatabase/src/apimachinery"
+	"configdatabase/src/scene_server/topo_server/core/model"
+	"configdatabase/src/scene_server/topo_server/core/types"
 )
 
 // Supplementary supplementary methods

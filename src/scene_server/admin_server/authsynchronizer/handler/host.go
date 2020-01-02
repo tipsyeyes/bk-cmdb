@@ -17,14 +17,14 @@ import (
 	"errors"
 	"fmt"
 
-	"configcenter/src/auth/extensions"
-	authmeta "configcenter/src/auth/meta"
-	"configcenter/src/common"
-	"configcenter/src/common/blog"
-	"configcenter/src/common/mapstr"
-	"configcenter/src/common/metadata"
-	"configcenter/src/scene_server/admin_server/authsynchronizer/meta"
-	"configcenter/src/scene_server/admin_server/authsynchronizer/utils"
+	"configdatabase/src/auth/extensions"
+	authmeta "configdatabase/src/auth/meta"
+	"configdatabase/src/common"
+	"configdatabase/src/common/blog"
+	"configdatabase/src/common/mapstr"
+	"configdatabase/src/common/metadata"
+	"configdatabase/src/scene_server/admin_server/authsynchronizer/meta"
+	"configdatabase/src/scene_server/admin_server/authsynchronizer/utils"
 )
 
 // HandleHostSync do sync host of one business

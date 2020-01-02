@@ -13,7 +13,7 @@
 package metadata
 
 import (
-	"configcenter/src/common/auditoplog"
+	"configdatabase/src/common/auditoplog"
 )
 
 type SaveAuditLogParams struct {

@@ -13,7 +13,7 @@
 package logics
 
 import (
-	"configcenter/src/common/metadata"
+	"configdatabase/src/common/metadata"
 )
 
 type statisticsItem struct {

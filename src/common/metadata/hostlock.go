@@ -15,7 +15,7 @@ package metadata
 import (
 	"time"
 
-	"configcenter/src/common/mapstr"
+	"configdatabase/src/common/mapstr"
 )
 
 type HostLockRequest struct {

@@ -13,7 +13,7 @@
 package options
 
 import (
-	"configcenter/src/common/core/cc/config"
+	"configdatabase/src/common/core/cc/config"
 
 	"github.com/spf13/pflag"
 )

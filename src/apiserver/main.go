@@ -18,12 +18,12 @@ import (
 	"os"
 	"runtime"
 
-	"configcenter/src/apiserver/app"
-	"configcenter/src/apiserver/app/options"
-	"configcenter/src/common"
-	"configcenter/src/common/blog"
-	"configcenter/src/common/types"
-	"configcenter/src/common/util"
+	"configdatabase/src/apiserver/app"
+	"configdatabase/src/apiserver/app/options"
+	"configdatabase/src/common"
+	"configdatabase/src/common/blog"
+	"configdatabase/src/common/types"
+	"configdatabase/src/common/util"
 
 	"github.com/spf13/pflag"
 

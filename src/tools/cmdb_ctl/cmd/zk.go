@@ -14,7 +14,7 @@ package cmd
 
 import (
 	"bytes"
-	"configcenter/src/tools/cmdb_ctl/app/config"
+	"configdatabase/src/tools/cmdb_ctl/app/config"
 	"encoding/json"
 	"errors"
 	"fmt"

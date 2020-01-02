@@ -18,11 +18,11 @@ import (
 
 	"gopkg.in/redis.v5"
 
-	"configcenter/src/common/backbone"
-	"configcenter/src/common/errors"
-	"configcenter/src/common/language"
-	"configcenter/src/common/util"
-	"configcenter/src/thirdpartyclient/esbserver"
+	"configdatabase/src/common/backbone"
+	"configdatabase/src/common/errors"
+	"configdatabase/src/common/language"
+	"configdatabase/src/common/util"
+	"configdatabase/src/thirdpartyclient/esbserver"
 )
 
 type Logic struct {

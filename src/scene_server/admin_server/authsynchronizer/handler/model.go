@@ -15,12 +15,12 @@ package handler
 import (
 	"fmt"
 
-	"configcenter/src/auth/extensions"
-	authmeta "configcenter/src/auth/meta"
-	"configcenter/src/common/blog"
-	"configcenter/src/common/util"
-	"configcenter/src/scene_server/admin_server/authsynchronizer/meta"
-	"configcenter/src/scene_server/admin_server/authsynchronizer/utils"
+	"configdatabase/src/auth/extensions"
+	authmeta "configdatabase/src/auth/meta"
+	"configdatabase/src/common/blog"
+	"configdatabase/src/common/util"
+	"configdatabase/src/scene_server/admin_server/authsynchronizer/meta"
+	"configdatabase/src/scene_server/admin_server/authsynchronizer/utils"
 )
 
 // HandleSetSync do sync set of one business

@@ -16,7 +16,7 @@ import (
 	"context"
 	"time"
 
-	"configcenter/src/framework/core/log"
+	"configdatabase/src/framework/core/log"
 )
 
 func (cli *manager) subExecuteInputer(inputer *wrapInputer) error {

@@ -13,12 +13,12 @@
 package command
 
 import (
-	"configcenter/src/common/blog"
-	"configcenter/src/common/util"
-	"configcenter/src/storage/mongodb"
-	"configcenter/src/storage/rpc"
-	"configcenter/src/storage/tmserver/core"
-	"configcenter/src/storage/types"
+	"configdatabase/src/common/blog"
+	"configdatabase/src/common/util"
+	"configdatabase/src/storage/mongodb"
+	"configdatabase/src/storage/rpc"
+	"configdatabase/src/storage/tmserver/core"
+	"configdatabase/src/storage/types"
 )
 
 func init() {

@@ -16,7 +16,7 @@ import (
 	"context"
 	"time"
 
-	"configcenter/src/framework/core/output"
+	"configdatabase/src/framework/core/output"
 )
 
 // InputerStatus the inputer status type definition.

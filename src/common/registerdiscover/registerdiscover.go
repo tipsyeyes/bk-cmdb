@@ -15,7 +15,7 @@ package registerdiscover
 import (
 	"time"
 
-	"configcenter/src/common/backbone/service_mange/zk"
+	"configdatabase/src/common/backbone/service_mange/zk"
 )
 
 // DiscoverEvent if servers chenged, will create a discover event

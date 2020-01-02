@@ -18,10 +18,10 @@ import (
 	"strings"
 	"time"
 
-	"configcenter/src/common"
-	"configcenter/src/common/blog"
-	"configcenter/src/storage/dal"
-	"configcenter/src/storage/types"
+	"configdatabase/src/common"
+	"configdatabase/src/common/blog"
+	"configdatabase/src/storage/dal"
+	"configdatabase/src/storage/types"
 )
 
 // Find define a find operation

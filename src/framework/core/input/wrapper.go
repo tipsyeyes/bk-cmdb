@@ -16,7 +16,7 @@ import (
     "sync"
     "time"
 
-	"configcenter/src/framework/core/output"
+	"configdatabase/src/framework/core/output"
 )
 
 // wrapInputer the Inputer wrapper

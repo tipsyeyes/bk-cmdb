@@ -13,7 +13,7 @@
 package permit
 
 import (
-	"configcenter/src/auth/meta"
+	"configdatabase/src/auth/meta"
 )
 
 func IsReadAction(action meta.Action) bool {

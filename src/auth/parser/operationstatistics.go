@@ -16,7 +16,7 @@ import (
 	"net/http"
 	"regexp"
 
-	"configcenter/src/auth/meta"
+	"configdatabase/src/auth/meta"
 )
 
 /*

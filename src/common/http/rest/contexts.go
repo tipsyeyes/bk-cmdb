@@ -18,11 +18,11 @@ import (
 	"io/ioutil"
 	"net/http"
 
-	"configcenter/src/common"
-	"configcenter/src/common/blog"
-	"configcenter/src/common/errors"
-	"configcenter/src/common/json"
-	"configcenter/src/common/metadata"
+	"configdatabase/src/common"
+	"configdatabase/src/common/blog"
+	"configdatabase/src/common/errors"
+	"configdatabase/src/common/json"
+	"configdatabase/src/common/metadata"
 	"github.com/emicklei/go-restful"
 )
 

@@ -15,10 +15,10 @@ package business
 import (
 	"fmt"
 
-	"configcenter/src/framework/clientset/types"
-	"configcenter/src/framework/common/rest"
-	"configcenter/src/framework/core/errors"
-	types2 "configcenter/src/framework/core/types"
+	"configdatabase/src/framework/clientset/types"
+	"configdatabase/src/framework/common/rest"
+	"configdatabase/src/framework/core/errors"
+	types2 "configdatabase/src/framework/core/types"
 )
 
 type biz struct {

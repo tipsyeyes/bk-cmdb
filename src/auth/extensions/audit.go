@@ -19,15 +19,15 @@ import (
 	"net/http"
 	"strconv"
 
-	"configcenter/src/auth/authcenter"
-	"configcenter/src/auth/meta"
-	"configcenter/src/auth/parser"
-	"configcenter/src/common"
-	"configcenter/src/common/blog"
-	"configcenter/src/common/condition"
-	"configcenter/src/common/mapstr"
-	"configcenter/src/common/metadata"
-	"configcenter/src/common/util"
+	"configdatabase/src/auth/authcenter"
+	"configdatabase/src/auth/meta"
+	"configdatabase/src/auth/parser"
+	"configdatabase/src/common"
+	"configdatabase/src/common/blog"
+	"configdatabase/src/common/condition"
+	"configdatabase/src/common/mapstr"
+	"configdatabase/src/common/metadata"
+	"configdatabase/src/common/util"
 )
 
 func (am *AuthManager) CollectAuditCategoryByBusinessID(ctx context.Context, header http.Header, businessID int64) ([]AuditCategorySimplify, error) {

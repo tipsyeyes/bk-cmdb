@@ -3,7 +3,7 @@ package service
 import (
 	"encoding/json"
 
-	"configcenter/src/common/metadata"
+	"configdatabase/src/common/metadata"
 )
 
 func parseMetadata(data string) (*metadata.Metadata, error) {

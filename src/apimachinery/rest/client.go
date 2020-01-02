@@ -15,8 +15,8 @@ package rest
 import (
 	"strings"
 
-	"configcenter/src/apimachinery/util"
-	"configcenter/src/common/metrics"
+	"configdatabase/src/apimachinery/util"
+	"configdatabase/src/common/metrics"
 
 	"github.com/prometheus/client_golang/prometheus"
 )

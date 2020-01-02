@@ -15,7 +15,7 @@ package parser
 import (
 	"net/http"
 
-	"configcenter/src/auth/meta"
+	"configdatabase/src/auth/meta"
 )
 
 // utility.AddHandler(rest.Action{Verb: , Path: , Handler: ps.UpdateServiceCategory})

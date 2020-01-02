@@ -17,7 +17,7 @@ import (
 	"sort"
 	"strings"
 
-	"configcenter/src/common/mapstr"
+	"configdatabase/src/common/mapstr"
 )
 
 type ObjectUnique struct {

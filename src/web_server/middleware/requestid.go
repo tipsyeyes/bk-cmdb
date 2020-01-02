@@ -13,9 +13,9 @@
 package middleware
 
 import (
-	"configcenter/src/common"
-	"configcenter/src/common/rdapi"
-	"configcenter/src/common/util"
+	"configdatabase/src/common"
+	"configdatabase/src/common/rdapi"
+	"configdatabase/src/common/util"
 	"github.com/gin-gonic/gin"
 )
 

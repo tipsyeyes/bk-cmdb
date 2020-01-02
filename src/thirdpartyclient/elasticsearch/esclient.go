@@ -7,9 +7,9 @@ import (
 	"net/http"
 	"strings"
 
-	"configcenter/src/common"
-	"configcenter/src/common/blog"
-	"configcenter/src/common/util"
+	"configdatabase/src/common"
+	"configdatabase/src/common/blog"
+	"configdatabase/src/common/util"
 
 	"github.com/olivere/elastic"
 )

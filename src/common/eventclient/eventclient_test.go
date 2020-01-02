@@ -16,8 +16,8 @@ import (
 	"net/http"
 	"testing"
 
-	"configcenter/src/common"
-	"configcenter/src/common/metadata"
+	"configdatabase/src/common"
+	"configdatabase/src/common/metadata"
 )
 
 func TestNewEventWithHeader(t *testing.T) {

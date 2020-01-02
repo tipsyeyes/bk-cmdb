@@ -15,13 +15,13 @@ package settemplate
 import (
 	"net/http"
 
-	"configcenter/src/common"
-	"configcenter/src/common/blog"
-	"configcenter/src/common/errors"
-	"configcenter/src/common/mapstr"
-	"configcenter/src/common/mapstruct"
-	"configcenter/src/common/metadata"
-	"configcenter/src/scene_server/topo_server/core/types"
+	"configdatabase/src/common"
+	"configdatabase/src/common/blog"
+	"configdatabase/src/common/errors"
+	"configdatabase/src/common/mapstr"
+	"configdatabase/src/common/mapstruct"
+	"configdatabase/src/common/metadata"
+	"configdatabase/src/scene_server/topo_server/core/types"
 )
 
 func (st *setTemplate) GetOneSet(params types.ContextParams, setID int64) (metadata.SetInst, errors.CCErrorCoder) {

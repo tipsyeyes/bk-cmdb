@@ -19,11 +19,11 @@ import (
 	"net/http"
 	"sync/atomic"
 
-	"configcenter/src/auth"
-	"configcenter/src/auth/meta"
-	"configcenter/src/auth/parser"
-	"configcenter/src/common"
-	"configcenter/src/common/metadata"
+	"configdatabase/src/auth"
+	"configdatabase/src/auth/meta"
+	"configdatabase/src/auth/parser"
+	"configdatabase/src/common"
+	"configdatabase/src/common/metadata"
 )
 
 // this variable is used to accelerate the way to check if a business is resource pool

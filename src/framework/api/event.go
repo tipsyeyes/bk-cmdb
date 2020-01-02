@@ -13,8 +13,8 @@
 package api
 
 import (
-	"configcenter/src/framework/common"
-	"configcenter/src/framework/core/types"
+	"configdatabase/src/framework/common"
+	"configdatabase/src/framework/core/types"
 )
 
 var (

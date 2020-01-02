@@ -16,7 +16,7 @@ import (
 	"context"
 	"testing"
 
-	"configcenter/src/storage/mongodb"
+	"configdatabase/src/storage/mongodb"
 
 	"github.com/mongodb/mongo-go-driver/bson"
 	"github.com/rs/xid"

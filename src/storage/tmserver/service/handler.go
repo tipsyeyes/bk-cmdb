@@ -15,9 +15,9 @@ package service
 import (
 	"context"
 
-	"configcenter/src/storage/rpc"
-	"configcenter/src/storage/tmserver/core"
-	"configcenter/src/storage/types"
+	"configdatabase/src/storage/rpc"
+	"configdatabase/src/storage/tmserver/core"
+	"configdatabase/src/storage/types"
 )
 
 func (s *coreService) DBOperation(input rpc.Request) (interface{}, error) {

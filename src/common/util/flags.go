@@ -17,7 +17,7 @@ import (
 	"os"
 	"strings"
 
-	"configcenter/src/common/version"
+	"configdatabase/src/common/version"
 	"github.com/spf13/pflag"
 )
 

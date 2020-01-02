@@ -22,7 +22,7 @@ import (
 
 	"github.com/stretchr/testify/require"
 
-	"configcenter/src/common/util"
+	"configdatabase/src/common/util"
 )
 
 type Req struct {

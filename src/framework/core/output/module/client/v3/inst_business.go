@@ -13,16 +13,16 @@
 package v3
 
 import (
-	cccommon "configcenter/src/common"
-	"configcenter/src/framework/common"
+	cccommon "configdatabase/src/common"
+	"configdatabase/src/framework/common"
 
 	"encoding/json"
 	"fmt"
 
 	"github.com/tidwall/gjson"
 
-	"configcenter/src/framework/core/errors"
-	"configcenter/src/framework/core/types"
+	"configdatabase/src/framework/core/errors"
+	"configdatabase/src/framework/core/types"
 )
 
 // BusinessGetter business getter interface

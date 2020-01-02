@@ -19,9 +19,9 @@ import (
 
 	"github.com/tidwall/gjson"
 
-	"configcenter/src/framework/common"
-	"configcenter/src/framework/core/log"
-	"configcenter/src/framework/core/types"
+	"configdatabase/src/framework/common"
+	"configdatabase/src/framework/core/log"
+	"configdatabase/src/framework/core/types"
 )
 
 // GroupGetter group getter

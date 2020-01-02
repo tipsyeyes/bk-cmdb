@@ -13,9 +13,9 @@
 package model
 
 import (
-	"configcenter/src/apimachinery"
-	metadata "configcenter/src/common/metadata"
-	"configcenter/src/scene_server/topo_server/core/types"
+	"configdatabase/src/apimachinery"
+	metadata "configdatabase/src/common/metadata"
+	"configdatabase/src/scene_server/topo_server/core/types"
 )
 
 // New create a new model factory instance

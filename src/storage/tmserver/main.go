@@ -18,13 +18,13 @@ import (
 	"os"
 	"runtime"
 
-	"configcenter/src/common"
-	"configcenter/src/common/blog"
-	"configcenter/src/common/types"
-	"configcenter/src/common/util"
-	"configcenter/src/storage/tmserver/app"
-	"configcenter/src/storage/tmserver/app/options"
-	_ "configcenter/src/storage/tmserver/core/command"
+	"configdatabase/src/common"
+	"configdatabase/src/common/blog"
+	"configdatabase/src/common/types"
+	"configdatabase/src/common/util"
+	"configdatabase/src/storage/tmserver/app"
+	"configdatabase/src/storage/tmserver/app/options"
+	_ "configdatabase/src/storage/tmserver/core/command"
 
 	"github.com/spf13/pflag"
 	// init all cmds

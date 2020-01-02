@@ -15,8 +15,8 @@ package model_test
 import (
 	"testing"
 
-	"configcenter/src/common/mapstr"
-	"configcenter/src/common/metadata"
+	"configdatabase/src/common/mapstr"
+	"configdatabase/src/common/metadata"
 
 	"github.com/rs/xid"
 	"github.com/stretchr/testify/require"

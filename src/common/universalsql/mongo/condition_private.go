@@ -16,8 +16,8 @@ import (
 	"fmt"
 	"reflect"
 
-	"configcenter/src/common/mapstr"
-	"configcenter/src/common/universalsql"
+	"configdatabase/src/common/mapstr"
+	"configdatabase/src/common/universalsql"
 )
 
 func parseConditionFromMapStr(inputCond *mongoCondition, inputKey string, inputCondMapStr mapstr.MapStr) (outputCond *mongoCondition, err error) {

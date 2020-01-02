@@ -21,7 +21,7 @@ import (
 	"regexp"
 	"strings"
 
-	"configcenter/src/common/blog"
+	"configdatabase/src/common/blog"
 )
 
 // ccErrorHelper CC 错误处理接口的实现

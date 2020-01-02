@@ -13,7 +13,7 @@
 package model
 
 import (
-	"configcenter/src/framework/common/rest"
+	"configdatabase/src/framework/common/rest"
 )
 
 type Interface interface {

@@ -21,11 +21,11 @@ import (
 	"strconv"
 	"time"
 
-	"configcenter/src/common"
-	"configcenter/src/common/blog"
-	"configcenter/src/common/metadata"
-	"configcenter/src/common/util"
-	"configcenter/src/web_server/middleware/user"
+	"configdatabase/src/common"
+	"configdatabase/src/common/blog"
+	"configdatabase/src/common/metadata"
+	"configdatabase/src/common/util"
+	"configdatabase/src/web_server/middleware/user"
 
 	"github.com/gin-gonic/gin"
 	"github.com/holmeswang/contrib/sessions"

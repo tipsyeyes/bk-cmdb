@@ -21,7 +21,7 @@ import (
 
 	"strconv"
 
-	"configcenter/src/common/blog"
+	"configdatabase/src/common/blog"
 )
 
 var pidfile string

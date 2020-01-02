@@ -18,16 +18,16 @@ import (
 	"strconv"
 	"strings"
 
-	"configcenter/src/apimachinery"
-	"configcenter/src/common"
-	"configcenter/src/common/blog"
-	"configcenter/src/common/condition"
-	"configcenter/src/common/mapstr"
-	"configcenter/src/common/metadata"
-	gparams "configcenter/src/common/paraparse"
-	"configcenter/src/scene_server/topo_server/core/inst"
-	"configcenter/src/scene_server/topo_server/core/model"
-	"configcenter/src/scene_server/topo_server/core/types"
+	"configdatabase/src/apimachinery"
+	"configdatabase/src/common"
+	"configdatabase/src/common/blog"
+	"configdatabase/src/common/condition"
+	"configdatabase/src/common/mapstr"
+	"configdatabase/src/common/metadata"
+	gparams "configdatabase/src/common/paraparse"
+	"configdatabase/src/scene_server/topo_server/core/inst"
+	"configdatabase/src/scene_server/topo_server/core/model"
+	"configdatabase/src/scene_server/topo_server/core/types"
 )
 
 // InstOperationInterface inst operation methods

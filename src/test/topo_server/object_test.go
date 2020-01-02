@@ -6,11 +6,11 @@ import (
 	"fmt"
 	"strconv"
 
-	"configcenter/src/common/mapstr"
-	"configcenter/src/common/metadata"
-	params "configcenter/src/common/paraparse"
-	"configcenter/src/common/util"
-	"configcenter/src/test"
+	"configdatabase/src/common/mapstr"
+	"configdatabase/src/common/metadata"
+	params "configdatabase/src/common/paraparse"
+	"configdatabase/src/common/util"
+	"configdatabase/src/test"
 
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"

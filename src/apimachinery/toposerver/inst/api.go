@@ -16,11 +16,11 @@ import (
 	"context"
 	"net/http"
 
-	"configcenter/src/apimachinery/rest"
-	"configcenter/src/common"
-	"configcenter/src/common/mapstr"
-	"configcenter/src/common/metadata"
-	params "configcenter/src/common/paraparse"
+	"configdatabase/src/apimachinery/rest"
+	"configdatabase/src/common"
+	"configdatabase/src/common/mapstr"
+	"configdatabase/src/common/metadata"
+	params "configdatabase/src/common/paraparse"
 )
 
 type InstanceInterface interface {

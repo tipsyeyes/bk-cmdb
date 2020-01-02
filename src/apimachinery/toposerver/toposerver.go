@@ -15,12 +15,12 @@ package toposerver
 import (
 	"fmt"
 
-	"configcenter/src/apimachinery/rest"
-	"configcenter/src/apimachinery/toposerver/association"
-	"configcenter/src/apimachinery/toposerver/inst"
-	"configcenter/src/apimachinery/toposerver/object"
-	"configcenter/src/apimachinery/toposerver/settemplate"
-	"configcenter/src/apimachinery/util"
+	"configdatabase/src/apimachinery/rest"
+	"configdatabase/src/apimachinery/toposerver/association"
+	"configdatabase/src/apimachinery/toposerver/inst"
+	"configdatabase/src/apimachinery/toposerver/object"
+	"configdatabase/src/apimachinery/toposerver/settemplate"
+	"configdatabase/src/apimachinery/util"
 )
 
 type TopoServerClientInterface interface {

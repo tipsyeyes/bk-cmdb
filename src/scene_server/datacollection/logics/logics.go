@@ -15,9 +15,9 @@ package logics
 import (
 	"context"
 
-	"configcenter/src/common/backbone"
-	"configcenter/src/storage/dal"
-	"configcenter/src/thirdpartyclient/esbserver"
+	"configdatabase/src/common/backbone"
+	"configdatabase/src/storage/dal"
+	"configdatabase/src/thirdpartyclient/esbserver"
 )
 
 // Logics framwork need

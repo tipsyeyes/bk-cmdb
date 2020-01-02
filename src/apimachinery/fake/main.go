@@ -17,8 +17,8 @@ import (
 	"fmt"
 	"net/http"
 
-	"configcenter/src/apimachinery"
-	"configcenter/src/apimachinery/util"
+	"configdatabase/src/apimachinery"
+	"configdatabase/src/apimachinery/util"
 )
 
 func main() {

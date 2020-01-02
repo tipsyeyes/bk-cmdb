@@ -14,7 +14,7 @@ package esbutil
 import (
 	"net/http"
 
-	"configcenter/src/common/util"
+	"configdatabase/src/common/util"
 )
 
 type EsbConfig struct {
