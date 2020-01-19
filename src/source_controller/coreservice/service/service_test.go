@@ -13,18 +13,17 @@
 package service_test
 
 import (
+	"fmt"
 	"net/http"
 	"testing"
 
 	"configdatabase/src/common"
 	"configdatabase/src/common/backbone"
-	"configdatabase/src/common/errors"
 	"configdatabase/src/common/language"
 	"configdatabase/src/source_controller/coreservice/app/options"
 	"configdatabase/src/source_controller/coreservice/service"
 	"configdatabase/src/storage/dal/mongo"
 
-	restful "github.com/emicklei/go-restful"
 	"github.com/stretchr/testify/require"
 )
 
@@ -47,24 +46,25 @@ func startCoreService(t *testing.T, ip string, port uint) {
 	bonServer := backbone.Server{
 		ListenAddr: ip,
 		ListenPort: port,
-		Handler:    restful.NewContainer().Add(coreService.WebService()),
+		//Handler:    restful.NewContainer().Add(coreService.WebService()),
 		TLS:        backbone.TLSConfig{},
 	}
+	fmt.Println(bonServer)
 
 	// set backbone config
 	bonC := &backbone.Config{
-		Server: bonServer,
+		//Server: bonServer,
 	}
 
 	// new server instance
 	engine, err := backbone.NewMockBackbone(bonC)
 	require.NoError(t, err)
 
-	errE, err := errors.New("../../../../resources/errors/")
+	//errE, err := errors.New("../../../../resources/errors/")
 	require.NoError(t, err)
 	lan, err := language.New("../../../../resources/language/")
 	require.NoError(t, err)
-	engine.CCErr = errE
+	//engine.CCErr = errE
 	engine.Language = lan
 	// set the config
 	coreService.SetConfig(options.Config{

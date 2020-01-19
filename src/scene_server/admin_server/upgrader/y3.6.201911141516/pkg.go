@@ -14,6 +14,7 @@ package y3_6_201911141516
 
 import (
 	"context"
+	"fmt"
 
 	"configdatabase/src/common/blog"
 	"configdatabase/src/scene_server/admin_server/upgrader"
@@ -21,6 +22,7 @@ import (
 )
 
 func init() {
+	fmt.Println("init RegistUpgrader y3.6.201911141516")
 	upgrader.RegistUpgrader("y3.6.201911141516", upgrade)
 }
 

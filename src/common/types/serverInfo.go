@@ -44,6 +44,9 @@ const (
 	CC_MODULE_SYNCHRONZESERVER = "sync"
 	CC_MODULE_OPERATION        = "operation"
 	CC_MODULE_TASK             = "task"
+
+	// tes new module info
+	CC_MODULE_REGAL			 = "cc_regal"
 )
 
 // AllModule all cc module
