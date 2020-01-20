@@ -4,5 +4,7 @@ package test
 
 func TestRegal() {
 	logTest()
+
+	// blog.Fatal("fatal...")
 }
 
