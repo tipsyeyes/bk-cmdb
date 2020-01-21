@@ -88,7 +88,7 @@ func Run(ctx context.Context, cancel context.CancelFunc, op *options.ServerOptio
 	regal.Core = engine
 	regal.Service = service
 
-	err = backbone.StartServer(ctx, cancel, engine, service.WebService(), true)
+	err = backbone.StartServer(ctx, cancel, engine, service.WebService(), false)
 	if err != nil {
 		return err
 	}
