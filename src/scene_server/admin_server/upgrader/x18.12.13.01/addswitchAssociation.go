@@ -43,6 +43,29 @@ func addswitchAssociation(ctx context.Context, db dal.RDB, conf *upgrader.Config
 	return nil
 }
 
+// add by tes
+// 新增ip资源关系表
+func addIpResAssociation(ctx context.Context, db dal.RDB, conf *upgrader.Config) error {
+	trueVar := true
+	ipAsst := metadata.Association{
+		OwnerID:         conf.OwnerID,
+		AsstKindID:      "internal",
+		ObjectID:        "host",
+		AsstObjID:       "bk_ipres",
+		AssociationName: "bk_host_internal_ipres",
+		Mapping:         metadata.OneToManyMapping,
+		OnDelete:        metadata.NoAction,
+		IsPre:           &trueVar,
+	}
+
+	_, _, err := upgrader.Upsert(ctx, db, common.BKTableNameObjAsst, ipAsst, "id", []string{"bk_obj_id", "bk_asst_obj_id"}, []string{"id"})
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
 func changeNetDeviceTableName(ctx context.Context, db dal.RDB, conf *upgrader.Config) error {
 	err := db.DropTable("cc_Netcollect_Device")
 	if err != nil && !strings.Contains(err.Error(), "ns not found") {
