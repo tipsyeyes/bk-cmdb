@@ -83,8 +83,12 @@ func reconcilUnique(ctx context.Context, db dal.RDB, conf *upgrader.Config) erro
 	}
 
 	shouldCheck := []string{keyfunc(common.BKInnerObjIDHost, common.BKAssetIDField),
-		keyfunc(common.BKInnerObjIDHost, common.BKCloudIDField),
-		keyfunc(common.BKInnerObjIDHost, common.BKHostInnerIPField),
+		// mod by tes
+		// 更改 host唯一校验
+		//keyfunc(common.BKInnerObjIDHost, common.BKCloudIDField),
+		//keyfunc(common.BKInnerObjIDHost, common.BKHostInnerIPField),
+		keyfunc(common.BKInnerObjIDHost, common.BKAssetIDField),
+
 		keyfunc(common.BKInnerObjIDProc, common.BKAppIDField),
 		keyfunc(common.BKInnerObjIDProc, common.BKProcNameField),
 		keyfunc(common.BKInnerObjIDProc, common.BKAppIDField),

@@ -146,6 +146,11 @@ func getObjectDesData(ownerID string) []*metadata.Object {
 		&metadata.Object{ObjCls: "bk_network", ObjectID: common.BKInnerObjIDRouter, ObjectName: "路由器", ObjIcon: "icon-cc-router", Position: `{"bk_network":{"x":-350,"y":-50}}`},
 		&metadata.Object{ObjCls: "bk_network", ObjectID: common.BKInnerObjIDBlance, ObjectName: "负载均衡", ObjIcon: "icon-cc-balance", Position: `{"bk_network":{"x":-500,"y":-50}}`},
 		&metadata.Object{ObjCls: "bk_network", ObjectID: common.BKInnerObjIDFirewall, ObjectName: "防火墙", ObjIcon: "icon-cc-firewall", Position: `{"bk_network":{"x":-650,"y":-50}}`},
+
+		// add by tes
+		// 新增预定义虚机、ip资源池
+		&metadata.Object{ObjCls: "bk_logic", ObjectID: common.BKInnerObjIDVMHOST, ObjectName: "虚机", IsPre: true, ObjIcon: "icon-cc-port", Position: ``},
+		&metadata.Object{ObjCls: "bk_logic", ObjectID: common.BKInnerObjIDIPRES, ObjectName: "IP资源", IsPre: true, ObjIcon: "icon-cc-classroom", Position: ``},
 	}
 	t := metadata.Now()
 	for _, r := range dataRows {
@@ -181,6 +186,10 @@ func getAddAsstData(ownerID string) []Association {
 		{OwnerID: ownerID, ObjectID: common.BKInnerObjIDModule, ObjectAttID: common.BKChildStr, AsstObjID: common.BKInnerObjIDSet},
 		{OwnerID: ownerID, ObjectID: common.BKInnerObjIDHost, ObjectAttID: common.BKChildStr, AsstObjID: common.BKInnerObjIDModule},
 		{OwnerID: ownerID, ObjectID: common.BKInnerObjIDHost, ObjectAttID: common.BKCloudIDField, AsstObjID: common.BKInnerObjIDPlat},
+
+		// add by tes
+		// 需要建立 ip与host的默认关联关系，主机与ip（1对多），内部关联
+		{OwnerID: ownerID, ObjectID: common.BKInnerObjIDHost, ObjectAttID: common.BKChildStr, AsstObjID: common.BKInnerObjIDIPRES},
 	}
 	return dataRows
 }
@@ -193,11 +202,15 @@ func getObjAttDescData(ownerID string) []*Attribute {
 	predataRows = append(predataRows, HostRow()...)
 	predataRows = append(predataRows, ProcRow()...)
 	predataRows = append(predataRows, PlatRow()...)
+	// add by tes
+	predataRows = append(predataRows, IpResRow()...)
 
 	dataRows := SwitchRow()
 	dataRows = append(dataRows, RouterRow()...)
 	dataRows = append(dataRows, LoadBalanceRow()...)
 	dataRows = append(dataRows, FirewallRow()...)
+	// add by tes
+	dataRows = append(dataRows, VmHostRow()...)
 
 	t := new(time.Time)
 	*t = time.Now()
@@ -260,6 +273,11 @@ func getPropertyGroupData(ownerID string) []*metadata.Group {
 		&metadata.Group{ObjectID: common.BKInnerObjIDRouter, GroupID: mCommon.BaseInfo, GroupName: mCommon.BaseInfoName, GroupIndex: 1, OwnerID: ownerID, IsDefault: true},
 		&metadata.Group{ObjectID: common.BKInnerObjIDBlance, GroupID: mCommon.BaseInfo, GroupName: mCommon.BaseInfoName, GroupIndex: 1, OwnerID: ownerID, IsDefault: true},
 		&metadata.Group{ObjectID: common.BKInnerObjIDFirewall, GroupID: mCommon.BaseInfo, GroupName: mCommon.BaseInfoName, GroupIndex: 1, OwnerID: ownerID, IsDefault: true},
+
+		// add by tes
+		// vm & ipres
+		&metadata.Group{ObjectID: common.BKInnerObjIDVMHOST, GroupID: mCommon.BaseInfo, GroupName: mCommon.BaseInfoName, GroupIndex: 1, OwnerID: ownerID, IsDefault: true},
+		&metadata.Group{ObjectID: common.BKInnerObjIDIPRES, GroupID: mCommon.BaseInfo, GroupName: mCommon.BaseInfoName, GroupIndex: 1, OwnerID: ownerID, IsDefault: true},
 	}
 	for objID, kv := range objectIDs {
 		index := int64(1)
@@ -280,4 +298,8 @@ var classificationRows = []*metadata.Classification{
 	&metadata.Classification{ClassificationID: "bk_biz_topo", ClassificationName: "业务拓扑", ClassificationType: "inner", ClassificationIcon: "icon-cc-business"},
 	&metadata.Classification{ClassificationID: "bk_organization", ClassificationName: "组织架构", ClassificationType: "inner", ClassificationIcon: "icon-cc-organization"},
 	&metadata.Classification{ClassificationID: "bk_network", ClassificationName: "网络", ClassificationType: "inner", ClassificationIcon: "icon-cc-network-equipment"},
+
+	// add by tes
+	// 新增预定义逻辑资源
+	&metadata.Classification{ClassificationID: "bk_logic", ClassificationName: "逻辑资源", ClassificationType: "inner", ClassificationIcon: "icon-cc-organization"},
 }
