@@ -61,6 +61,8 @@ type Attribute struct {
 	IsOnly            bool        `field:"isonly" json:"isonly" bson:"isonly"`
 	IsSystem          bool        `field:"bk_issystem" json:"bk_issystem" bson:"bk_issystem"`
 	IsAPI             bool        `field:"bk_isapi" json:"bk_isapi" bson:"bk_isapi"`
+	// add by tes
+	IsLocked	 	  bool 		  `field:"bk_locked" json:"bk_locked" bson:"bk_locked"`
 	PropertyType      string      `field:"bk_property_type" json:"bk_property_type" bson:"bk_property_type"`
 	Option            interface{} `field:"option" json:"option" bson:"option"`
 	Description       string      `field:"description" json:"description" bson:"description"`
