@@ -60,7 +60,7 @@ func (lgc *Logics) AddHost(ctx context.Context, appID int64, moduleIDs []int64, 
 		return nil, nil, nil, nil, err
 	}
 
-	hostIDMap, err := instance.ExtractAlreadyExistHosts(ctx, hostInfos)
+	hostIDMap, err := instance.ExtractAlreadyExistHostsV2(ctx, hostInfos)
 	if err != nil {
 		blog.Errorf("get hosts failed, err:%s, rid:%s", err.Error(), lgc.rid)
 		return nil, nil, nil, nil, err
@@ -78,9 +78,16 @@ func (lgc *Logics) AddHost(ctx context.Context, appID int64, moduleIDs []int64, 
 			continue
 		}
 
-		innerIP, isOk := host[common.BKHostInnerIPField].(string)
-		if isOk == false || "" == innerIP {
-			errMsg = append(errMsg, lgc.ccLang.Languagef("host_import_innerip_empty", index))
+		// mod by tes
+		//innerIP, isOk := host[common.BKHostInnerIPField].(string)
+		//if isOk == false || "" == innerIP {
+		//	errMsg = append(errMsg, lgc.ccLang.Languagef("host_import_innerip_empty", index))
+		//	continue
+		//}
+
+		assetId, isOk := host[common.BKAssetIDField].(string)
+		if isOk == false || "" == assetId {
+			errMsg = append(errMsg, lgc.ccLang.Languagef("host_import_asset_empty", index))
 			continue
 		}
 
@@ -113,16 +120,21 @@ func (lgc *Logics) AddHost(ctx context.Context, appID int64, moduleIDs []int64, 
 			existInDB = true
 		} else {
 			// try to get hostID from db
-			key := generateHostCloudKey(innerIP, iSubArea)
+			//key := generateHostCloudKey(innerIP, iSubArea)
+			key := assetId
 			intHostID, existInDB = hostIDMap[key]
 		}
 		var preData mapstr.MapStr
 		// remove unchangeable fields
 		delete(host, common.BKHostIDField)
+		// remove  inner ip and outer ip
+		delete(host, common.BKHostInnerIPField)
+		delete(host, common.BKHostOuterIPField)
+
 		if existInDB {
 			// remove unchangeable fields
-			delete(host, common.BKHostInnerIPField)
-
+			//delete(host, common.BKHostInnerIPField)
+			delete(host, common.BKAssetIDField)
 			// get host info before really change it
 			preData, _, _ = lgc.GetHostInstanceDetails(ctx, ownerID, strconv.FormatInt(intHostID, 10))
 
@@ -138,7 +150,8 @@ func (lgc *Logics) AddHost(ctx context.Context, appID int64, moduleIDs []int64, 
 				continue
 			}
 			host[common.BKHostIDField] = intHostID
-			hostIDMap[generateHostCloudKey(innerIP, iSubArea)] = intHostID
+			//hostIDMap[generateHostCloudKey(innerIP, iSubArea)] = intHostID
+			hostIDMap[assetId] = intHostID
 		}
 		// add current host operate result to  batch add result
 		successMsg = append(successMsg, strconv.FormatInt(index, 10))
@@ -157,7 +170,8 @@ func (lgc *Logics) AddHost(ctx context.Context, appID int64, moduleIDs []int64, 
 				CurData: curData,
 				Headers: auditHeaders,
 			},
-			ExtKey: innerIP,
+			// ExtKey: innerIP,
+			ExtKey: assetId,
 			OpType: auditoplog.AuditOpTypeAdd,
 			BizID:  appID,
 			OpDesc: "import host",
@@ -366,6 +380,60 @@ func (h *importInstance) ExtractAlreadyExistHosts(ctx context.Context, hostInfos
 	hostMap := make(map[string]int64, 0)
 	for _, host := range hResult.Data.Info {
 		key := generateHostCloudKey(host[common.BKHostInnerIPField], host[common.BKCloudIDField])
+		hostID, err := host.Int64(common.BKHostIDField)
+		if err != nil {
+			blog.Errorf("GetHostIDByHostInfoArr get hostID error. err:%s, hostInfo:%#v, rid:%s", err.Error(), host, h.rid)
+			// message format: `convert %s  field %s to %s error %s`
+			return hostMap, h.ccErr.Errorf(common.CCErrCommInstFieldConvertFail, common.BKInnerObjIDHost, common.BKHostIDField, "int", err.Error())
+		}
+		hostMap[key] = hostID
+	}
+
+	return hostMap, nil
+}
+
+// add by tes
+// ExtractAlreadyExistHostsV2 extract hosts that already in db(same asset host)
+// return: map[hostKey]hostID
+func (h *importInstance) ExtractAlreadyExistHostsV2(ctx context.Context, hostInfos map[int64]map[string]interface{}) (map[string]int64, error) {
+	// step1. extract all innerIP from hostInfos
+	var assetArr []string
+	for _, host := range hostInfos {
+		assetId, isOk := host[common.BKAssetIDField].(string)
+		if isOk && "" != assetId {
+			assetArr = append(assetArr, assetId)
+		}
+	}
+	if len(assetArr) == 0 {
+		return make(map[string]int64), nil
+	}
+
+	// step2. query host info by assetIds
+	filter := map[string]interface{}{
+		common.BKAssetIDField: common.KvMap{common.BKDBIN: assetArr},
+	}
+	query := &metadata.QueryCondition{
+		Condition: filter,
+		Limit: metadata.SearchLimit{
+			Offset: 0,
+			Limit:  common.BKNoLimit,
+		},
+	}
+	hResult, err := h.CoreAPI.CoreService().Instance().ReadInstance(ctx, h.pheader, common.BKInnerObjIDHost, query)
+	if err != nil {
+		blog.Errorf("GetHostIDByHostInfoArr ReadInstance http do err. error:%s, input:%#v, rid:%s", err.Error(), query, h.rid)
+		return nil, h.ccErr.CCError(common.CCErrCommHTTPDoRequestFailed)
+	}
+	if !hResult.Result {
+		blog.Errorf("GetHostIDByHostInfoArr ReadInstance http reply err. reply:%#v, input:%#v, rid:%s", hResult, query, h.rid)
+		return nil, h.ccErr.New(hResult.Code, hResult.ErrMsg)
+	}
+
+	// step3. arrange data as a map, cloudKey: hostID
+	hostMap := make(map[string]int64, 0)
+	for _, host := range hResult.Data.Info {
+		// key := generateHostCloudKey(host[common.BKHostInnerIPField], host[common.BKCloudIDField])
+		key := host[common.BKAssetIDField].(string)
 		hostID, err := host.Int64(common.BKHostIDField)
 		if err != nil {
 			blog.Errorf("GetHostIDByHostInfoArr get hostID error. err:%s, hostInfo:%#v, rid:%s", err.Error(), host, h.rid)
