@@ -82,6 +82,9 @@ const (
 	// BKInnerObjIDApp the inner object
 	BKInnerObjIDApp = "biz"
 
+	// BKInnerObjIDRealBiz the inner object
+	BKInnerObjIDRealBiz = "rbiz"
+
 	// BKInnerObjIDSet the inner object
 	BKInnerObjIDSet = "set"
 
