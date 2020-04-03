@@ -15,7 +15,7 @@ package v3v0v8
 import (
 	"context"
 	"fmt"
-
+	"strconv"
 	"strings"
 	"time"
 
@@ -182,8 +182,8 @@ func addBKApp(ctx context.Context, db dal.RDB, conf *upgrader.Config) error {
 	if err := addBKProcess(ctx, db, conf, bizID); err != nil {
 		blog.Error("add addBKProcess error ", err.Error())
 	}
-	if err := addSetInBKApp(ctx, db, conf, bizID); err != nil {
-		blog.Error("add addSetInBKApp error ", err.Error())
+	if err := addRBizInBKApp(ctx, db, conf, bizID); err != nil {
+		blog.Error("add addRBizInBKApp error ", err.Error())
 	}
 
 	return nil
@@ -267,14 +267,45 @@ func addBKProcess(ctx context.Context, db dal.RDB, conf *upgrader.Config, bizID 
 	return nil
 }
 
+// add by tes
+//addRBizInBKApp add rbiz in bk app
+func addRBizInBKApp(ctx context.Context, db dal.RDB, conf *upgrader.Config, bizID uint64) error {
+
+	// add bk app default rbiz
+	inputRBizInfo := make(map[string]interface{})
+	inputRBizInfo["bk_inst_name"] = "REAL业务"
+	inputRBizInfo["bk_inst_desc"] = ""
+	inputRBizInfo["bk_rbiz_env"] = "3"
+	inputRBizInfo["description"] = ""
+	inputRBizInfo[common.BKObjIDField] = common.BKInnerObjIDRealBiz
+	inputRBizInfo[common.BKDefaultField] = common.DefaultFlagDefaultValue
+	inputRBizInfo[common.BKOwnerIDField] = conf.OwnerID
+	inputRBizInfo[common.CreateTimeField] = time.Now()
+	inputRBizInfo[common.LastTimeField] = time.Now()
+	inputRBizInfo[common.BKInstParentStr] = bizID
+	inputRBizInfo[metadata.BKMetadata] = metadata.NewMetaDataFromBusinessID(strconv.FormatUint(bizID, 10))
+	filled := fillEmptyFields(inputRBizInfo, RBizRow())
+	rbizId, _, err := upgrader.Upsert(ctx, db, common.BKTableNameBaseInst, inputRBizInfo, common.BKInstIDField, []string{common.BKOwnerIDField, common.BKInstParentStr, common.BKInstNameField}, append(filled, common.BKInstIDField))
+	if err != nil {
+		blog.Error("add addRBizInBKApp error ", err.Error())
+		return err
+	}
+
+	// add set in rbiz
+	if err := addSetInBKApp(ctx, db, conf, bizID, rbizId); err != nil {
+		blog.Error("add addSetInBKApp error ", err.Error())
+	}
+	return nil
+}
+
 //addSetInBKApp add set in bk app
-func addSetInBKApp(ctx context.Context, db dal.RDB, conf *upgrader.Config, bizID uint64) error {
+func addSetInBKApp(ctx context.Context, db dal.RDB, conf *upgrader.Config, bizID, rbizId uint64) error {
 	for setName, moduleArr := range setModuleKv {
 		setModelData := map[string]interface{}{}
 		setModelData[common.BKSetNameField] = setName
 		setModelData[common.BKAppIDField] = bizID
 		setModelData[common.BKOwnerIDField] = conf.OwnerID
-		setModelData[common.BKInstParentStr] = bizID
+		setModelData[common.BKInstParentStr] = rbizId
 		setModelData[common.BKDefaultField] = common.DefaultFlagDefaultValue
 		setModelData[common.CreateTimeField] = time.Now()
 		setModelData[common.LastTimeField] = time.Now()
