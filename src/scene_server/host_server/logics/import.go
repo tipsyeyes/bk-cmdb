@@ -128,6 +128,9 @@ func (lgc *Logics) AddHost(ctx context.Context, appID int64, moduleIDs []int64, 
 		// remove unchangeable fields
 		delete(host, common.BKHostIDField)
 		// remove  inner ip and outer ip
+
+		// add by tes
+		// remove host inner & outer ip when import host
 		delete(host, common.BKHostInnerIPField)
 		delete(host, common.BKHostOuterIPField)
 
