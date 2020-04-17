@@ -277,6 +277,13 @@ func addRBizInBKApp(ctx context.Context, db dal.RDB, conf *upgrader.Config, bizI
 	inputRBizInfo["bk_inst_desc"] = ""
 	inputRBizInfo["bk_rbiz_env"] = "3"
 	inputRBizInfo["description"] = ""
+
+	///////////////////////////////////////////////////////////////////////////////
+	// 默认调用接口/create/topomodelmainline增加拓扑对象模型，给所有父节点新增实例时，也没有写入此字段，应该没什么影响
+	// 给所有父节点新增实例时，也会给 "资源池"加上，没有加应该也没什么影响
+	inputRBizInfo["bk_biz_id"] = bizID
+	///////////////////////////////////////////////////////////////////////////////
+
 	inputRBizInfo[common.BKObjIDField] = common.BKInnerObjIDRealBiz
 	inputRBizInfo[common.BKDefaultField] = common.DefaultFlagDefaultValue
 	inputRBizInfo[common.BKOwnerIDField] = conf.OwnerID
