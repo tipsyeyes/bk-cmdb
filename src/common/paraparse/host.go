@@ -91,6 +91,21 @@ func ParseHostParams(input []metadata.ConditionItem, output map[string]interface
 				// a or operator can not have a empty value in mongodb.
 				output[common.BKDBOR] = fields
 			}
+		case common.BKDBSEARCH:
+			// add by elias
+			// for host fuzzy search, field like bk_asset_id/bk_host_innerip/bk_host_outerip/bk_host_name
+			search, ok := i.Value.(string)
+			if !ok {
+				return fmt.Errorf("operator %s only support for string", common.BKDBSEARCH)
+			}
+			fields := []string{"bk_asset_id", "bk_host_innerip", "bk_host_outerip", "bk_host_name"}
+			dBFields := make([]interface{}, 0)
+			for _, field := range fields {
+				dBFields = append(dBFields, mapstr.MapStr{field: mapstr.MapStr{common.BKDBLIKE: search}})
+			}
+			if len(fields) != 0 {
+				output[common.BKDBOR] = dBFields
+			}
 		default:
 			queryCondItem, ok := output[i.Field].(map[string]interface{})
 			if !ok {
