@@ -29,8 +29,8 @@ db.getCollection("cc_HostBase").find({
 
  */
 
-
-func TestHostSearch(t *testing.T) {
+// 测试 core service主机查询
+func TestCoreServiceHostSearch(t *testing.T) {
 	// 查找主机
 	condition := map[string]interface{}{
 		"$or": []map[string]interface{}{
@@ -38,6 +38,8 @@ func TestHostSearch(t *testing.T) {
 			{"bk_host_name": map[string]interface{}{"$regex": "hostname-aa"}},
 		},
 	}
+
+	// 问题 3.6.1的版本，当多个包含查询时，只保存了最后的 $or条件，导致查询结果异常
 	query := &metadata.QueryInput{
 		Condition: condition,
 		Start:     0,
@@ -51,6 +53,6 @@ func TestHostSearch(t *testing.T) {
 		fmt.Println(err)
 		return
 	}
-	fmt.Println("host count: ", gResult.Data.Count)
+	fmt.Println("\nhost count: ", gResult.Data.Count)
 
 }
