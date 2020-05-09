@@ -41,6 +41,8 @@ func (lgc *Logics) SearchHost(ctx context.Context, data *metadata.HostCommonSear
 	if err != nil {
 		return retHostInfo, err
 	}
+	// add by elias 05/09
+	hostInfoArr, _ = searchHostInst.FillIPDetail(hostInfoArr)
 
 	retHostInfo.Count = cnt
 	if cnt > 0 {
@@ -125,6 +127,7 @@ type searchHostInterface interface {
 	ParseCondition()
 	SearchHostByConds() errors.CCError
 	FillTopologyData() ([]mapstr.MapStr, int, errors.CCError)
+	FillIPDetail([]mapstr.MapStr) ([]mapstr.MapStr, errors.CCError)
 }
 
 func NewSearchHost(ctx context.Context, lgc *Logics, hostSearchParam *metadata.HostCommonSearch) searchHostInterface {
@@ -525,9 +528,15 @@ func (sh *searchHost) searchByTopo() errors.CCError {
 	if err != nil {
 		return err
 	}
+	// add by elias 05/08
+	err = sh.searchByAssociation()
+	if err != nil {
+		return err
+	}
 	if sh.noData {
 		return nil
 	}
+
 	return nil
 }
 
@@ -829,7 +838,7 @@ func (sh *searchHost) appendHostTopoConds() errors.CCError {
 // Query host information based on associated objects, alternate code
 func (sh *searchHost) searchByAssociation() errors.CCError {
 	instAsstHostIDArr := make([]int64, 0)
-	//search host id by object
+	// search host id by object
 	firstCond := true
 	if len(sh.conds.objectCondMap) > 0 {
 		for objID, objCond := range sh.conds.objectCondMap {
@@ -849,14 +858,16 @@ func (sh *searchHost) searchByAssociation() errors.CCError {
 			firstCond = false
 		}
 
-	}
-	instAsstHostIDArr = util.IntArrayUnique(instAsstHostIDArr)
-	if len(sh.conds.objectCondMap) > 0 {
+		if len(instAsstHostIDArr) == 0 {
+			sh.noData = true
+			return nil
+		}
+
+		instAsstHostIDArr = util.IntArrayUnique(instAsstHostIDArr)
 		sh.idArr.moduleHostConfig.asstHostIDArr = instAsstHostIDArr
 	}
 
 	return nil
-
 }
 
 func (sh *searchHost) tryParseAppID() {
@@ -868,4 +879,58 @@ func (sh *searchHost) tryParseAppID() {
 			Value:    sh.hostSearchParam.AppID,
 		})
 	}
+}
+
+// FillIpDetail add by elias 05/09
+// Fill the host ip detail
+func (sh *searchHost) FillIPDetail(allHosts []mapstr.MapStr) ([]mapstr.MapStr, errors.CCError) {
+	hostIpArr := make([]string, 0)
+	for _, hostInfoItem := range sh.hostInfoArr {
+		innerIpStr, _ := hostInfoItem.hostInfo.String(common.BKHostInnerIPField)
+		outerIpStr, _ := hostInfoItem.hostInfo.String(common.BKHostOuterIPField)
+		innerIps := util.SplitStrField(innerIpStr, ",")
+		outerIps := util.SplitStrField(outerIpStr, ",")
+		hostIpArr = append(hostIpArr, innerIps...)
+		hostIpArr = append(hostIpArr, outerIps...)
+	}
+	cond := []metadata.ConditionItem{
+		{
+			Field: common.BKInstNameField,
+			Operator: common.BKDBIN,
+			Value: hostIpArr,
+		},
+	}
+	instArr, err := sh.lgc.GetObjectInstDetailByCond(sh.ctx, common.BKInnerObjIDIPRES, cond)
+	if err != nil {
+		return allHosts, err
+	}
+	instMap := make(map[string]mapstr.MapStr)
+	for _, instItem := range instArr {
+		index, _ := instItem.String(common.BKInstNameField)
+		instMap[index] = instItem
+	}
+
+	// fill host ip info
+	for _, hostItem := range allHosts {
+		hostDetailTmp, _ := hostItem.Get(common.BKInnerObjIDHost)
+		hostDetail := hostDetailTmp.(mapstr.MapStr)
+		innerIpx := make([]mapstr.MapStr, 0)
+		outerIpx := make([]mapstr.MapStr, 0)
+		if innerIpStr, _ := hostDetail.String(common.BKHostInnerIPField); innerIpStr != "" {
+			innerIps := util.SplitStrField(innerIpStr, ",")
+			for _, innerIp := range innerIps {
+				innerIpx = append(innerIpx, instMap[innerIp])
+			}
+		}
+		if outerIpStr, _ := hostDetail.String(common.BKHostOuterIPField); outerIpStr != "" {
+			outerIps := util.SplitStrField(outerIpStr, ",")
+			for _, outerIp := range outerIps {
+				outerIpx = append(outerIpx, instMap[outerIp])
+			}
+		}
+		hostDetail.Set("bk_host_innerip_x", innerIpx)
+		hostDetail.Set("bk_host_outerip_x", outerIpx)
+	}
+
+	return allHosts, nil
 }

@@ -244,7 +244,7 @@ func (lgc *Logics) GetObjectInstByCond(ctx context.Context, objID string, cond [
 	} else {
 		condc[common.BKObjIDField] = objID
 		outField = common.BKInstIDField
-		objType = common.BKInnerObjIDObject
+		objType = objID
 	}
 
 	query := &meta.QueryCondition{
@@ -300,4 +300,38 @@ func (lgc *Logics) GetHostIDByInstID(ctx context.Context, asstObjId string, inst
 	}
 
 	return hostIDs, nil
+}
+
+// GetObjectInstDetailByCond add by elias 05/09
+// Get the object instance detail by condition
+func (lgc *Logics) GetObjectInstDetailByCond(ctx context.Context, objID string, cond []meta.ConditionItem) ([]mapstr.MapStr, errors.CCError) {
+	condc := make(map[string]interface{})
+	if err := parse.ParseCommonParams(cond, condc); err != nil {
+		blog.Errorf("GetObjectInstByCond failed, ParseCommonParams failed, err: %+v, rid: %s", err, lgc.rid)
+		return nil, err
+	}
+
+	var objType string
+	if objID == common.BKInnerObjIDPlat {
+		objType = common.BKInnerObjIDPlat
+	} else {
+		condc[common.BKObjIDField] = objID
+		objType = objID
+	}
+
+	query := &meta.QueryCondition{
+		Condition: mapstr.NewFromMap(condc),
+		SortArr:   meta.NewSearchSortParse().String(common.BKAppIDField).ToSearchSortArr(),
+	}
+	result, err := lgc.CoreAPI.CoreService().Instance().ReadInstance(ctx, lgc.header, objType, query)
+	if err != nil {
+		blog.Errorf("GetObjectInstByCond http do error, err:%s,objID:%s,input:%+v,rid:%s", err.Error(), objID, query, lgc.rid)
+		return nil, lgc.ccErr.Error(common.CCErrCommHTTPDoRequestFailed)
+	}
+	if !result.Result {
+		blog.Errorf("GetObjectInstByCond http response error, err code:%d, err msg:%s,objID:%s,input:%+v,rid:%s", result.Code, result.ErrMsg, objID, query, lgc.rid)
+		return nil, lgc.ccErr.New(result.Code, result.ErrMsg)
+	}
+
+	return result.Data.Info, nil
 }
