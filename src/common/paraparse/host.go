@@ -61,6 +61,10 @@ type SearchCondition struct {
 }
 
 func ParseHostParams(input []metadata.ConditionItem, output map[string]interface{}) error {
+
+	// add by elias 05/14
+	multiAndOper := make([]map[string]interface{}, 0)
+
 	for _, i := range input {
 		switch i.Operator {
 		case common.BKDBEQ:
@@ -105,6 +109,29 @@ func ParseHostParams(input []metadata.ConditionItem, output map[string]interface
 			}
 			if len(fields) != 0 {
 				output[common.BKDBOR] = dBFields
+			}
+		case common.BKDBLIKEX:
+			// mod by elias 05/14
+			// $multilike多个查询未取交集，且一直取的最后一个 $multilike字段，导致查询结果异常，use $regexx
+			multi, ok := i.Value.([]interface{})
+			if !ok {
+				return fmt.Errorf("operator %s only support for string array", common.BKDBLIKEX)
+			} else {
+				multiOrOper := map[string]interface{}{}
+				fields := make([]interface{}, 0)
+				for _, m := range multi {
+					mstr, ok := m.(string)
+					if !ok {
+						return fmt.Errorf("operator %s only support for string array", common.BKDBLIKEX)
+					}
+					fields = append(fields, mapstr.MapStr{i.Field: mapstr.MapStr{common.BKDBLIKE: mstr}})
+				}
+				if len(fields) != 0 {
+					// only when the fields is none empty, then the fields is valid.
+					// a or operator can not have a empty value in mongodb.
+					multiOrOper[common.BKDBOR] = fields
+					multiAndOper = append(multiAndOper, multiOrOper)
+				}
 			}
 		default:
 			queryCondItem, ok := output[i.Field].(map[string]interface{})
@@ -155,7 +182,19 @@ func ParseHostIPParams(ipCond metadata.IPInfo, output map[string]interface{}) er
 				return fmt.Errorf("unsupported ip.flag %s", flag)
 			}
 		}
-		output[common.BKDBOR] = exactOr
+
+		// add by elias 05/14
+		multiAndOperTmp, ok := output[common.BKDBAND]
+		if !ok {
+			output[common.BKDBOR] = exactOr
+		} else {
+			multiOrOper := map[string]interface{}{}
+			multiOrOper[common.BKDBOR] = exactOr
+
+			multiAndOper := multiAndOperTmp.([]map[string]interface{})
+			multiAndOper = append(multiAndOper, multiOrOper)
+			output[common.BKDBAND] = multiAndOper
+		}
 	} else {
 		// not exact search
 		orCond := make([]map[string]map[string]interface{}, 0)
@@ -181,7 +220,17 @@ func ParseHostIPParams(ipCond metadata.IPInfo, output map[string]interface{}) er
 				return fmt.Errorf("unsupported ip.flag %s", flag)
 			}
 		}
-		output[common.BKDBOR] = orCond
+		multiAndOperTmp, ok := output[common.BKDBAND]
+		if !ok {
+			output[common.BKDBOR] = orCond
+		} else {
+			multiOrOper := map[string]interface{}{}
+			multiOrOper[common.BKDBOR] = orCond
+
+			multiAndOper := multiAndOperTmp.([]map[string]interface{})
+			multiAndOper = append(multiAndOper, multiOrOper)
+			output[common.BKDBAND] = multiAndOper
+		}
 	}
 	return nil
 }

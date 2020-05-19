@@ -145,6 +145,7 @@ const (
 	// add by elias
 	// used only for host search
 	BKDBSEARCH = "$search"
+	BKDBLIKEX = "$regexx"
 
 	// BKDBIN the db operator
 	BKDBIN = "$in"
