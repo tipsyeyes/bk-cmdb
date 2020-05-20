@@ -18,3 +18,5 @@ pid/
 logs/
 
 *.exe
+
+.DS_Store
