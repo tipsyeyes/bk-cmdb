@@ -73,6 +73,11 @@ func (o *operation) WithObjID(objID string) *operation {
 	return o
 }
 
+func (o *operation) WithInstIDx(id map[string]interface{}) *operation {
+	o.op[common.BKObjIDField] = id
+	return o
+}
+
 func (o *operation) WithPropertyID(id string) *operation {
 	o.op[common.BKObjAttIDField] = id
 	return o
