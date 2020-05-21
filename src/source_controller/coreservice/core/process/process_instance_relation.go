@@ -18,6 +18,7 @@ import (
 	"configcenter/src/common/errors"
 	"configcenter/src/common/eventclient"
 	"configcenter/src/common/metadata"
+	"configcenter/src/common/util"
 	"configcenter/src/source_controller/coreservice/core"
 )
 
@@ -181,6 +182,33 @@ func (p *processOperation) ListProcessInstanceRelation(ctx core.ContextParams, o
 	return result, nil
 }
 
+func (p *processOperation) ListHostProcessRelation(ctx core.ContextParams, option *metadata.ListProcessInstancesWithHostOption) (*metadata.MultipleHostProcessRelation, errors.CCErrorCoder) {
+	filter := map[string]interface{}{
+		common.BKAppIDField: option.BizID,
+	}
+	if option.HostIDs != nil && len(option.HostIDs) > 0 {
+		filter[common.BKHostIDField] = map[string]interface{}{
+			common.BKDBIN: option.HostIDs,
+		}
+	}
+	filter = util.SetQueryOwner(filter, ctx.SupplierAccount)
+	count, err := p.dbProxy.Table(common.BKTableNameProcessInstanceRelation).Find(filter).Count(ctx.Context)
+	if err != nil {
+		blog.ErrorJSON("ListHostProcessRelation count mongodb failed, table: %s, filter: %s, err: %s, rid: %s", common.BKTableNameProcessInstanceRelation, filter, err, ctx.ReqID)
+		return nil, ctx.Error.CCErrorf(common.CCErrCommDBSelectFailed)
+	}
+	relations := make([]metadata.HostProcessRelation, 0)
+	if err := p.dbProxy.Table(common.BKTableNameProcessInstanceRelation).Find(filter).Start(
+		uint64(option.Page.Start)).Limit(uint64(option.Page.Limit)).Sort(option.Page.Sort).All(ctx.Context, &relations); err != nil {
+		blog.ErrorJSON("ListHostProcessRelation select mongodb failed, table: %s, filter: %s, err: %s, rid: %s", common.BKTableNameProcessInstanceRelation, filter, err, ctx.ReqID)
+		return nil, ctx.Error.CCErrorf(common.CCErrCommDBSelectFailed)
+	}
+	return &metadata.MultipleHostProcessRelation{
+		Count: count,
+		Info:  relations,
+	}, nil
+}
+
 func (p *processOperation) DeleteProcessInstanceRelation(ctx core.ContextParams, option metadata.DeleteProcessInstanceRelationOption) errors.CCErrorCoder {
 	deleteFilter := map[string]interface{}{}
 	if option.BusinessID != nil {
@@ -212,7 +240,7 @@ func (p *processOperation) DeleteProcessInstanceRelation(ctx core.ContextParams,
 		}
 	}
 
-	if parameterEnough == false {
+	if !parameterEnough {
 		blog.Errorf("DeleteProcessInstanceRelation failed, filter parameters not enough, filter: %+v, rid: %s", deleteFilter, ctx.ReqID)
 		return ctx.Error.CCErrorf(common.CCErrCommParametersCountNotEnough)
 	}

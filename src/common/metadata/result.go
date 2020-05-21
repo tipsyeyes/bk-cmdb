@@ -22,10 +22,10 @@ import (
 
 // BaseResp common result struct
 type BaseResp struct {
-	Result      bool         `json:"result"`
-	Code        int          `json:"bk_error_code"`
-	ErrMsg      string       `json:"bk_error_msg"`
-	Permissions []Permission `json:"permission"`
+	Result      bool         `json:"result" mapstructure:"result"`
+	Code        int          `json:"bk_error_code" mapstructure:"bk_error_code"`
+	ErrMsg      string       `json:"bk_error_msg" mapstructure:"bk_error_msg"`
+	Permissions []Permission `json:"permission" mapstructure:"permission"`
 }
 
 // CCError 根据response返回的信息产生错误
@@ -107,6 +107,12 @@ type CreatedCount struct {
 // UpdatedCount created count struct
 type UpdatedCount struct {
 	Count uint64 `json:"updated_count"`
+}
+
+// UpdateAttributeIndex created bk_property_index info struct
+type UpdateAttributeIndex struct {
+	Id    int64 `json:"id"`
+	Index int64 `json:"index"`
 }
 
 // DeletedCount created count struct
@@ -200,6 +206,12 @@ type QueryModelAttributeGroupDataResult struct {
 type QueryModelClassificationDataResult struct {
 	Count int64            `json:"count"`
 	Info  []Classification `json:"info"`
+}
+
+// SearchAssociationKindResult search association kind result definition
+type SearchAssociationKindResult struct {
+	Count uint64            `json:"count"`
+	Info  []AssociationKind `json:"info"`
 }
 
 // ReadModelAttrResult  read model attribute api http response return result struct

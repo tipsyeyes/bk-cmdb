@@ -73,7 +73,7 @@
             v-bkloading="{ isLoading: $loading('getOperationLog') }"
             :data="table.list"
             :pagination="table.pagination"
-            :max-height="$APP.height - 190"
+            :max-height="$APP.height - 200"
             :row-style="{ cursor: 'pointer' }"
             @page-change="handlePageChange"
             @page-limit-change="handleSizeChange"
@@ -93,12 +93,14 @@
             <bk-table-column
                 sortable="custom"
                 prop="op_desc"
-                :label="$t('描述')">
+                :label="$t('描述')"
+                show-overflow-tooltip>
             </bk-table-column>
             <bk-table-column
                 sortable="custom"
                 prop="bk_biz_id"
-                :label="$t('所属业务')">
+                :label="$t('所属业务')"
+                show-overflow-tooltip>
                 <template slot-scope="{ row }">{{row.bk_biz_name}}</template>
             </bk-table-column>
             <bk-table-column
@@ -273,7 +275,7 @@
             }
         },
         created () {
-            this.$store.dispatch('objectBiz/getAuthorizedBusiness')
+            this.$store.dispatch('objectBiz/getAuthorizedBusiness', 'bk_biz_name')
         },
         mounted () {
             this.initDate()
@@ -351,7 +353,7 @@
 
 <style lang="scss" scoped>
     .audit-wrapper {
-        padding: 0 20px;
+        padding: 15px 20px 0;
     }
     .title-content{
         padding: 0 0 14px 0;

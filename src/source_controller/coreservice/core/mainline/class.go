@@ -13,14 +13,14 @@
 package mainline
 
 import (
-	"configcenter/src/common/util"
 	"context"
 	"fmt"
+	"net/http"
 
 	"configcenter/src/common"
 	"configcenter/src/common/blog"
 	"configcenter/src/common/metadata"
-	"configcenter/src/common/universalsql/mongo"
+	"configcenter/src/common/util"
 	"configcenter/src/storage/dal"
 )
 
@@ -36,12 +36,13 @@ func NewModelMainline(proxy dal.RDB) (*ModelMainline, error) {
 	return modelMainline, nil
 }
 
-func (mm *ModelMainline) loadMainlineAssociations(ctx context.Context) error {
+func (mm *ModelMainline) loadMainlineAssociations(ctx context.Context, header http.Header) error {
 	rid := util.ExtractRequestIDFromContext(ctx)
-	mongoCondition := mongo.NewCondition()
-	mongoCondition.Element(&mongo.Eq{Key: common.AssociationKindIDField, Val: common.AssociationKindMainline})
-
-	err := mm.dbProxy.Table(common.BKTableNameObjAsst).Find(mongoCondition.ToMapStr()).All(context.TODO(), &mm.associations)
+	filter := map[string]interface{}{
+		common.AssociationKindIDField: common.AssociationKindMainline,
+	}
+    filter = util.SetQueryOwner(filter, util.GetOwnerID(header))
+	err := mm.dbProxy.Table(common.BKTableNameObjAsst).Find(filter).All(ctx, &mm.associations)
 	if err != nil {
 		blog.Errorf("query topo model mainline association from db failed, %+v, rid: %s", err, rid)
 		return fmt.Errorf("query topo model mainline association from db failed, %+v", err)
@@ -57,7 +58,7 @@ func (mm *ModelMainline) constructTopoTree(ctx context.Context) error {
 	for _, association := range mm.associations {
 		blog.V(5).Infof("association: %+v, rid: %s", association, rid)
 		parentObjectID := association.AsstObjID
-		if _, exist := topoModelNodeMap[parentObjectID]; exist == false {
+		if _, exist := topoModelNodeMap[parentObjectID]; !exist {
 			topoModelNodeMap[parentObjectID] = &metadata.TopoModelNode{
 				ObjectID: parentObjectID,
 				Children: []*metadata.TopoModelNode{},
@@ -72,7 +73,7 @@ func (mm *ModelMainline) constructTopoTree(ctx context.Context) error {
 		}
 
 		childObjectID := association.ObjectID
-		if _, exist := topoModelNodeMap[childObjectID]; exist == false {
+		if _, exist := topoModelNodeMap[childObjectID]; !exist {
 			topoModelNodeMap[childObjectID] = &metadata.TopoModelNode{
 				ObjectID: childObjectID,
 				Children: []*metadata.TopoModelNode{},
@@ -84,9 +85,9 @@ func (mm *ModelMainline) constructTopoTree(ctx context.Context) error {
 	return nil
 }
 
-func (mm *ModelMainline) GetRoot(ctx context.Context, withDetail bool) (*metadata.TopoModelNode, error) {
+func (mm *ModelMainline) GetRoot(ctx context.Context, header http.Header, withDetail bool) (*metadata.TopoModelNode, error) {
 	rid := util.ExtractRequestIDFromContext(ctx)
-	if err := mm.loadMainlineAssociations(ctx); err != nil {
+	if err := mm.loadMainlineAssociations(ctx, header); err != nil {
 		blog.Errorf("get topo model failed, load model mainline associations failed, err: %+v, rid: %s", err, rid)
 		return nil, fmt.Errorf("get topo model failed, load model mainline associations failed, err: %+v", err)
 	}
@@ -95,7 +96,7 @@ func (mm *ModelMainline) GetRoot(ctx context.Context, withDetail bool) (*metadat
 		blog.Errorf("get topo model failed, construct tree from model mainline associations failed, err: %+v, rid: %s", err, rid)
 		return nil, fmt.Errorf("get topo model failed, construct tree from model mainline associations failed, err: %+v", err)
 	}
-	if withDetail == true {
+	if withDetail {
 		// thinking what's detail actually
 		panic("detail option not implemented yet.")
 	}

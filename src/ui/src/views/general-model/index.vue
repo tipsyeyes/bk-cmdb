@@ -34,6 +34,7 @@
                 </div>
                 <cmdb-auth class="fl mr10" :auth="$authResources({ type: $OPERATION.D_INST, parent_layers: parentLayers })">
                     <bk-button slot-scope="{ disabled }"
+                        hover-theme="danger"
                         class="models-button button-delete"
                         :disabled="!table.checked.length || disabled"
                         @click="handleMultipleDelete">
@@ -59,21 +60,22 @@
                     searchable
                     font-size="medium"
                     :clearable="false">
-                    <bk-option v-for="(option, index) in filter.options"
-                        :key="index"
+                    <bk-option v-for="option in filter.options"
+                        :key="option.id"
                         :id="option.id"
                         :name="option.name">
                     </bk-option>
                 </bk-select>
-                <cmdb-form-enum class="filter-value fl"
-                    v-if="filter.type === 'enum'"
+                <component class="filter-value fl"
+                    v-if="['enum', 'list'].includes(filter.type)"
+                    :is="`cmdb-form-${filter.type}`"
                     :options="$tools.getEnumOptions(properties, filter.id)"
                     :allow-clear="true"
                     :auto-select="false"
-                    font-size="medium"
                     v-model="filter.value"
-                    @on-selected="getTableData(true)">
-                </cmdb-form-enum>
+                    font-size="medium"
+                    @on-selected="handlePageChange(1, true)">
+                </component>
                 <bk-input class="filter-value cmdb-form-input fl" type="text" maxlength="11"
                     v-else-if="filter.type === 'int'"
                     v-model.number="filter.value"
@@ -81,7 +83,8 @@
                     right-icon="icon-search"
                     font-size="medium"
                     :placeholder="$t('快速查询')"
-                    @enter="getTableData(true)">
+                    @enter="handlePageChange(1, true)"
+                    @clear="handlePageChange(1)">
                 </bk-input>
                 <bk-input class="filter-value cmdb-form-input fl" type="text"
                     v-else-if="filter.type === 'float'"
@@ -90,7 +93,8 @@
                     right-icon="icon-search"
                     font-size="medium"
                     :placeholder="$t('快速查询')"
-                    @enter="getTableData(true)">
+                    @enter="handlePageChange(1, true)"
+                    @clear="handlePageChange(1)">
                 </bk-input>
                 <bk-input class="filter-value cmdb-form-input fl" type="text"
                     v-else
@@ -99,7 +103,8 @@
                     right-icon="icon-search"
                     font-size="medium"
                     :placeholder="$t('快速查询')"
-                    @enter="getTableData(true)">
+                    @enter="handlePageChange(1, true)"
+                    @clear="handlePageChange(1)">
                 </bk-input>
             </div>
         </div>
@@ -121,9 +126,10 @@
                 :prop="column.id"
                 :label="column.name"
                 :class-name="column.id === 'bk_inst_name' ? 'is-highlight' : ''"
-                :fixed="column.id === 'bk_inst_name'">
+                :fixed="column.id === 'bk_inst_name'"
+                show-overflow-tooltip>
                 <template slot-scope="{ row }">
-                    <span>{{row[column.id] | addUnit(getPropertyUnit(column.id))}}</span>
+                    <span>{{row[column.id] | formatter(column.property)}}</span>
                 </template>
             </bk-table-column>
             <cmdb-table-empty
@@ -194,7 +200,7 @@
         <bk-sideslider v-transfer-dom :is-show.sync="columnsConfig.show" :width="600" :title="$t('列表显示属性配置')">
             <cmdb-columns-config slot="content"
                 v-if="columnsConfig.show"
-                :properties="properties"
+                :properties="columnProperties"
                 :selected="columnsConfig.selected"
                 :disabled-columns="columnsConfig.disabledColumns"
                 @on-apply="handleApplyColumnsConfig"
@@ -225,16 +231,7 @@
     import cmdbAuditHistory from '@/components/audit-history/audit-history.vue'
     import cmdbRelation from '@/components/relation'
     import cmdbImport from '@/components/import/import'
-    import { MENU_RESOURCE_MANAGEMENT } from '@/dictionary/menu-symbol'
     export default {
-        filters: {
-            addUnit (value, unit) {
-                if (value === '--' || !unit) {
-                    return value
-                }
-                return value + unit
-            }
-        },
         components: {
             cmdbColumnsConfig,
             cmdbAuditHistory,
@@ -250,7 +247,6 @@
                     checked: [],
                     header: [],
                     list: [],
-                    allList: [],
                     pagination: {
                         count: 0,
                         current: 1,
@@ -330,6 +326,15 @@
                     resource_id: this.model.id,
                     resource_type: 'model'
                 }]
+            },
+            columnProperties () {
+                const instId = {
+                    bk_property_id: 'bk_inst_id',
+                    bk_property_name: 'ID'
+                }
+                const properties = this.properties
+                properties.push(instId)
+                return properties
             }
         },
         watch: {
@@ -374,21 +379,6 @@
             ]),
             setDynamicBreadcrumbs () {
                 this.$store.commit('setTitle', this.model.bk_obj_name)
-                this.$store.commit('setBreadcrumbs', [{
-                    label: this.$t('资源目录'),
-                    route: {
-                        name: MENU_RESOURCE_MANAGEMENT
-                    }
-                }, {
-                    label: this.model.bk_obj_name
-                }])
-            },
-            getPropertyUnit (propertyId) {
-                const property = this.properties.find(property => property.bk_property_id === propertyId)
-                if (!property) {
-                    return ''
-                }
-                return property.unit || ''
             },
             async reload () {
                 try {
@@ -419,7 +409,6 @@
                     checked: [],
                     header: [],
                     list: [],
-                    allList: [],
                     pagination: {
                         count: 0,
                         current: 1,
@@ -450,7 +439,7 @@
             },
             setTableHeader () {
                 return new Promise((resolve, reject) => {
-                    const headerProperties = this.$tools.getHeaderProperties(this.properties, this.customColumns, this.columnsConfig.disabledColumns)
+                    const headerProperties = this.$tools.getHeaderProperties(this.columnProperties, this.customColumns, this.columnsConfig.disabledColumns)
                     resolve(headerProperties)
                 }).then(properties => {
                     this.updateTableHeader(properties)
@@ -469,18 +458,11 @@
             updateTableHeader (properties) {
                 this.table.header = properties.map(property => {
                     return {
-                        id: property['bk_property_id'],
-                        name: property['bk_property_name']
+                        id: property.bk_property_id,
+                        name: this.$tools.getHeaderPropertyName(property),
+                        property
                     }
                 })
-            },
-            async handleCheckAll (type) {
-                if (type === 'current') {
-                    this.table.checked = this.table.list.map(inst => inst['bk_inst_id'])
-                } else {
-                    const allData = await this.getAllInstList()
-                    this.table.checked = allData.info.map(inst => inst['bk_inst_id'])
-                }
             },
             handleRowClick (item) {
                 this.slider.show = true
@@ -496,9 +478,9 @@
                 this.table.pagination.limit = size
                 this.handlePageChange(1)
             },
-            handlePageChange (page) {
+            handlePageChange (page, withFilter = false) {
                 this.table.pagination.current = page
-                this.getTableData()
+                this.getTableData(withFilter)
             },
             handleSelectChange (selection) {
                 this.table.checked = selection.map(row => row.bk_inst_id)
@@ -510,47 +492,16 @@
                     config: Object.assign({ requestId: `post_searchInst_${this.objId}` }, config)
                 })
             },
-            getAllInstList () {
-                return this.searchInst({
-                    objId: this.objId,
-                    params: this.$injectMetadata({
-                        ...this.getSearchParams(),
-                        page: {}
-                    }, { inject: !this.isPublicModel }),
-                    config: {
-                        requestId: `${this.objId}AllList`,
-                        cancelPrevious: true
-                    }
-                }).then(data => {
-                    this.table.allList = data.info
-                    return data
-                })
-            },
-            setAllHostList (list) {
-                const newList = []
-                list.forEach(item => {
-                    const existItem = this.table.allList.some(existItem => existItem['bk_inst_id'] === item['bk_inst_id'])
-                    if (existItem) {
-                        Object.assign(existItem, item)
-                    } else {
-                        newList.push(item)
-                    }
-                })
-                this.table.allList = [...this.table.allList, ...newList]
-            },
-            getTableData (event) {
+            getTableData (withFilter) {
                 this.getInstList({ cancelPrevious: true, globalPermission: false }).then(data => {
                     if (data.count && !data.info.length) {
                         this.table.pagination.current -= 1
                         this.getTableData()
                     }
-                    this.table.list = this.$tools.flattenList(this.properties, data.info)
+                    this.table.list = data.info
                     this.table.pagination.count = data.count
-                    this.setAllHostList(data.info)
 
-                    if (event) {
-                        this.table.stuff.type = 'search'
-                    }
+                    this.table.stuff.type = withFilter ? 'search' : 'default'
 
                     return data
                 }).catch(({ permission }) => {
@@ -615,6 +566,7 @@
                         })
                     }
                 } else if (this.$route.params.instId) {
+                    // 配合全文检索过滤列表
                     params.condition[this.objId].push({
                         field: 'bk_inst_id',
                         operator: '$in',
@@ -624,10 +576,8 @@
                 }
                 return params
             },
-            async handleEdit (flattenItem) {
-                const list = await this.getInstList({ fromCache: true })
-                const inst = list.info.find(item => item['bk_inst_id'] === flattenItem['bk_inst_id'])
-                this.attribute.inst.edit = inst
+            async handleEdit (item) {
+                this.attribute.inst.edit = item
                 this.attribute.type = 'update'
             },
             handleCreate () {
@@ -662,13 +612,7 @@
                         params: this.$injectMetadata(values, { inject: !this.isPublicModel })
                     }).then(() => {
                         this.getTableData()
-                        this.searchInstById({
-                            objId: this.objId,
-                            instId: originalValues['bk_inst_id'],
-                            params: this.$injectMetadata({}, { inject: !this.isPublicModel })
-                        }).then(item => {
-                            this.attribute.inst.details = this.$tools.flattenItem(this.properties, item)
-                        })
+                        this.attribute.inst.details = Object.assign({}, originalValues, values)
                         this.handleCancel()
                         this.$success(this.$t('修改成功'))
                     })
@@ -815,7 +759,7 @@
 
 <style lang="scss" scoped>
     .models-layout {
-        padding: 0 20px;
+        padding: 15px 20px 0;
     }
     .options-filter{
         position: relative;
@@ -844,14 +788,6 @@
         position: relative;
         &:hover{
             z-index: 1;
-            &.button-delete {
-                color: $cmdbDangerColor;
-                border-color: $cmdbDangerColor;
-            }
-            /deep/ &.bk-button.bk-default[disabled] {
-                border-color: #dcdee5 !important;
-                color: #c4c6cc !important;
-            }
         }
     }
     .models-table{

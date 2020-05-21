@@ -13,8 +13,11 @@
 package model
 
 import (
+	"context"
+	"fmt"
 	"regexp"
 	"strings"
+	"sync"
 	"time"
 	"unicode/utf8"
 
@@ -26,6 +29,7 @@ import (
 	"configcenter/src/common/universalsql/mongo"
 	"configcenter/src/common/util"
 	"configcenter/src/source_controller/coreservice/core"
+	"configcenter/src/storage/dal"
 )
 
 var (
@@ -63,6 +67,12 @@ func (m *modelAttribute) save(ctx core.ContextParams, attribute metadata.Attribu
 		return id, ctx.Error.New(common.CCErrObjectDBOpErrno, err.Error())
 	}
 
+	index, err := m.GetAttrLastIndex(ctx, attribute)
+	if err != nil {
+		return id, err
+	}
+
+	attribute.PropertyIndex = index
 	attribute.ID = int64(id)
 	attribute.OwnerID = ctx.SupplierAccount
 
@@ -85,31 +95,33 @@ func (m *modelAttribute) save(ctx core.ContextParams, attribute metadata.Attribu
 }
 
 func (m *modelAttribute) checkUnique(ctx core.ContextParams, isCreate bool, objID, propertyID, propertyName string, meta metadata.Metadata) error {
-	cond := mongo.NewCondition()
-	cond = cond.Element(mongo.Field(common.BKObjIDField).Eq(objID))
-
-	isExist, bizID := meta.Label.Get(common.BKAppIDField)
-	if isExist {
-		_, metaCond := cond.Embed(metadata.BKMetadata)
-		_, labelCond := metaCond.Embed(metadata.BKLabel)
-		labelCond.Element(&mongo.Eq{Key: common.BKAppIDField, Val: bizID})
+	cond := map[string]interface{}{
+		common.BKObjIDField: objID,
 	}
+	orCond := make([]map[string]interface{}, 0)
 
-	nameFieldCond := mongo.Field(common.BKPropertyNameField).Eq(propertyName)
 	if isCreate {
-		idFieldCond := mongo.Field(common.BKPropertyIDField).Eq(propertyID)
-		cond = cond.Or(nameFieldCond, idFieldCond)
+		nameFieldCond := map[string]interface{}{common.BKPropertyNameField: propertyName}
+		idFieldCond := map[string]interface{}{common.BKPropertyIDField: propertyID}
+		orCond = append(orCond, nameFieldCond, idFieldCond)
 	} else {
 		// update attribute. not change name, 无需判断
 		if propertyName == "" {
 			return nil
 		}
-
-		idFieldCond := mongo.Field(common.BKPropertyIDField).Neq(propertyID)
-		cond = cond.Element(nameFieldCond, idFieldCond)
+		cond[common.BKPropertyIDField] = map[string]interface{}{common.BKDBNE: propertyID}
+		cond[common.BKPropertyNameField] = propertyName
 	}
 
-	condMap := util.SetModOwner(cond.ToMapStr(), ctx.SupplierAccount)
+	isExist, bizID := meta.Label.Get(common.BKAppIDField)
+	if isExist {
+		orCond = append(orCond, metadata.BizLabelNotExist, map[string]interface{}{metadata.MetadataBizField: bizID})
+	}
+
+	if len(orCond) > 0 {
+		cond[common.BKDBOR] = orCond
+	}
+	condMap := util.SetModOwner(cond, ctx.SupplierAccount)
 
 	resultAttrs := make([]metadata.Attribute, 0)
 	err := m.dbProxy.Table(common.BKTableNameObjAttDes).Find(condMap).All(ctx, &resultAttrs)
@@ -170,7 +182,7 @@ func (m *modelAttribute) checkAttributeValidity(ctx core.ContextParams, attribut
 		attribute.Placeholder = strings.TrimSpace(attribute.Placeholder)
 		match, err := regexp.MatchString(common.FieldTypeLongCharRegexp, attribute.Placeholder)
 		if nil != err || !match {
-			return ctx.Error.Errorf(common.CCErrCommParamsIsInvalid, metadata.AttributeFieldPlaceHoler)
+			return ctx.Error.Errorf(common.CCErrCommParamsIsInvalid, metadata.AttributeFieldPlaceHolder)
 		}
 	}
 
@@ -206,6 +218,7 @@ func (m *modelAttribute) checkAttributeValidity(ctx core.ContextParams, attribut
 func (m *modelAttribute) update(ctx core.ContextParams, data mapstr.MapStr, cond universalsql.Condition) (cnt uint64, err error) {
 	cnt, err = m.checkUpdate(ctx, data, cond)
 	if err != nil {
+		blog.ErrorJSON("checkUpdate error. data:%s, cond:%s, rid:%s", data, cond, ctx.ReqID)
 		return cnt, err
 	}
 	err = m.dbProxy.Table(common.BKTableNameObjAttDes).Update(ctx, cond.ToMapStr(), data)
@@ -218,9 +231,24 @@ func (m *modelAttribute) update(ctx core.ContextParams, data mapstr.MapStr, cond
 }
 
 func (m *modelAttribute) search(ctx core.ContextParams, cond universalsql.Condition) (resultAttrs []metadata.Attribute, err error) {
-
 	resultAttrs = []metadata.Attribute{}
 	err = m.dbProxy.Table(common.BKTableNameObjAttDes).Find(cond.ToMapStr()).All(ctx, &resultAttrs)
+	return resultAttrs, err
+}
+
+func (m *modelAttribute) searchWithSort(ctx core.ContextParams, cond metadata.QueryCondition) (resultAttrs []metadata.Attribute, err error) {
+	resultAttrs = []metadata.Attribute{}
+
+	instHandler := m.dbProxy.Table(common.BKTableNameObjAttDes).Find(cond.Condition)
+	for _, sort := range cond.SortArr {
+		field := sort.Field
+		if sort.IsDsc {
+			field = "-" + field
+		}
+		instHandler = instHandler.Sort(field)
+	}
+	err = instHandler.Start(uint64(cond.Limit.Offset)).Limit(uint64(cond.Limit.Limit)).All(ctx, &resultAttrs)
+
 	return resultAttrs, err
 }
 
@@ -234,9 +262,9 @@ func (m *modelAttribute) searchReturnMapStr(ctx core.ContextParams, cond univers
 func (m *modelAttribute) delete(ctx core.ContextParams, cond universalsql.Condition) (cnt uint64, err error) {
 
 	resultAttrs := make([]metadata.Attribute, 0)
-	fields := []string{common.BKFieldID, common.BKPropertyIDField, common.BKObjIDField}
+	fields := []string{common.BKFieldID, common.BKPropertyIDField, common.BKObjIDField, common.MetadataField}
 
-	condMap := util.SetQueryOwner(cond.ToMapStr(), ctx.SupplierAccount)
+	condMap := util.SetModOwner(cond.ToMapStr(), ctx.SupplierAccount)
 	err = m.dbProxy.Table(common.BKTableNameObjAttDes).Find(condMap).Fields(fields...).All(ctx, &resultAttrs)
 	if nil != err {
 		blog.Errorf("request(%s): database count operation is failed, error info is %s", ctx.ReqID, err.Error())
@@ -251,6 +279,11 @@ func (m *modelAttribute) delete(ctx core.ContextParams, cond universalsql.Condit
 	objIDArrMap := make(map[string][]int64, 0)
 	for _, attr := range resultAttrs {
 		objIDArrMap[attr.ObjectID] = append(objIDArrMap[attr.ObjectID], attr.ID)
+	}
+
+	if err := m.cleanAttributeFieldInInstances(ctx, ctx.SupplierAccount, resultAttrs); err != nil {
+		blog.ErrorJSON("delete object attributes with cond: %s, but delete these attribute in instance failed, err: %v, rid:%s", condMap, err, ctx.ReqID)
+		return 0, err
 	}
 
 	exist, err := m.checkAttributeInUnique(ctx, objIDArrMap)
@@ -271,6 +304,218 @@ func (m *modelAttribute) delete(ctx core.ContextParams, cond universalsql.Condit
 	}
 
 	return cnt, err
+}
+
+type bizObjectFields struct {
+	bizID  int64
+	object string
+	fields []string
+}
+
+// remove attribute filed in this object's instances
+func (m *modelAttribute) cleanAttributeFieldInInstances(ctx context.Context, ownerID string, attrs []metadata.Attribute) error {
+
+	objPublicFields := make(map[string][]string)
+	objBizFields := make([]bizObjectFields, 0)
+
+	// TODO: now, we only support set, module, host model's biz attribute clean operation.
+	for _, attr := range attrs {
+
+		biz, err := metadata.BizIDFromMetadata(attr.Metadata)
+		if err != nil {
+			return err
+		}
+
+		if biz != 0 {
+			if !isBizObject(attr.ObjectID) {
+				return fmt.Errorf("unsupported object %s's clean instance field operation", attr.ObjectID)
+			}
+
+			// this is a business attribute
+			hit := false
+			for index, ele := range objBizFields {
+				if ele.object == attr.ObjectID && ele.bizID == biz {
+					hit = true
+					objBizFields[index].fields = append(objBizFields[index].fields, attr.PropertyID)
+				}
+			}
+
+			if !hit {
+				objBizFields = append(objBizFields, bizObjectFields{
+					bizID:  biz,
+					object: attr.ObjectID,
+					fields: []string{attr.PropertyID},
+				})
+			}
+
+		} else {
+			// this is a public attribute
+			_, exist := objPublicFields[attr.ObjectID]
+			if !exist {
+				objPublicFields[attr.ObjectID] = make([]string, 0)
+			}
+			objPublicFields[attr.ObjectID] = append(objPublicFields[attr.ObjectID], attr.PropertyID)
+		}
+	}
+
+	// delete these attribute's filed in the model instance
+	// step 1: handle object's public attribute
+	var hitError error
+	wg := sync.WaitGroup{}
+	for object, fields := range objPublicFields {
+
+		if len(fields) == 0 {
+			// no fields need to be removed, skip directly.
+			continue
+		}
+
+		var cond mapstr.MapStr
+		if isBizObject(object) {
+			if object == common.BKInnerObjIDHost {
+				ele := bizObjectFields{
+					bizID:  0,
+					object: object,
+					fields: fields,
+				}
+				if err := m.cleanHostAttributeField(ctx, ownerID, ele); err != nil {
+					return err
+				}
+				return nil
+			}
+
+			cond = mapstr.MapStr{}
+		} else {
+			cond = mapstr.MapStr{
+				common.BKObjIDField: object,
+			}
+		}
+		cond = util.SetQueryOwner(cond, ownerID)
+
+		collectionName := common.GetInstTableName(object)
+		wg.Add(1)
+		go func(collName string, filter dal.Filter, fields []string) {
+			defer wg.Done()
+			if err := m.dbProxy.Table(collName).DropColumns(ctx, filter, fields); err != nil {
+				blog.Error("delete object's attribute from instance failed, table: %s, cond: %v, fields: %v, err: %v", collectionName, filter, fields, err)
+				hitError = err
+				return
+			}
+		}(collectionName, cond, fields)
+	}
+	// wait for all the public object routine is done.
+	wg.Wait()
+	if hitError != nil {
+		return hitError
+	}
+
+	// step 2: handle object's biz attribute
+	wg = sync.WaitGroup{}
+	for _, ele := range objBizFields {
+		if len(ele.fields) == 0 {
+			// no fields need to be removed, skip directly.
+			continue
+		}
+		if !isBizObject(ele.object) {
+			return fmt.Errorf("unsupported object %s's clean instance field operation", ele.object)
+		}
+
+		if ele.object == common.BKInnerObjIDHost {
+			if err := m.cleanHostAttributeField(ctx, ownerID, ele); err != nil {
+				return err
+			}
+			return nil
+		}
+
+		cond := mapstr.MapStr{
+			common.BKAppIDField: ele.bizID,
+		}
+		cond = util.SetQueryOwner(cond, ownerID)
+
+		collectionName := common.GetInstTableName(ele.object)
+		wg.Add(1)
+		go func(collName string, filter dal.Filter, fields []string) {
+			defer wg.Done()
+			if err := m.dbProxy.Table(collName).DropColumns(ctx, filter, fields); err != nil {
+				blog.Error("delete object's attribute from instance failed, table: %s, cond: %v, fields: %v, err: %v", collectionName, filter, fields, err)
+				hitError = err
+				return
+			}
+		}(collectionName, cond, ele.fields)
+	}
+	// wait for all the public object routine is done.
+	wg.Wait()
+	if hitError != nil {
+		return hitError
+	}
+
+	return nil
+}
+
+const pageSize = 500
+
+func (m *modelAttribute) cleanHostAttributeField(ctx context.Context, ownerID string, info bizObjectFields) error {
+	cond := mapstr.MapStr{}
+	cond = util.SetQueryOwner(cond, ownerID)
+	// biz id = 0 means all the hosts.
+	// TODO: optimize when the filed is a public filed in all the host instances. handle with page
+	if info.bizID != 0 {
+		// find hosts in this biz
+		cond = mapstr.MapStr{
+			common.BKAppIDField: info.bizID,
+		}
+	}
+	type hostInst struct {
+		HostID int64 `bson:"bk_host_id"`
+	}
+	hostList := make([]hostInst, 0)
+	err := m.dbProxy.Table(common.BKTableNameModuleHostConfig).Find(cond).Fields(common.BKHostIDField).All(ctx, &hostList)
+	if err != nil {
+		return err
+	}
+	if len(hostList) == 0 {
+		// no host in this business, do not need to clean the filed.
+		return nil
+	}
+
+	count := len(hostList)
+	for start := 0; start < count; start += pageSize {
+		end := start + pageSize
+		if end > count {
+			end = count
+		}
+		ids := make([]int64, 0)
+		for index := start; index < end; index++ {
+			ids = append(ids, hostList[index].HostID)
+		}
+		hostFilter := mapstr.MapStr{
+			common.BKHostIDField: mapstr.MapStr{common.BKDBIN: ids},
+		}
+		if err := m.dbProxy.Table(common.BKTableNameBaseHost).DropColumns(ctx, hostFilter, info.fields); err != nil {
+			return fmt.Errorf("clean host biz attribute %v failed, err: %v", info.fields, err)
+		}
+	}
+
+	return nil
+
+}
+
+// now, we only support set, module, host model's biz attribute clean operation.
+func isBizObject(objectID string) bool {
+	switch objectID {
+	// biz is a special object, but it can not have biz attribute obviously.
+	case common.BKInnerObjIDApp:
+		return true
+	case common.BKInnerObjIDHost:
+		return true
+	case common.BKInnerObjIDModule:
+		return true
+	case common.BKInnerObjIDSet:
+		return true
+	default:
+		// TODO: remove this when the common object support biz attribute and biz instance field.
+		return false
+
+	}
 }
 
 //  saveCheck 新加字段检查
@@ -318,12 +563,16 @@ func (m *modelAttribute) checkUpdate(ctx core.ContextParams, data mapstr.MapStr,
 		}
 	}
 
-	// 预定义字段，只能更新分组和分组内排序
+	// 预定义字段，只能更新分组、分组内排序、名称、单位、提示语和option
 	if hasIsPreProperty {
 		hasNotAllowField := false
 		_ = data.ForEach(func(key string, val interface{}) error {
 			if key != metadata.AttributeFieldPropertyGroup &&
-				key != metadata.AttributeFieldPropertyIndex {
+				key != metadata.AttributeFieldPropertyIndex &&
+				key != metadata.AttributeFieldPropertyName &&
+				key != metadata.AttributeFieldUnit &&
+				key != metadata.AttributeFieldPlaceHolder &&
+				key != metadata.AttributeFieldOption {
 				hasNotAllowField = true
 			}
 			return nil
@@ -335,16 +584,54 @@ func (m *modelAttribute) checkUpdate(ctx core.ContextParams, data mapstr.MapStr,
 		}
 	}
 
+	if option, exists := data.Get(metadata.AttributeFieldOption); exists {
+		propertyType := dbAttributeArr[0].PropertyType
+		for _, dbAttribute := range dbAttributeArr {
+			if dbAttribute.PropertyType != propertyType {
+				blog.ErrorJSON("update option, but property type not the same, db attributes: %s, rid:%s", dbAttributeArr, ctx.ReqID)
+				return changeRow, ctx.Error.Errorf(common.CCErrCommParamsInvalid, "cond")
+			}
+		}
+		if err := util.ValidPropertyOption(propertyType, option, ctx.Error); err != nil {
+			blog.ErrorJSON("valid property option failed, err: %s, data: %s, rid:%s", err, data, ctx.ReqID)
+			return changeRow, err
+		}
+	}
+
 	// 删除不可更新字段， 避免由于传入数据，修改字段
 	// TODO: 改成白名单方式
 	data.Remove(metadata.AttributeFieldPropertyID)
 	data.Remove(metadata.AttributeFieldSupplierAccount)
 	data.Remove(metadata.AttributeFieldPropertyType)
 	data.Remove(metadata.AttributeFieldCreateTime)
+	data.Remove(metadata.AttributeFieldIsPre)
 	data.Set(metadata.AttributeFieldLastTime, time.Now())
 
-	if grp, exists := data.Get(metadata.AttributeFieldPropertyGroup); exists && (grp == "") {
-		data.Remove(metadata.AttributeFieldPropertyGroup)
+	if grp, exists := data.Get(metadata.AttributeFieldPropertyGroup); exists {
+		if grp == "" {
+			data.Remove(metadata.AttributeFieldPropertyGroup)
+		}
+		// check if property group exists in object
+		objIDs := make([]string, 0)
+		for _, dbAttribute := range dbAttributeArr {
+			objIDs = append(objIDs, dbAttribute.ObjectID)
+		}
+		objIDs = util.StrArrayUnique(objIDs)
+		cond := map[string]interface{}{
+			common.BKObjIDField: map[string]interface{}{
+				common.BKDBIN: objIDs,
+			},
+			common.BKPropertyGroupIDField: grp,
+		}
+		cnt, err := m.dbProxy.Table(common.BKTableNamePropertyGroup).Find(cond).Count(ctx)
+		if err != nil {
+			blog.ErrorJSON("property group count failed, err: %s, condition: %s, rid: %s", err, cond, ctx.ReqID)
+			return changeRow, err
+		}
+		if cnt != uint64(len(objIDs)) {
+			blog.Errorf("property group invalid, objIDs: %s have %d property groups, rid: %s", objIDs, cnt, ctx.ReqID)
+			return changeRow, ctx.Error.Errorf(common.CCErrCommParamsInvalid, metadata.AttributeFieldPropertyGroup)
+		}
 	}
 
 	attribute := metadata.Attribute{}
@@ -360,10 +647,11 @@ func (m *modelAttribute) checkUpdate(ctx core.ContextParams, data mapstr.MapStr,
 	for _, dbAttribute := range dbAttributeArr {
 		err = m.checkUnique(ctx, false, dbAttribute.ObjectID, dbAttribute.PropertyID, attribute.PropertyName, attribute.Metadata)
 		if err != nil {
-			blog.ErrorJSON("save attribute check unique err:%s, input:%s, rid:%s", err.Error(), attribute, ctx.ReqID)
+			blog.ErrorJSON("save attribute check unique err:%s, input:%s, rid:%s", err.Error(), dbAttribute, ctx.ReqID)
 			return changeRow, err
 		}
 		if err = m.checkChangeField(ctx, dbAttribute, data); err != nil {
+			blog.ErrorJSON("save attribute check change unique field err:%s, input:%s, rid:%s", err.Error(), dbAttribute, ctx.ReqID)
 			return changeRow, err
 		}
 	}
@@ -445,4 +733,64 @@ func (m *modelAttribute) getLangObjID(ctx core.ContextParams, objID string) stri
 		langObjID = objID
 	}
 	return langObjID
+}
+
+func (m *modelAttribute) buildUpdateAttrIndexReturn(ctx core.ContextParams, objID, propertyGroup string) (*metadata.UpdateAttrIndexData, error) {
+	cond := mapstr.MapStr{
+		common.BKObjIDField:         objID,
+		common.BKPropertyGroupField: propertyGroup,
+	}
+	attrs := []metadata.Attribute{}
+	err := m.dbProxy.Table(common.BKTableNameObjAttDes).Find(cond).All(ctx, &attrs)
+	if nil != err {
+		blog.Errorf("buildUpdateIndexReturn failed, request(%s): database operation is failed, error info is %s", ctx.ReqID, err.Error())
+		return nil, err
+	}
+
+	count, err := m.dbProxy.Table(common.BKTableNameObjAttDes).Find(cond).Count(ctx)
+	if nil != err {
+		blog.Errorf("buildUpdateIndexReturn failed, request(%s): database operation is failed, error info is %s", ctx.ReqID, err.Error())
+		return nil, err
+	}
+	info := make([]*metadata.UpdateAttributeIndex, 0)
+	for _, attr := range attrs {
+		idIndex := &metadata.UpdateAttributeIndex{
+			Id:    attr.ID,
+			Index: attr.PropertyIndex,
+		}
+		info = append(info, idIndex)
+	}
+	result := &metadata.UpdateAttrIndexData{
+		Info:  info,
+		Count: count,
+	}
+
+	return result, nil
+}
+
+func (m *modelAttribute) GetAttrLastIndex(ctx core.ContextParams, attribute metadata.Attribute) (int64, error) {
+	opt := make(map[string]interface{})
+	opt[common.BKObjIDField] = attribute.ObjectID
+	opt[common.BKPropertyGroupField] = attribute.PropertyGroup
+	opt = util.SetModOwner(opt, attribute.OwnerID)
+	count, err := m.dbProxy.Table(common.BKTableNameObjAttDes).Find(opt).Count(ctx)
+	if err != nil {
+		blog.Error("GetAttrLastIndex, request(%s): database operation is failed, error info is %v", ctx.ReqID, err)
+		return 0, ctx.Error.Error(common.CCErrCommDBSelectFailed)
+	}
+	if count <= 0 {
+		return 0, nil
+	}
+
+	attrs := make([]metadata.Attribute, 0)
+	sortCond := "-bk_property_index"
+	if err := m.dbProxy.Table(common.BKTableNameObjAttDes).Find(opt).Sort(sortCond).Limit(1).All(ctx, &attrs); err != nil {
+		blog.Error("GetAttrLastIndex, request(%s): database operation is failed, error info is %v", ctx.ReqID, err)
+		return 0, ctx.Error.Error(common.CCErrCommDBSelectFailed)
+	}
+
+	if len(attrs) <= 0 {
+		return 0, nil
+	}
+	return attrs[0].PropertyIndex + 1, nil
 }

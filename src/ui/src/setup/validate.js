@@ -17,7 +17,7 @@ const customRules = {
     },
     longchar: {
         validate: value => {
-            return /^([a-zA-Z0-9]|[\u4e00-\u9fa5]|[\(\)\+\-《》_,，；:;“”‘’。@#\."'\\\/\s？!！～、：＃％%＊*—…＆&·＄$\^（）\[\]『』〔〕｛｝【】￥￡♀‖〖〗「」]){0,2000}$/.test(value)
+            return /^([a-zA-Z0-9]|[\u4e00-\u9fa5]|[\(\)\+\-=《》_,，；:;“”‘’。@#\."'\\\/\s？!！～、：＃％%＊*—…＆&·＄$\^（）\[\]『』〔〕｛｝【】￥￡♀‖〖〗「」]){0,2000}$/.test(value)
         }
     },
     associationId: {
@@ -99,7 +99,7 @@ const customRules = {
     },
     namedCharacter: {
         validate: (value) => {
-            return /^([a-zA-Z0-9]|[\u4e00-\u9fa5]|[-_:]){0,256}$/.test(value)
+            return /^([a-zA-Z0-9]|[\u4e00-\u9fa5]|[\(\)-_:]){0,256}$/.test(value)
         }
     },
     instanceTagKey: {
@@ -129,6 +129,15 @@ const customRules = {
             const values = value.split('\n')
             const list = values.map(text => text.trim()).filter(text => text)
             return values.length === list.length
+        }
+    },
+    setNameLen: {
+        validate: (value) => {
+            const nameList = value.split('\n').filter(name => name)
+            for (const name of nameList) {
+                if (stringLength(name) > 256) return false
+            }
+            return true
         }
     }
 }
@@ -167,7 +176,8 @@ const dictionary = {
             setNameMap: () => '集群名称重复',
             emptySetName: () => '请勿输入空白集群名称',
             instanceTagValue: () => '请输入英文 / 数字',
-            instanceTagKey: () => '请输入英文 / 数字, 以英文开头'
+            instanceTagKey: () => '请输入英文 / 数字, 以英文开头',
+            setNameLen: () => '请输入256个字符以内的内容'
         },
         custom: {
             asst: {
@@ -208,7 +218,8 @@ const dictionary = {
             emptySetName: () => 'Do not enter blank Set name',
             instanceTagValue: () => 'Please enter letter / number',
             instanceTagKey: () => 'Please enter letter / number starts with letter',
-            repeatTagKey: () => 'Label key cannot be repeated'
+            repeatTagKey: () => 'Label key cannot be repeated',
+            setNameLen: () => 'Content length max than 256'
         },
         custom: {
             asst: {

@@ -28,10 +28,7 @@ import (
 )
 
 func (lgc *Logics) GetDefaultAppIDWithSupplier(ctx context.Context) (int64, errors.CCError) {
-	cond := hutil.NewOperation().WithDefaultField(int64(common.DefaultAppFlag)).WithOwnerID(util.GetOwnerID(lgc.header)).Data()
-	cond[common.BKDBAND] = []mapstr.MapStr{
-		{common.BKOwnerIDField: util.GetOwnerID(lgc.header)},
-	}
+    cond := hutil.NewOperation().WithDefaultField(int64(common.DefaultAppFlag)).Data()
 	appDetails, err := lgc.GetAppDetails(ctx, common.BKAppIDField, cond)
 	if err != nil {
 		return -1, err
@@ -46,10 +43,7 @@ func (lgc *Logics) GetDefaultAppIDWithSupplier(ctx context.Context) (int64, erro
 }
 
 func (lgc *Logics) GetDefaultAppID(ctx context.Context) (int64, errors.CCError) {
-	cond := hutil.NewOperation().WithOwnerID(lgc.ownerID).WithDefaultField(int64(common.DefaultAppFlag)).Data()
-	cond[common.BKDBAND] = []mapstr.MapStr{
-		{common.BKOwnerIDField: util.GetOwnerID(lgc.header)},
-	}
+	cond := hutil.NewOperation().WithDefaultField(int64(common.DefaultAppFlag)).Data()
 	appDetails, err := lgc.GetAppDetails(ctx, common.BKAppIDField, cond)
 	if err != nil {
 		return -1, err
@@ -242,4 +236,29 @@ func (lgc *Logics) GetAppMapByCond(ctx context.Context, fields []string, cond ma
 	}
 
 	return appMap, nil
+}
+
+func (lgc *Logics) ExistInnerModule(ctx context.Context, moduleIDArr []int64) (bool, errors.CCErrorCoder) {
+	input := &metadata.QueryCondition{
+		Condition: mapstr.MapStr{
+			common.BKDefaultField: map[string]interface{}{
+				"$ne": common.DefaultFlagDefaultValue,
+			},
+			common.BKModuleIDField: map[string]interface{}{
+				"$in": moduleIDArr,
+			},
+		},
+	}
+	result, err := lgc.CoreAPI.CoreService().Instance().ReadInstance(ctx, lgc.header, common.BKInnerObjIDModule, input)
+	if err != nil {
+		blog.Errorf("ExistInnerModule http do error, err:%s, input:%+v, rid:%s", err.Error(), input, lgc.rid)
+		return false, lgc.ccErr.CCError(common.CCErrCommHTTPDoRequestFailed)
+	}
+	if !result.Result {
+		blog.Errorf("ExistInnerModule http response error, err code:%d, err msg:%s, input:%+v, rid:%s", result.Code, result.ErrMsg, input, lgc.rid)
+		return false, result.CCError()
+	}
+
+	exist := result.Data.Count > 0
+	return exist, nil
 }

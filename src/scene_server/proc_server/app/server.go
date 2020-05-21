@@ -29,7 +29,6 @@ import (
 	"configcenter/src/scene_server/proc_server/app/options"
 	"configcenter/src/scene_server/proc_server/logics"
 	"configcenter/src/scene_server/proc_server/service"
-	"configcenter/src/storage/dal/redis"
 	"configcenter/src/thirdpartyclient/esbserver"
 	"configcenter/src/thirdpartyclient/esbserver/esbutil"
 )
@@ -43,7 +42,7 @@ func Run(ctx context.Context, cancel context.CancelFunc, op *options.ServerOptio
 	}
 
 	procSvr := new(service.ProcServer)
-	procSvr.EsbConfigChn = make(chan esbutil.EsbConfig, 0)
+	procSvr.EsbConfigChn = make(chan esbutil.EsbConfig)
 
 	input := &backbone.BackboneParameter{
 		ConfigUpdate: procSvr.OnProcessConfigUpdate,
@@ -64,17 +63,9 @@ func Run(ctx context.Context, cancel context.CancelFunc, op *options.ServerOptio
 			break
 		}
 	}
-	if false == configReady {
+	if !configReady {
 		return fmt.Errorf("configuration item not found")
 	}
-
-	// transaction client
-	txn, err := procSvr.Config.Mongo.GetTransactionClient(engine)
-	if err != nil {
-		blog.Errorf("new transaction client failed, err: %+v", err)
-		return fmt.Errorf("new transaction client failed, err: %+v", err)
-	}
-	procSvr.TransactionClient = txn
 
 	authConf, err := authcenter.ParseConfigFromKV("auth", procSvr.ConfigMap)
 	if err != nil {
@@ -86,12 +77,6 @@ func Run(ctx context.Context, cancel context.CancelFunc, op *options.ServerOptio
 		return fmt.Errorf("new authorize failed, err: %v", err)
 	}
 
-	cacheDB, err := redis.NewFromConfig(*procSvr.Config.Redis)
-	if err != nil {
-		blog.Errorf("new redis client failed, err: %s", err.Error())
-		return fmt.Errorf("new redis client failed, err: %s", err)
-	}
-
 	esbSrv, err := esbserver.NewEsb(engine.ApiMachineryConfig(), procSvr.EsbConfigChn, nil, engine.Metric().Registry())
 	if err != nil {
 		return fmt.Errorf("create esb api  object failed. err: %v", err)
@@ -99,7 +84,6 @@ func Run(ctx context.Context, cancel context.CancelFunc, op *options.ServerOptio
 	procSvr.AuthManager = extensions.NewAuthManager(engine.CoreAPI, authorize)
 	procSvr.Engine = engine
 	procSvr.EsbSrv = esbSrv
-	procSvr.Cache = cacheDB
 	procSvr.Logic = &logics.Logic{
 		Engine: procSvr.Engine,
 	}

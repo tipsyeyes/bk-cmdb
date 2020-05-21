@@ -86,8 +86,10 @@
                     :key="collection.id"
                     :id="collection.id"
                     :name="collection.name">
-                    <span class="collection-name" :title="collection.name">{{collection.name}}</span>
-                    <i class="bk-icon icon-close" @click.stop="handleDeleteCollection(collection)"></i>
+                    <div class="collection-item">
+                        <span class="collection-name" :title="collection.name">{{collection.name}}</span>
+                        <i class="bk-icon icon-close" @click.stop="handleDeleteCollection(collection)"></i>
+                    </div>
                 </bk-option>
                 <div slot="extension">
                     <a href="javascript:void(0)" class="collection-create" @click="handleCreateCollection">
@@ -134,7 +136,7 @@
     import EditMultipleHost from './edit-multiple-host.vue'
     import HostSelector from './host-selector.vue'
     import CmdbColumnsConfig from '@/components/columns-config/columns-config'
-    import { mapGetters } from 'vuex'
+    import { mapGetters, mapState } from 'vuex'
     import {
         MENU_BUSINESS,
         MENU_BUSINESS_TRANSFER_HOST
@@ -152,7 +154,6 @@
                 isTransferMenuOpen: false,
                 isMoreMenuOpen: false,
                 selectedCollection: '',
-                collectionList: [],
                 dialog: {
                     show: false,
                     props: {
@@ -174,6 +175,7 @@
         computed: {
             ...mapGetters('userCustom', ['usercustom']),
             ...mapGetters('objectBiz', ['bizId']),
+            ...mapState('hosts', ['collectionList']),
             ...mapGetters('businessHost', [
                 'getProperties',
                 'selectedNode'
@@ -219,7 +221,10 @@
                 return this.$parent.table.header
             },
             showRemove () {
-                return this.selectedNode && !this.selectedNode.data.is_idle_set && this.selectedNode.data.bk_obj_id === 'module'
+                return this.selectedNode
+                    && !this.selectedNode.data.is_idle_set
+                    && this.selectedNode.data.bk_obj_id === 'module'
+                    && this.selectedNode.data.default !== 1
             }
         },
         created () {
@@ -238,9 +243,8 @@
                             requestId: this.request.condition
                         }
                     })
-                    this.collectionList = result.info
+                    this.$store.commit('hosts/setCollectionList', result.info)
                 } catch (e) {
-                    this.collectionList = []
                     console.error(e)
                 }
             },
@@ -334,7 +338,8 @@
                     query: {
                         sourceModel: this.selectedNode.data.bk_obj_id,
                         sourceId: this.selectedNode.data.bk_inst_id,
-                        resources: this.$parent.table.selection.map(item => item.host.bk_host_id).join(',')
+                        resources: this.$parent.table.selection.map(item => item.host.bk_host_id).join(','),
+                        node: this.selectedNode.id
                     }
                 })
             },
@@ -407,7 +412,8 @@
                     },
                     query: {
                         resources: selected.map(item => item.host.bk_host_id).join(','),
-                        title: this.selectedNode.data.bk_inst_name
+                        title: this.selectedNode.data.bk_inst_name,
+                        node: this.selectedNode.id
                     }
                 })
             },
@@ -448,11 +454,12 @@
             width: 200px;
         }
         .dropdown-icon {
+            margin: 0 -4px;
             display: inline-block;
             vertical-align: middle;
-            line-height: 19px;
             height: auto;
             top: 0px;
+            font-size: 20px;
             &.open {
                 top: -1px;
                 transform: rotate(180deg);
@@ -495,6 +502,26 @@
             }
         }
     }
-    .clipboard-list {
+    /deep/ {
+        .collection-item {
+            width: 100%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            &:hover {
+                .icon-close {
+                    display: block;
+                }
+            }
+            .collection-name {
+                @include ellipsis;
+            }
+            .icon-close {
+                display: none;
+                color: #979BA5;
+                font-size: 20px;
+                margin-right: -4px;
+            }
+        }
     }
 </style>

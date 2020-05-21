@@ -139,7 +139,7 @@ var expectBizResourceType = []ResourceType{
 	},
 	{
 		ResourceTypeID:       BizTopology,
-		ResourceTypeName:     "服务拓扑",
+		ResourceTypeName:     "业务拓扑",
 		ParentResourceTypeID: "",
 		Share:                true,
 		Actions: []Action{
@@ -262,6 +262,19 @@ var expectBizResourceType = []ResourceType{
 				ActionID:          Delete,
 				ActionName:        "删除",
 				IsRelatedResource: true,
+			},
+		},
+	},
+	{
+		ResourceTypeID:       BizHostApply,
+		ResourceTypeName:     "主机属性自动应用",
+		ParentResourceTypeID: "",
+		Share:                false,
+		Actions: []Action{
+			{
+				ActionID:          Edit,
+				ActionName:        "编辑",
+				IsRelatedResource: false,
 			},
 		},
 	},

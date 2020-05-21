@@ -72,7 +72,7 @@ func (s *Service) initBusiness() {
 	s.addAction(http.MethodPut, "/app/status/{flag}/{owner_id}/{app_id}", s.UpdateBusinessStatus, nil)
 	s.addAction(http.MethodPost, "/app/search/{owner_id}", s.SearchBusiness, nil)
 	s.addAction(http.MethodGet, "/app/{app_id}/basic_info", s.GetBusinessBasicInfo, nil)
-	s.addAction(http.MethodPost, "/app/default/{owner_id}/search", s.SearchArchivedBusiness, nil)
+	s.addAction(http.MethodPost, "/app/default/{owner_id}/search", s.SearchOwnerResourcePoolBusiness, nil)
 	s.addAction(http.MethodPost, "/app/default/{owner_id}", s.CreateDefaultBusiness, nil)
 	s.addAction(http.MethodGet, "/topo/internal/{owner_id}/{app_id}", s.GetInternalModule, nil)
 	s.addAction(http.MethodGet, "/topo/internal/{owner_id}/{app_id}/with_statistics", s.GetInternalModuleWithStatistics, nil)
@@ -88,6 +88,7 @@ func (s *Service) initModule() {
 	s.addAction(http.MethodPut, "/module/{app_id}/{set_id}/{module_id}", s.UpdateModule, nil)
 	s.addAction(http.MethodPost, "/module/search/{owner_id}/{app_id}/{set_id}", s.SearchModule, nil)
 	s.addAction(http.MethodPost, "/module/bk_biz_id/{bk_biz_id}/service_template_id/{service_template_id}", s.ListModulesByServiceTemplateID, nil)
+	s.addAction(http.MethodPut, "/module/host_apply_enable_status/bk_biz_id/{bk_biz_id}/bk_module_id/{bk_module_id}", s.UpdateModuleHostApplyEnableStatus, nil)
 }
 
 func (s *Service) initSet() {
@@ -121,6 +122,7 @@ func (s *Service) initObjectAttribute() {
 	s.addAction(http.MethodPost, "/objectattr/search", s.SearchObjectAttribute, nil)
 	s.addAction(http.MethodPut, "/objectattr/{id}", s.UpdateObjectAttribute, nil)
 	s.addAction(http.MethodDelete, "/objectattr/{id}", s.DeleteObjectAttribute, nil)
+	s.addAction(http.MethodPost, "/update/objectattr/index/{bk_obj_id}/{id}", s.UpdateObjectAttributeIndex, nil)
 }
 
 func (s *Service) initObjectClassification() {

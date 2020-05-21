@@ -3,6 +3,7 @@
         <div class="info-basic">
             <i :class="['info-icon', model.bk_obj_icon]"></i>
             <span class="info-ip">{{hostIp}}</span>
+            <span class="info-area">{{cloudArea}}</span>
         </div>
         <div class="info-topology clearfix">
             <div class="topology-label fl">{{$t('业务拓扑')}}：</div>
@@ -49,7 +50,8 @@
                     left: 'auto',
                     right: 'auto'
                 },
-                showAll: false
+                showAll: false,
+                topoNodesPath: []
             }
         },
         computed: {
@@ -66,25 +68,22 @@
                     return ''
                 }
             },
+            cloudArea () {
+                return (this.host.bk_cloud_id || []).map(cloud => {
+                    return `${this.$t('云区域')}：${cloud.bk_inst_name} (ID：${cloud.bk_inst_id})`
+                }).join('\n')
+            },
             topology () {
-                const topology = []
-                const sets = this.info.set || []
                 const modules = this.info.module || []
-                const businesses = this.info.biz || []
-                modules.forEach(module => {
-                    const set = sets.find(set => set.bk_set_id === module.bk_set_id)
-                    if (set) {
-                        const business = businesses.find(business => business.bk_biz_id === set.bk_biz_id)
-                        if (business) {
-                            topology.push({
-                                id: module.bk_module_id,
-                                path: `${business.bk_biz_name} / ${set.bk_set_name} / ${module.bk_module_name}`,
-                                isInternal: module.default !== 0
-                            })
-                        }
+                return this.topoNodesPath.map(item => {
+                    const instId = item.topo_node.bk_inst_id
+                    const module = modules.find(module => module.bk_module_id === instId)
+                    return {
+                        id: instId,
+                        path: item.topo_path.reverse().map(node => node.bk_inst_name).join(' / '),
+                        isInternal: module && module.default !== 0
                     }
                 })
-                return topology
             },
             topologyList () {
                 const list = {
@@ -100,7 +99,28 @@
                 return this.$store.getters['objectModelClassify/getModelById']('host')
             }
         },
+        watch: {
+            async info () {
+                await this.getModulePathInfo()
+            }
+        },
         methods: {
+            async getModulePathInfo () {
+                try {
+                    const modules = this.info.module || []
+                    const biz = this.info.biz || []
+                    const result = await this.$store.dispatch('objectMainLineModule/getTopoPath', {
+                        bizId: biz[0].bk_biz_id,
+                        params: {
+                            topo_nodes: modules.map(module => ({ bk_obj_id: 'module', bk_inst_id: module.bk_module_id }))
+                        }
+                    })
+                    this.topoNodesPath = result.nodes || []
+                } catch (e) {
+                    console.error(e)
+                    this.topoNodesPath = []
+                }
+            },
             viewAll () {
                 this.showAll = !this.showAll
                 this.$emit('info-toggle', this.getListHeight(this.topologyList.left) + 51)
@@ -132,7 +152,6 @@
     .info {
         padding: 11px 24px 2px;
         background:rgba(235, 244, 255, .6);
-        border-top: 1px solid #dcdee5;
         border-bottom: 1px solid #dcdee5;
     }
     .info-basic {
@@ -156,7 +175,21 @@
             vertical-align: middle;
             line-height: 38px;
             font-size: 16px;
+            font-weight: bold;
             color: #333948;
+        }
+        .info-area {
+             display: inline-block;
+            vertical-align: middle;
+            height: 18px;
+            margin-left: 10px;
+            padding: 0 5px;
+            line-height: 16px;
+            font-size: 12px;
+            color: #979BA5;
+            border: 1px solid #C4C6CC;
+            border-radius: 2px;
+            background-color: #fff;
         }
     }
     .info-topology {
@@ -176,7 +209,8 @@
             .bk-icon {
                 display: inline-block;
                 vertical-align: -1px;
-                font-size: 12px;
+                font-size: 20px;
+                margin-left: -4px;
                 transition: transform .2s linear;
                 &.is-all-show {
                     transform: rotate(-180deg);

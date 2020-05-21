@@ -69,8 +69,7 @@
                 ])
                 this.properties = properties
                 this.propertyGroups = propertyGroups
-                const inst = await this.getDetails()
-                this.inst = this.$tools.flattenItem(properties, inst)
+                this.inst = await this.getDetails()
                 this.$nextTick(() => {
                     const detailsContainerHeight = this.$refs.detailsContainer.getBoundingClientRect().height
                     const detailsTitleHeight = this.$refs.detailsTitle.getBoundingClientRect().height
@@ -151,6 +150,7 @@
         top: 0;
         bottom: 0;
         text-align: right;
+        cursor: default;
         &.full-screen {
             text-align: center;
         }
@@ -185,8 +185,11 @@
                     position: absolute;
                     right: 6px;
                     top: 12px;
-                    padding: 6px;
-                    font-size: 12px;
+                    width: 24px;
+                    height: 24px;
+                    line-height: 24px;
+                    text-align: center;
+                    font-size: 20px;
                     cursor: pointer;
                     color: #333948;
                     border-radius: 50%;

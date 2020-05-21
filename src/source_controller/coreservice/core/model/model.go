@@ -13,8 +13,14 @@
 package model
 
 import (
+	"fmt"
+	"time"
+
+	redis "gopkg.in/redis.v5"
+
 	"configcenter/src/common"
 	"configcenter/src/common/blog"
+	"configcenter/src/common/lock"
 	"configcenter/src/common/mapstr"
 	"configcenter/src/common/metadata"
 	"configcenter/src/common/universalsql/mongo"
@@ -31,15 +37,16 @@ type modelManager struct {
 	*modelClassification
 	*modelAttrUnique
 	dbProxy   dal.RDB
+	cache     *redis.Client
 	dependent OperationDependences
 }
 
 // New create a new model manager instance
-func New(dbProxy dal.RDB, dependent OperationDependences) core.ModelOperation {
+func New(dbProxy dal.RDB, dependent OperationDependences, cache *redis.Client) core.ModelOperation {
 
-	coreMgr := &modelManager{dbProxy: dbProxy, dependent: dependent}
+	coreMgr := &modelManager{dbProxy: dbProxy, dependent: dependent, cache: cache}
 
-	coreMgr.modelAttribute = &modelAttribute{dbProxy: dbProxy, model: coreMgr}
+	coreMgr.modelAttribute = &modelAttribute{dbProxy: dbProxy, model: coreMgr, cache: cache}
 	coreMgr.modelClassification = &modelClassification{dbProxy: dbProxy, model: coreMgr}
 	coreMgr.modelAttributeGroup = &modelAttributeGroup{dbProxy: dbProxy, model: coreMgr}
 	coreMgr.modelAttrUnique = &modelAttrUnique{dbProxy: dbProxy}
@@ -48,6 +55,22 @@ func New(dbProxy dal.RDB, dependent OperationDependences) core.ModelOperation {
 }
 
 func (m *modelManager) CreateModel(ctx core.ContextParams, inputParam metadata.CreateModel) (*metadata.CreateOneDataResult, error) {
+
+	locker := lock.NewLocker(m.cache)
+	// fmt.Sprintf("coreservice:create:model:%s", inputParam.Spec.ObjectID)
+	redisKey := lock.GetLockKey(lock.CreateModelFormat, inputParam.Spec.ObjectID)
+
+	looked, err := locker.Lock(redisKey, time.Second*35)
+	defer locker.Unlock()
+	if err != nil {
+		blog.ErrorJSON("create model error. get create look error. err:%s, input:%s, rid:%s", err.Error(), inputParam, ctx.ReqID)
+		return nil, ctx.Error.CCErrorf(common.CCErrCommRedisOPErr)
+	}
+	if !looked {
+		blog.ErrorJSON("create model have same task in progress. input:%s, rid:%s", inputParam, ctx.ReqID)
+		return nil, ctx.Error.CCErrorf(common.CCErrCommOPInProgressErr, fmt.Sprintf("create object(%s)", inputParam.Spec.ObjectID))
+	}
+	blog.V(5).Infof("create model redis look info. key:%s, bl:%v, err:%s, rid:%s", redisKey, looked, err, ctx.ReqID)
 
 	dataResult := &metadata.CreateOneDataResult{}
 
@@ -70,9 +93,9 @@ func (m *modelManager) CreateModel(ctx core.ContextParams, inputParam metadata.C
 	}
 
 	// check the model if it is exists
-	condCheckModel := mongo.NewCondition()
+	condCheckModelMap := util.SetModOwner(make(map[string]interface{}), ctx.SupplierAccount)
+	condCheckModel, _ := mongo.NewConditionFromMapStr(condCheckModelMap)
 	condCheckModel.Element(&mongo.Eq{Key: metadata.ModelFieldObjectID, Val: inputParam.Spec.ObjectID})
-	condCheckModel.Element(&mongo.Eq{Key: metadata.ModelFieldOwnerID, Val: ctx.SupplierAccount})
 
 	// ATTENTION: Currently only business dimension isolation is done,
 	//           and there may be isolation requirements for other dimensions in the future.
@@ -152,9 +175,9 @@ func (m *modelManager) SetModel(ctx core.ContextParams, inputParam metadata.SetM
 		return dataResult, ctx.Error.Errorf(common.CCErrCommParamsIsInvalid, metadata.ClassificationFieldID)
 	}
 
-	condCheckModel := mongo.NewCondition()
+	condCheckModelMap := util.SetModOwner(make(map[string]interface{}), ctx.SupplierAccount)
+	condCheckModel, _ := mongo.NewConditionFromMapStr(condCheckModelMap)
 	condCheckModel.Element(&mongo.Eq{Key: metadata.ModelFieldObjectID, Val: inputParam.Spec.ObjectID})
-	condCheckModel.Element(&mongo.Eq{Key: metadata.ModelFieldOwnerID, Val: ctx.SupplierAccount})
 
 	existsModel, exists, err := m.isExists(ctx, condCheckModel)
 	if nil != err {
@@ -165,8 +188,8 @@ func (m *modelManager) SetModel(ctx core.ContextParams, inputParam metadata.SetM
 	inputParam.Spec.OwnerID = ctx.SupplierAccount
 	// set model spec
 	if exists {
-		updateCond := mongo.NewCondition()
-		updateCond.Element(&mongo.Eq{Key: metadata.ModelFieldOwnerID, Val: ctx.SupplierAccount})
+		updateCondMap := util.SetModOwner(make(map[string]interface{}), ctx.SupplierAccount)
+		updateCond, _ := mongo.NewConditionFromMapStr(updateCondMap)
 		updateCond.Element(&mongo.Eq{Key: metadata.ModelFieldObjectID, Val: inputParam.Spec.ObjectID})
 
 		_, err := m.update(ctx, mapstr.NewFromStruct(inputParam.Spec, "field"), updateCond)
@@ -213,7 +236,6 @@ func (m *modelManager) UpdateModel(ctx core.ContextParams, inputParam metadata.U
 		blog.Errorf("request(%s): it is failed to convert the condition (%#v) from mapstr into condition object, error info is %s ", ctx.ReqID, inputParam.Condition, err.Error())
 		return &metadata.UpdatedCount{}, err
 	}
-	updateCond.Element(&mongo.Eq{Key: metadata.ModelFieldOwnerID, Val: ctx.SupplierAccount})
 
 	cnt, err := m.update(ctx, inputParam.Data, updateCond)
 	return &metadata.UpdatedCount{Count: cnt}, err
@@ -275,9 +297,8 @@ func (m *modelManager) DeleteModel(ctx core.ContextParams, inputParam metadata.D
 
 // CascadeDeleteModel 将会删除模型/模型属性/属性分组/唯一校验
 func (m *modelManager) CascadeDeleteModel(ctx core.ContextParams, modelID int64) (*metadata.DeletedCount, error) {
-
-	deleteCond := mongo.NewCondition()
-	deleteCond.Element(&mongo.Eq{Key: metadata.ModelFieldOwnerID, Val: ctx.SupplierAccount})
+	deleteCondMap := util.SetQueryOwner(make(map[string]interface{}), ctx.SupplierAccount)
+	deleteCond, _ := mongo.NewConditionFromMapStr(deleteCondMap)
 	deleteCond.Element(&mongo.Eq{Key: metadata.ModelFieldID, Val: modelID})
 
 	// read all models by the deletion condition
@@ -340,8 +361,8 @@ func (m *modelManager) SearchModelWithAttribute(ctx core.ContextParams, inputPar
 	}
 
 	for _, modelItem := range modelItems {
-
-		queryAttributeCond := mongo.NewCondition()
+		queryAttributeCondMap := util.SetQueryOwner(make(map[string]interface{}), modelItem.OwnerID)
+		queryAttributeCond, _ := mongo.NewConditionFromMapStr(queryAttributeCondMap)
 		queryAttributeCond.Element(mongo.Field(metadata.AttributeFieldObjectID).Eq(modelItem.ObjectID))
 		queryAttributeCond.Element(mongo.Field(metadata.AttributeFieldSupplierAccount).Eq(modelItem.OwnerID))
 		attributeItems, err := m.modelAttribute.search(ctx, queryAttributeCond)

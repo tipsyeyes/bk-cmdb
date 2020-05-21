@@ -125,7 +125,7 @@ func (m *instanceManager) CreateManyModelInstance(ctx core.ContextParams, objID 
 
 func (m *instanceManager) UpdateModelInstance(ctx core.ContextParams, objID string, inputParam metadata.UpdateOption) (*metadata.UpdatedCount, error) {
 	instIDFieldName := common.GetInstIDField(objID)
-	inputParam.Condition.Set(common.BKOwnerIDField, ctx.SupplierAccount)
+	inputParam.Condition = util.SetModOwner(inputParam.Condition, ctx.SupplierAccount)
 	origins, _, err := m.getInsts(ctx, objID, inputParam.Condition)
 	if nil != err {
 		blog.Errorf("UpdateModelInstance failed, get inst failed, err: %v, rid:%s", err, ctx.ReqID)
@@ -167,10 +167,6 @@ func (m *instanceManager) UpdateModelInstance(ctx core.ContextParams, objID stri
 		eh.SetPreData(instID, origin)
 	}
 
-	if nil != err {
-		blog.Errorf("update model instance validate error :%v ,rid:%s", err, ctx.ReqID)
-		return &metadata.UpdatedCount{}, err
-	}
 	cnt, err := m.update(ctx, objID, inputParam.Data, inputParam.Condition)
 	if err != nil {
 		blog.ErrorJSON("UpdateModelInstance update objID(%s) inst error. err:%s, condition:%s, rid:%s", objID, inputParam.Condition, ctx.ReqID)
@@ -191,9 +187,7 @@ func (m *instanceManager) SearchModelInstance(ctx core.ContextParams, objID stri
 		blog.Errorf("SearchModelInstance failed, parse condition failed, inputParam: %+v, err: %+v, rid: %s", inputParam, err, ctx.ReqID)
 		return &metadata.QueryResult{}, err
 	}
-	ownerIDArr := []string{ctx.SupplierAccount, common.BKDefaultOwnerID}
-	condition.Element(&mongo.In{Key: common.BKOwnerIDField, Val: ownerIDArr})
-	inputParam.Condition = condition.ToMapStr()
+	inputParam.Condition = util.SetQueryOwner(condition.ToMapStr(), ctx.SupplierAccount)
 
 	blog.V(9).Infof("search instance with parameter: %+v, rid: %s", inputParam, ctx.ReqID)
 	instItems, err := m.searchInstance(ctx, objID, inputParam)
@@ -216,7 +210,7 @@ func (m *instanceManager) SearchModelInstance(ctx core.ContextParams, objID stri
 func (m *instanceManager) DeleteModelInstance(ctx core.ContextParams, objID string, inputParam metadata.DeleteOption) (*metadata.DeletedCount, error) {
 	tableName := common.GetInstTableName(objID)
 	instIDFieldName := common.GetInstIDField(objID)
-	inputParam.Condition.Set(common.BKOwnerIDField, ctx.SupplierAccount)
+	inputParam.Condition = util.SetModOwner(inputParam.Condition, ctx.SupplierAccount)
 	origins, _, err := m.getInsts(ctx, objID, inputParam.Condition)
 	if nil != err {
 		return &metadata.DeletedCount{}, err
@@ -273,7 +267,7 @@ func (m *instanceManager) CascadeDeleteModelInstance(ctx core.ContextParams, obj
 			return &metadata.DeletedCount{}, err
 		}
 	}
-	inputParam.Condition.Set(common.BKOwnerIDField, ctx.SupplierAccount)
+	inputParam.Condition = util.SetModOwner(inputParam.Condition, ctx.SupplierAccount)
 	err = m.dbProxy.Table(tableName).Delete(ctx, inputParam.Condition)
 	if nil != err {
 		return &metadata.DeletedCount{}, err

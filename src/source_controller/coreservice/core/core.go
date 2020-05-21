@@ -14,6 +14,7 @@ package core
 
 import (
 	"context"
+	"net/http"
 
 	"configcenter/src/common/errors"
 	"configcenter/src/common/mapstr"
@@ -49,6 +50,7 @@ type ModelAttribute interface {
 	CreateModelAttributes(ctx ContextParams, objID string, inputParam metadata.CreateModelAttributes) (*metadata.CreateManyDataResult, error)
 	SetModelAttributes(ctx ContextParams, objID string, inputParam metadata.SetModelAttributes) (*metadata.SetDataResult, error)
 	UpdateModelAttributes(ctx ContextParams, objID string, inputParam metadata.UpdateOption) (*metadata.UpdatedCount, error)
+	UpdateModelAttributesIndex(ctx ContextParams, objID string, inputParam metadata.UpdateOption) (*metadata.UpdateAttrIndexData, error)
 	UpdateModelAttributesByCondition(ctx ContextParams, inputParam metadata.UpdateOption) (*metadata.UpdatedCount, error)
 	DeleteModelAttributes(ctx ContextParams, objID string, inputParam metadata.DeleteOption) (*metadata.DeletedCount, error)
 	SearchModelAttributes(ctx ContextParams, objID string, inputParam metadata.QueryCondition) (*metadata.QueryModelAttributeDataResult, error)
@@ -98,7 +100,7 @@ type AssociationKind interface {
 	UpdateAssociationKind(ctx ContextParams, inputParam metadata.UpdateOption) (*metadata.UpdatedCount, error)
 	DeleteAssociationKind(ctx ContextParams, inputParam metadata.DeleteOption) (*metadata.DeletedCount, error)
 	CascadeDeleteAssociationKind(ctx ContextParams, inputParam metadata.DeleteOption) (*metadata.DeletedCount, error)
-	SearchAssociationKind(ctx ContextParams, inputParam metadata.QueryCondition) (*metadata.QueryResult, error)
+	SearchAssociationKind(ctx ContextParams, inputParam metadata.QueryCondition) (*metadata.SearchAssociationKindResult, error)
 }
 
 // ModelAssociation manager model association
@@ -132,8 +134,8 @@ type DataSynchronizeOperation interface {
 
 // TopoOperation methods
 type TopoOperation interface {
-	SearchMainlineModelTopo(ctx context.Context, withDetail bool) (*metadata.TopoModelNode, error)
-	SearchMainlineInstanceTopo(ctx context.Context, objID int64, withDetail bool) (*metadata.TopoInstanceNode, error)
+	SearchMainlineModelTopo(ctx context.Context, header http.Header, withDetail bool) (*metadata.TopoModelNode, error)
+	SearchMainlineInstanceTopo(ctx context.Context, header http.Header, objID int64, withDetail bool) (*metadata.TopoInstanceNode, error)
 }
 
 // HostOperation methods
@@ -175,7 +177,7 @@ type AuditOperation interface {
 
 type StatisticOperation interface {
 	SearchInstCount(ctx ContextParams, inputParam mapstr.MapStr) (uint64, error)
-	SearchChartDataCommon(ctx ContextParams, inputParam metadata.ChartConfig) (interface{}, error)
+	SearchChartData(ctx ContextParams, inputParam metadata.ChartConfig) (interface{}, error)
 	SearchOperationChart(ctx ContextParams, inputParam interface{}) (*metadata.ChartClassification, error)
 	CreateOperationChart(ctx ContextParams, inputParam metadata.ChartConfig) (uint64, error)
 	UpdateChartPosition(ctx ContextParams, inputParam interface{}) (interface{}, error)
@@ -198,6 +200,8 @@ type Core interface {
 	ProcessOperation() ProcessOperation
 	LabelOperation() LabelOperation
 	SetTemplateOperation() SetTemplateOperation
+	HostApplyRuleOperation() HostApplyRuleOperation
+	SystemOperation() SystemOperation
 }
 
 // ProcessOperation methods
@@ -241,6 +245,7 @@ type ProcessOperation interface {
 	GetProcessInstanceRelation(ctx ContextParams, processInstanceID int64) (*metadata.ProcessInstanceRelation, errors.CCErrorCoder)
 	UpdateProcessInstanceRelation(ctx ContextParams, processInstanceID int64, relation metadata.ProcessInstanceRelation) (*metadata.ProcessInstanceRelation, errors.CCErrorCoder)
 	ListProcessInstanceRelation(ctx ContextParams, option metadata.ListProcessInstanceRelationOption) (*metadata.MultipleProcessInstanceRelation, errors.CCErrorCoder)
+	ListHostProcessRelation(ctx ContextParams, option *metadata.ListProcessInstancesWithHostOption) (*metadata.MultipleHostProcessRelation, errors.CCErrorCoder)
 	DeleteProcessInstanceRelation(ctx ContextParams, option metadata.DeleteProcessInstanceRelationOption) errors.CCErrorCoder
 
 	GetBusinessDefaultSetModuleInfo(ctx ContextParams, bizID int64) (metadata.BusinessDefaultSetModuleInfo, errors.CCErrorCoder)
@@ -266,10 +271,26 @@ type SetTemplateOperation interface {
 	DeleteSetTemplateSyncStatus(ctx ContextParams, option metadata.DeleteSetTemplateSyncStatusOption) errors.CCErrorCoder
 }
 
+type HostApplyRuleOperation interface {
+	CreateHostApplyRule(ctx ContextParams, bizID int64, option metadata.CreateHostApplyRuleOption) (metadata.HostApplyRule, errors.CCErrorCoder)
+	UpdateHostApplyRule(ctx ContextParams, bizID int64, ruleID int64, option metadata.UpdateHostApplyRuleOption) (metadata.HostApplyRule, errors.CCErrorCoder)
+	DeleteHostApplyRule(ctx ContextParams, bizID int64, ruleIDs ...int64) errors.CCErrorCoder
+	GetHostApplyRule(ctx ContextParams, bizID int64, ruleID int64) (metadata.HostApplyRule, errors.CCErrorCoder)
+	ListHostApplyRule(ctx ContextParams, bizID int64, option metadata.ListHostApplyRuleOption) (metadata.MultipleHostApplyRuleResult, errors.CCErrorCoder)
+	GenerateApplyPlan(ctx ContextParams, bizID int64, option metadata.HostApplyPlanOption) (metadata.HostApplyPlanResult, errors.CCErrorCoder)
+	SearchRuleRelatedModules(ctx ContextParams, bizID int64, option metadata.SearchRuleRelatedModulesOption) ([]metadata.Module, errors.CCErrorCoder)
+	BatchUpdateHostApplyRule(ctx ContextParams, bizID int64, option metadata.BatchCreateOrUpdateApplyRuleOption) (metadata.BatchCreateOrUpdateHostApplyRuleResult, errors.CCErrorCoder)
+	RunHostApplyOnHosts(ctx ContextParams, bizID int64, option metadata.UpdateHostByHostApplyRuleOption) (metadata.MultipleHostApplyResult, errors.CCErrorCoder)
+}
+
+type SystemOperation interface {
+	GetSystemUserConfig(ctx ContextParams) (map[string]interface{}, errors.CCErrorCoder)
+}
+
 type core struct {
 	model           ModelOperation
 	instance        InstanceOperation
-	associaction    AssociationOperation
+	association     AssociationOperation
 	dataSynchronize DataSynchronizeOperation
 	topo            TopoOperation
 	host            HostOperation
@@ -277,17 +298,30 @@ type core struct {
 	operation       StatisticOperation
 	process         ProcessOperation
 	label           LabelOperation
+	sys             SystemOperation
 	setTemplate     SetTemplateOperation
+	hostApplyRule   HostApplyRuleOperation
 }
 
 // New create core
-func New(model ModelOperation, instance InstanceOperation, association AssociationOperation,
-	dataSynchronize DataSynchronizeOperation, topo TopoOperation, host HostOperation,
-	audit AuditOperation, process ProcessOperation, label LabelOperation, setTemplate SetTemplateOperation, operation StatisticOperation) Core {
+func New(
+	model ModelOperation,
+	instance InstanceOperation,
+	association AssociationOperation,
+	dataSynchronize DataSynchronizeOperation,
+	topo TopoOperation, host HostOperation,
+	audit AuditOperation,
+	process ProcessOperation,
+	label LabelOperation,
+	setTemplate SetTemplateOperation,
+	operation StatisticOperation,
+	hostApplyRule HostApplyRuleOperation,
+    sys SystemOperation,
+) Core {
 	return &core{
 		model:           model,
 		instance:        instance,
-		associaction:    association,
+		association:     association,
 		dataSynchronize: dataSynchronize,
 		topo:            topo,
 		host:            host,
@@ -295,7 +329,9 @@ func New(model ModelOperation, instance InstanceOperation, association Associati
 		operation:       operation,
 		process:         process,
 		label:           label,
+		sys:             sys,
 		setTemplate:     setTemplate,
+		hostApplyRule:   hostApplyRule,
 	}
 }
 
@@ -308,7 +344,7 @@ func (m *core) InstanceOperation() InstanceOperation {
 }
 
 func (m *core) AssociationOperation() AssociationOperation {
-	return m.associaction
+	return m.association
 }
 
 func (m *core) TopoOperation() TopoOperation {
@@ -341,4 +377,12 @@ func (m *core) LabelOperation() LabelOperation {
 
 func (m *core) SetTemplateOperation() SetTemplateOperation {
 	return m.setTemplate
+}
+
+func (m *core) SystemOperation() SystemOperation {
+	return m.sys
+}
+
+func (m *core) HostApplyRuleOperation() HostApplyRuleOperation {
+	return m.hostApplyRule
 }

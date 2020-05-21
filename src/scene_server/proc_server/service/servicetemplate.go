@@ -147,7 +147,7 @@ func (ps *ProcServer) ListServiceTemplates(ctx *rest.Contexts) {
 		}
 	}
 
-	if input.Page.Limit >= common.BKMaxPageLimit {
+	if input.Page.Limit > common.BKMaxPageSize {
 		ctx.RespErrorCodeOnly(common.CCErrCommPageLimitIsExceeded, "list service template, but page limit:%d is over limited.", input.Page.Limit)
 		return
 	}
@@ -158,7 +158,7 @@ func (ps *ProcServer) ListServiceTemplates(ctx *rest.Contexts) {
 		ServiceCategoryID: &input.ServiceCategoryID,
 	}
 
-	if ps.AuthManager.Enabled() == true {
+	if ps.AuthManager.Enabled() {
 		authorizedIDs, err := ps.AuthManager.ListAuthorizedServiceTemplateIDs(ctx.Kit.Ctx, ctx.Kit.Header, bizID)
 		if err != nil {
 			blog.Errorf("ListAuthorizedServiceTemplateIDs failed, bizID: %d, err: %+v, rid: %s", bizID, err, ctx.Kit.Rid)
@@ -171,7 +171,7 @@ func (ps *ProcServer) ListServiceTemplates(ctx *rest.Contexts) {
 		} else {
 			ids := make([]int64, 0)
 			for _, id := range option.ServiceTemplateIDs {
-				if util.InArray(id, authorizedIDs) == true {
+				if util.InArray(id, authorizedIDs) {
 					ids = append(ids, id)
 				}
 			}
@@ -205,7 +205,7 @@ func (ps *ProcServer) ListServiceTemplatesWithDetails(ctx *rest.Contexts) {
 		}
 	}
 
-	if input.Page.Limit >= common.BKMaxPageLimit {
+	if input.Page.Limit > common.BKMaxPageSize {
 		ctx.RespErrorCodeOnly(common.CCErrCommPageLimitIsExceeded, "list service template, but page limit:%d is over limited.", input.Page.Limit)
 		return
 	}
@@ -217,7 +217,7 @@ func (ps *ProcServer) ListServiceTemplatesWithDetails(ctx *rest.Contexts) {
 		Search:            input.Search,
 	}
 
-	if ps.AuthManager.Enabled() == true {
+	if ps.AuthManager.Enabled() {
 		authorizedIDs, err := ps.AuthManager.ListAuthorizedServiceTemplateIDs(ctx.Kit.Ctx, ctx.Kit.Header, bizID)
 		if err != nil {
 			blog.Errorf("ListAuthorizedServiceTemplateIDs failed, bizID: %d, err: %+v, rid: %s", bizID, err, ctx.Kit.Rid)
@@ -230,7 +230,7 @@ func (ps *ProcServer) ListServiceTemplatesWithDetails(ctx *rest.Contexts) {
 		} else {
 			ids := make([]int64, 0)
 			for _, id := range option.ServiceTemplateIDs {
-				if util.InArray(id, authorizedIDs) == true {
+				if util.InArray(id, authorizedIDs) {
 					ids = append(ids, id)
 				}
 			}

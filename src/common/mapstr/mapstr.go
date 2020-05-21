@@ -13,6 +13,7 @@
 package mapstr
 
 import (
+	"bytes"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -81,7 +82,10 @@ func (cli MapStr) MarshalJSONInto(target interface{}) error {
 		return fmt.Errorf("marshal %#v failed: %v", target, err)
 	}
 
-	err = json.Unmarshal(data, target)
+	d := json.NewDecoder(bytes.NewReader(data))
+	d.UseNumber()
+
+	err = d.Decode(target)
 	if err != nil {
 		return fmt.Errorf("unmarshal %s failed: %v", data, err)
 	}
@@ -193,9 +197,9 @@ func (cli MapStr) String(key string) (string, error) {
 	case nil:
 		return "", nil
 	case float32:
-		return strconv.FormatFloat(float64(t),'f',-1,32), nil
+		return strconv.FormatFloat(float64(t), 'f', -1, 32), nil
 	case float64:
-		return strconv.FormatFloat(float64(t),'f',-1,64), nil
+		return strconv.FormatFloat(float64(t), 'f', -1, 64), nil
 	case map[string]interface{}, []interface{}:
 		rest, err := json.Marshal(t)
 		if nil != err {
@@ -310,8 +314,10 @@ func (cli MapStr) MapStrArray(key string) ([]MapStr, error) {
 				items = append(items, childType)
 			case MapStr:
 				items = append(items, childType)
+			case nil:
+				continue
 			default:
-				return nil, fmt.Errorf("the value of the key(%s) is not a valid type,value:%+v", key, t)
+				return nil, fmt.Errorf("the value of the key(%s) is not a valid type, type: %v,value:%+v", key, childType, t)
 			}
 		}
 		return items, nil

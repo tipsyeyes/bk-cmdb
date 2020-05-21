@@ -196,13 +196,16 @@ func (s *Service) ListSetTemplateWeb(params types.ContextParams, pathParams, que
 		return nil, params.Err.CCErrorf(common.CCErrCommParamsInvalid, common.BKAppIDField)
 	}
 
-	setTemplates, err := s.ListSetTemplate(params, pathParams, queryParams, data)
-	if err != nil {
-		return nil, err
+	listOption := metadata.ListSetTemplateOption{}
+	if err := data.MarshalJSONInto(&listOption); err != nil {
+		return nil, params.Err.CCError(common.CCErrCommJSONUnmarshalFailed)
 	}
-	listResult := setTemplates.(*metadata.MultipleSetTemplateResult)
-	if listResult == nil {
-		return nil, nil
+	listOption.Page.Limit = common.BKNoLimit
+
+	listResult, err := s.Engine.CoreAPI.CoreService().SetTemplate().ListSetTemplate(params.Context, params.Header, bizID, listOption)
+	if err != nil {
+		blog.Errorf("ListSetTemplate failed, do core service ListSetTemplate failed, bizID: %d, option: %+v, err: %+v, rid: %s", bizID, listOption, err, params.ReqID)
+		return nil, err
 	}
 
 	// count template instances
@@ -249,11 +252,127 @@ func (s *Service) ListSetTplRelatedSvcTpl(params types.ContextParams, pathParams
 
 	serviceTemplates, err := s.Engine.CoreAPI.CoreService().SetTemplate().ListSetTplRelatedSvcTpl(params.Context, params.Header, bizID, setTemplateID)
 	if err != nil {
-		blog.Errorf("ListSetTemplateRelatedServiceTemplate failed, do core service list failed, bizID: %d, setTemplateID: %+v, err: %+v, rid: %s", bizID, setTemplateID, err, params.ReqID)
+		blog.Errorf("ListSetTemplateRelatedServiceTemplate failed, ListSetTplRelatedSvcTpl failed, bizID: %d, setTemplateID: %+v, err: %+v, rid: %s", bizID, setTemplateID, err, params.ReqID)
 		return nil, err
 	}
 
 	return serviceTemplates, nil
+}
+
+func (s *Service) ListSetTplRelatedSvcTplWithStatistics(params types.ContextParams, pathParams, queryParams ParamsGetter, data mapstr.MapStr) (output interface{}, retErr error) {
+	bizIDStr := pathParams(common.BKAppIDField)
+	bizID, err := strconv.ParseInt(bizIDStr, 10, 64)
+	if err != nil {
+		return nil, params.Err.CCErrorf(common.CCErrCommParamsInvalid, common.BKAppIDField)
+	}
+
+	setTemplateIDStr := pathParams(common.BKSetTemplateIDField)
+	setTemplateID, err := strconv.ParseInt(setTemplateIDStr, 10, 64)
+	if err != nil {
+		return nil, params.Err.CCErrorf(common.CCErrCommParamsInvalid, common.BKSetTemplateIDField)
+	}
+
+	serviceTemplates, err := s.Engine.CoreAPI.CoreService().SetTemplate().ListSetTplRelatedSvcTpl(params.Context, params.Header, bizID, setTemplateID)
+	if err != nil {
+		blog.Errorf("ListSetTplRelatedSvcTplWithStatistics failed, do core service list failed, bizID: %d, setTemplateID: %+v, err: %+v, rid: %s", bizID, setTemplateID, err, params.ReqID)
+		return nil, err
+	}
+
+	serviceTemplateIDs := make([]int64, 0)
+	for _, item := range serviceTemplates {
+		serviceTemplateIDs = append(serviceTemplateIDs, item.ID)
+	}
+	moduleFilter := metadata.QueryCondition{
+		Limit: metadata.SearchLimit{
+			Limit: common.BKNoLimit,
+		},
+		Condition: map[string]interface{}{
+			common.BKServiceTemplateIDField: map[string]interface{}{
+				common.BKDBIN: serviceTemplateIDs,
+			},
+			common.BKSetTemplateIDField: setTemplateID,
+		},
+	}
+	moduleResult, err := s.Engine.CoreAPI.CoreService().Instance().ReadInstance(params.Context, params.Header, common.BKInnerObjIDModule, &moduleFilter)
+	if err != nil {
+		blog.ErrorJSON("ListSetTplRelatedSvcTplWithStatistics failed, ReadInstance of module http failed, option: %s, err: %s, rid: %s", moduleFilter, err.Error(), params.ReqID)
+		return nil, params.Err.CCError(common.CCErrCommHTTPDoRequestFailed)
+	}
+	if ccErr := moduleResult.CCError(); ccErr != nil {
+		blog.Errorf("ListSetTplRelatedSvcTplWithStatistics failed, ReadInstance of module failed, filter: %s, result: %s, rid: %s", moduleFilter, moduleResult, params.ReqID)
+		return nil, ccErr
+	}
+	module := metadata.ModuleInst{}
+	moduleIDs := make([]int64, 0)
+	svcTpl2Modules := make(map[int64][]metadata.ModuleInst)
+	for _, item := range moduleResult.Data.Info {
+		if err := mapstruct.Decode2Struct(item, &module); err != nil {
+			blog.Errorf("ListSetTplRelatedSvcTplWithStatistics failed, parse module failed, module: %+v, err: %+v, rid: %s", item, err, params.ReqID)
+			return nil, params.Err.CCError(common.CCErrCommParseDBFailed)
+		}
+		if _, exist := svcTpl2Modules[module.ServiceTemplateID]; exist == false {
+			svcTpl2Modules[module.ServiceTemplateID] = make([]metadata.ModuleInst, 0)
+		}
+		svcTpl2Modules[module.ServiceTemplateID] = append(svcTpl2Modules[module.ServiceTemplateID], module)
+		moduleIDs = append(moduleIDs, module.ModuleID)
+	}
+
+	// host module relations
+	relationOption := metadata.HostModuleRelationRequest{
+		ApplicationID: bizID,
+		ModuleIDArr:   moduleIDs,
+		Page: metadata.BasePage{
+			Limit: common.BKNoLimit,
+		},
+	}
+	relationResult, err := s.Engine.CoreAPI.CoreService().Host().GetHostModuleRelation(params.Context, params.Header, &relationOption)
+	if err != nil {
+		blog.Errorf("ListSetTplRelatedSvcTplWithStatistics failed, GetHostModuleRelation http failed, option: %s, err: %s, rid: %s", relationOption, err, params.ReqID)
+		return nil, params.Err.CCError(common.CCErrCommHTTPDoRequestFailed)
+	}
+	if ccErr := relationResult.CCError(); ccErr != nil {
+		blog.Errorf("ListSetTplRelatedSvcTplWithStatistics failed, GetHostModuleRelation failed, option: %s, result: %s, rid: %s", relationOption, relationResult, params.ReqID)
+		return nil, ccErr
+	}
+
+	// module hosts
+	moduleHostIDs := make(map[int64][]int64)
+	for _, item := range relationResult.Data.Info {
+		if _, exist := moduleHostIDs[item.ModuleID]; exist == false {
+			moduleHostIDs[item.ModuleID] = make([]int64, 0)
+		}
+		moduleHostIDs[item.ModuleID] = append(moduleHostIDs[item.ModuleID], item.HostID)
+	}
+
+	type ServiceTemplateWithModuleInfo struct {
+		ServiceTemplate metadata.ServiceTemplate `json:"service_template"`
+		HostCount       int                      `json:"host_count"`
+		Modules         []metadata.ModuleInst    `json:"modules"`
+	}
+	result := make([]ServiceTemplateWithModuleInfo, 0)
+	for _, svcTpl := range serviceTemplates {
+		info := ServiceTemplateWithModuleInfo{
+			ServiceTemplate: svcTpl,
+		}
+		modules, ok := svcTpl2Modules[svcTpl.ID]
+		if ok == false {
+			result = append(result, info)
+			continue
+		}
+		info.Modules = modules
+		hostIDs := make([]int64, 0)
+		for _, moduleInst := range modules {
+			ids, ok := moduleHostIDs[moduleInst.ModuleID]
+			if ok == false {
+				continue
+			}
+			hostIDs = append(hostIDs, ids...)
+		}
+		info.HostCount = len(util.IntArrayUnique(hostIDs))
+		result = append(result, info)
+	}
+
+	return result, nil
 }
 
 // ListSetTplRelatedSets get SetTemplate related sets
@@ -450,7 +569,39 @@ func (s *Service) DiffSetTplWithInst(params types.ContextParams, pathParams, que
 		result.ModuleHostCount = moduleHostsCount
 	}
 
+	// 补偿：检查集群与模板版本号不同，但是又没有差异的情况，更新集群版本号到最新
+	for _, setDiff := range setDiffs {
+		if setDiff.NeedSync == true || setDiff.SetTemplateVersion == setDiff.SetDetail.SetTemplateVersion {
+			continue
+		}
+		if err := s.UpdateSetVersion(params, bizID, setDiff.SetID, setDiff.SetTemplateVersion); err != nil {
+			blog.Errorf("DiffSetTplWithInst failed, UpdateSetVersion failed, bizID: %d, setID: %d, version: %d, err: %+v, rid: %s",
+				bizID, setDiff.SetID, setDiff.SetTemplateVersion, err, params.ReqID)
+		}
+	}
 	return result, nil
+}
+
+func (s *Service) UpdateSetVersion(params types.ContextParams, bizID, setID, setTemplateVersion int64) errors.CCErrorCoder {
+	updateOption := &metadata.UpdateOption{
+		Condition: map[string]interface{}{
+			common.BKAppIDField: bizID,
+			common.BKSetIDField: setID,
+		},
+		Data: map[string]interface{}{
+			common.BKSetTemplateVersionField: setTemplateVersion,
+		},
+	}
+	updateResult, err := s.Engine.CoreAPI.CoreService().Instance().UpdateInstance(params.Context, params.Header, common.BKInnerObjIDSet, updateOption)
+	if err != nil {
+		blog.Errorf("UpdateSetVersion failed, UpdateInstance of set failed, option: %+v, err: %+v, rid: %s", updateOption, err, params.ReqID)
+		return params.Err.CCError(common.CCErrCommHTTPDoRequestFailed)
+	}
+	if ccErr := updateResult.CCError(); ccErr != nil {
+		blog.Errorf("UpdateSetVersion failed, UpdateInstance of set failed, option: %+v, response: %+v, rid: %s", updateOption, updateResult, params.ReqID)
+		return params.Err.CCError(common.CCErrCommHTTPDoRequestFailed)
+	}
+	return nil
 }
 
 func (s *Service) SyncSetTplToInst(params types.ContextParams, pathParams, queryParams ParamsGetter, data mapstr.MapStr) (output interface{}, retErr error) {
@@ -601,4 +752,50 @@ func (s *Service) ListSetTemplateSyncStatus(params types.ContextParams, pathPara
 		return nil, err
 	}
 	return result, nil
+}
+
+func (s *Service) CheckSetInstUpdateToDateStatus(params types.ContextParams, pathParams, queryParams ParamsGetter, data mapstr.MapStr) (output interface{}, retErr error) {
+	bizIDStr := pathParams(common.BKAppIDField)
+	bizID, err := strconv.ParseInt(bizIDStr, 10, 64)
+	if err != nil {
+		return nil, params.Err.CCErrorf(common.CCErrCommParamsInvalid, common.BKAppIDField)
+	}
+
+	setTemplateIDStr := pathParams(common.BKSetTemplateIDField)
+	setTemplateID, err := strconv.ParseInt(setTemplateIDStr, 10, 64)
+	if err != nil {
+		return nil, params.Err.CCErrorf(common.CCErrCommParamsInvalid, common.BKSetTemplateIDField)
+	}
+
+	result, err := s.Core.SetTemplateOperation().CheckSetInstUpdateToDateStatus(params, bizID, setTemplateID)
+	if err != nil {
+		blog.ErrorJSON("CheckSetInstUpdateToDateStatus failed, call core implement failed, bizID: %d, setTemplateID: %d, err: %s, rid: %s", bizID, setTemplateID, err.Error(), params.ReqID)
+		return nil, err
+	}
+	return result, nil
+}
+
+func (s *Service) BatchCheckSetInstUpdateToDateStatus(params types.ContextParams, pathParams, queryParams ParamsGetter, data mapstr.MapStr) (output interface{}, retErr error) {
+	bizIDStr := pathParams(common.BKAppIDField)
+	bizID, err := strconv.ParseInt(bizIDStr, 10, 64)
+	if err != nil {
+		return nil, params.Err.CCErrorf(common.CCErrCommParamsInvalid, common.BKAppIDField)
+	}
+
+	option := metadata.BatchCheckSetInstUpdateToDateStatusOption{}
+	if err := mapstruct.Decode2Struct(data, &option); err != nil {
+		blog.Errorf("BatchCheckSetInstUpdateToDateStatus failed, decode request body failed, data: %+v, err: %+v, rid: %s", data, err, params.ReqID)
+		return nil, params.Err.CCError(common.CCErrCommJSONUnmarshalFailed)
+	}
+
+	batchResult := make([]metadata.SetTemplateUpdateToDateStatus, 0)
+	for _, setTemplateID := range option.SetTemplateIDs {
+		oneResult, err := s.Core.SetTemplateOperation().CheckSetInstUpdateToDateStatus(params, bizID, setTemplateID)
+		if err != nil {
+			blog.ErrorJSON("BatchCheckSetInstUpdateToDateStatus failed, CheckSetInstUpdateToDateStatus failed, bizID: %d, setTemplateID: %d, err: %s, rid: %s", bizID, setTemplateID, err.Error(), params.ReqID)
+			return nil, err
+		}
+		batchResult = append(batchResult, oneResult)
+	}
+	return batchResult, nil
 }

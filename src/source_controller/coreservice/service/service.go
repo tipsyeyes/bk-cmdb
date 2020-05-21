@@ -37,6 +37,7 @@ import (
 	"configcenter/src/source_controller/coreservice/core/auditlog"
 	"configcenter/src/source_controller/coreservice/core/datasynchronize"
 	"configcenter/src/source_controller/coreservice/core/host"
+	"configcenter/src/source_controller/coreservice/core/hostapplyrule"
 	"configcenter/src/source_controller/coreservice/core/instances"
 	"configcenter/src/source_controller/coreservice/core/label"
 	"configcenter/src/source_controller/coreservice/core/mainline"
@@ -44,6 +45,7 @@ import (
 	"configcenter/src/source_controller/coreservice/core/operation"
 	"configcenter/src/source_controller/coreservice/core/process"
 	"configcenter/src/source_controller/coreservice/core/settemplate"
+	dbSystem "configcenter/src/source_controller/coreservice/core/system"
 	"configcenter/src/storage/dal"
 	"configcenter/src/storage/dal/mongo/local"
 	"configcenter/src/storage/dal/mongo/remote"
@@ -73,7 +75,7 @@ type coreService struct {
 	cfg      options.Config
 	core     core.Core
 	db       dal.RDB
-	cahce    *redis.Client
+	cache    *redis.Client
 }
 
 func (s *coreService) SetConfig(cfg options.Config, engin *backbone.Engine, err errors.CCErrorIf, language language.CCLanguageIf) error {
@@ -108,21 +110,25 @@ func (s *coreService) SetConfig(cfg options.Config, engin *backbone.Engine, err 
 	}
 
 	s.db = db
-	s.cahce = cache
+	s.cache = cache
 
 	// connect the remote mongodb
+	instance := instances.New(db, s, cache)
+	hostApplyRuleCore := hostapplyrule.New(db, instance)
 	s.core = core.New(
-		model.New(db, s),
-		instances.New(db, s, cache),
+		model.New(db, s, cache),
+		instance,
 		association.New(db, s),
 		datasynchronize.New(db, s),
-		mainline.New(db),
-		host.New(db, cache, s),
+		mainline.New(db, s.language),
+		host.New(db, cache, s, hostApplyRuleCore),
 		auditlog.New(db),
 		process.New(db, s, cache),
 		label.New(db),
 		settemplate.New(db),
 		operation.New(db),
+		hostApplyRuleCore,
+		dbSystem.New(db),
 	)
 	return nil
 }

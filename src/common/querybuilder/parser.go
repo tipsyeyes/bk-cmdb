@@ -15,8 +15,11 @@ package querybuilder
 import (
 	"encoding/json"
 	"fmt"
+	"reflect"
 
 	"configcenter/src/common/mapstr"
+
+	"github.com/mitchellh/mapstructure"
 )
 
 type RuleGroup struct {
@@ -28,7 +31,7 @@ func ParseRule(data map[string]interface{}) (queryFilter Rule, errKey string, er
 	if data == nil {
 		return nil, "", nil
 	}
-	if _, ok := data["condition"]; ok == true {
+	if _, ok := data["condition"]; ok {
 		ruleGroupData := &RuleGroup{}
 		// shouldn't use mapstr here as it doesn't support nest struct
 		// TODO: replace it with more efficient way
@@ -49,7 +52,7 @@ func ParseRule(data map[string]interface{}) (queryFilter Rule, errKey string, er
 			}
 		}
 		queryFilter = combinedRule
-	} else if _, ok := data["operator"]; ok == true {
+	} else if _, ok := data["operator"]; ok {
 		rule := AtomRule{}
 		if err := mapstr.DecodeFromMapStr(&rule, data); err != nil {
 			return nil, "", fmt.Errorf("decode to rule struct failed, err: %+v", err)
@@ -78,7 +81,7 @@ func (qf *QueryFilter) Validate() (string, error) {
 	if qf.Rule == nil {
 		return "", nil
 	}
-	if _, ok := qf.Rule.(CombinedRule); ok == false {
+	if _, ok := qf.Rule.(CombinedRule); !ok {
 		return "", fmt.Errorf("query filter must be combined rules")
 	}
 	return qf.Rule.Validate()
@@ -88,7 +91,7 @@ func (qf *QueryFilter) MarshalJSON() ([]byte, error) {
 	if qf.Rule != nil {
 		return json.Marshal(qf.Rule)
 	}
-	return nil, nil
+	return make([]byte, 0), nil
 }
 
 func (qf *QueryFilter) UnmarshalJSON(raw []byte) error {
@@ -98,4 +101,27 @@ func (qf *QueryFilter) UnmarshalJSON(raw []byte) error {
 	}
 	qf.Rule = rule
 	return nil
+}
+
+func MapToQueryFilterHookFunc() mapstructure.DecodeHookFunc {
+	return func(f reflect.Type, t reflect.Type, data interface{}) (interface{}, error) {
+		if t != reflect.TypeOf(QueryFilter{}) {
+			return data, nil
+		}
+		if f.Kind() != reflect.Map {
+			return data, nil
+		}
+		dataMap, ok := data.(map[string]interface{})
+		if ok == false {
+			return data, nil
+		}
+		rule, errKey, err := ParseRule(dataMap)
+		if err != nil {
+			return nil, fmt.Errorf("key: %s, err: %s", errKey, err.Error())
+		}
+		filter := QueryFilter{
+			Rule: rule,
+		}
+		return filter, nil
+	}
 }

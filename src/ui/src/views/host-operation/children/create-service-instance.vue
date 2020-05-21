@@ -4,11 +4,14 @@
             :tips-style="{
                 background: 'none',
                 border: 'none',
-                fontSize: '12px'
+                fontSize: '12px',
+                lineHeight: '30px',
+                padding: 0
             }"
             :icon-style="{
                 color: '#63656E',
-                fontSize: '14px'
+                fontSize: '14px',
+                lineHeight: '30px'
             }">
             {{$t('新增服务实例提示')}}
         </cmdb-tips>
@@ -103,6 +106,19 @@
                         }
                     })
                     return value
+                })
+            },
+            getServiceInstanceOptions () {
+                return this.instances.map((instance, index) => {
+                    const component = this.$refs.serviceInstance.find(component => component.index === index)
+                    return {
+                        bk_module_id: instance.bk_module_id,
+                        bk_host_id: instance.bk_host_id,
+                        processes: component.processList.map((process, listIndex) => ({
+                            process_template_id: component.templates[listIndex] ? component.templates[listIndex].id : 0,
+                            process_info: process
+                        }))
+                    }
                 })
             }
         }

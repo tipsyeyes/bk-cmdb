@@ -28,8 +28,8 @@ func (ps *parseStream) hostRelated() *parseStream {
 		hostFavorite().
 		cloudResourceSync().
 		hostSnapshot().
-		findObjectIdentifier()
-
+		findObjectIdentifier().
+		HostApply()
 	return ps
 }
 
@@ -282,6 +282,12 @@ const (
 	updateHostInfoBatchPattern        = "/api/v3/hosts/batch"
 	updateHostPropertyBatchPattern    = "/api/v3/hosts/property/batch"
 	findHostsWithModulesPattern       = "/api/v3/findmany/modulehost"
+
+	// 特殊接口，给蓝鲸业务使用
+	hostInstallPattern = "/api/v3/host/install/bk"
+
+	// cc system user config
+	systemUserConfig = "/api/v3/system/config/user_config/blueking_modify"
 )
 
 var (
@@ -767,6 +773,30 @@ func (ps *parseStream) host() *parseStream {
 			},
 		}
 
+		return ps
+	}
+
+	if ps.hitPattern(hostInstallPattern, http.MethodPost) {
+		ps.Attribute.Resources = []meta.ResourceAttribute{
+			{
+				Basic: meta.Basic{
+					Type:   meta.InstallBK,
+					Action: meta.Update,
+				},
+			},
+		}
+		return ps
+	}
+
+	if ps.hitPattern(systemUserConfig, http.MethodPost) {
+		ps.Attribute.Resources = []meta.ResourceAttribute{
+			{
+				Basic: meta.Basic{
+					Type:   meta.SystemConfig,
+					Action: meta.FindMany,
+				},
+			},
+		}
 		return ps
 	}
 

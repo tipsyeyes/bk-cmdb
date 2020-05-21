@@ -39,15 +39,16 @@
                         :name="option.name">
                     </bk-option>
                 </bk-select>
-                <cmdb-form-enum class="filter-value fl"
-                    v-if="filter.type === 'enum'"
+                <component class="filter-value fl"
+                    v-if="['enum', 'list'].includes(filter.type)"
+                    :is="`cmdb-form-${filter.type}`"
                     :options="$tools.getEnumOptions(properties, filter.id)"
                     :allow-clear="true"
                     :auto-select="false"
                     v-model="filter.value"
                     font-size="medium"
-                    @on-selected="handleFilterData">
-                </cmdb-form-enum>
+                    @on-selected="handleFilterData(true)">
+                </component>
                 <bk-input class="filter-value cmdb-form-input fl" type="text" maxlength="11"
                     v-else-if="filter.type === 'int'"
                     v-model.number="filter.value"
@@ -55,7 +56,8 @@
                     font-size="medium"
                     right-icon="icon-search"
                     :placeholder="$t('快速查询')"
-                    @enter="handleFilterData">
+                    @enter="handleFilterData(true)"
+                    @clear="handleFilterData(false)">
                 </bk-input>
                 <bk-input class="filter-value cmdb-form-input fl" type="text"
                     v-else
@@ -64,7 +66,8 @@
                     font-size="medium"
                     right-icon="icon-search"
                     :placeholder="$t('快速查询')"
-                    @enter="handleFilterData">
+                    @enter="handleFilterData(true)"
+                    @clear="handleFilterData(false)">
                 </bk-input>
             </div>
         </div>
@@ -72,7 +75,7 @@
             v-bkloading="{ isLoading: $loading('post_searchBusiness_list') }"
             :data="table.list"
             :pagination="table.pagination"
-            :max-height="$APP.height - 190"
+            :max-height="$APP.height - 200"
             :row-style="{ cursor: 'pointer' }"
             @row-click="handleRowClick"
             @sort-change="handleSortChange"
@@ -85,14 +88,16 @@
                 :fixed="column.id === 'bk_biz_name'"
                 :key="column.id"
                 :prop="column.id"
-                :label="column.name">
+                :label="column.name"
+                show-overflow-tooltip>
+                <template slot-scope="{ row }">{{row[column.id] | formatter(column.property)}}</template>
             </bk-table-column>
             <cmdb-table-empty
                 slot="empty"
                 :stuff="table.stuff"
                 :auth="$authResources({ type: $OPERATION.C_BUSINESS })"
-                @create="handleCreate"
-            ></cmdb-table-empty>
+                @create="handleCreate">
+            </cmdb-table-empty>
         </bk-table>
         <bk-sideslider
             v-transfer-dom
@@ -157,7 +162,7 @@
 
 <script>
     import { mapGetters, mapActions } from 'vuex'
-    import { MENU_RESOURCE_BUSINESS_HISTORY, MENU_RESOURCE_MANAGEMENT } from '@/dictionary/menu-symbol'
+    import { MENU_RESOURCE_BUSINESS_HISTORY } from '@/dictionary/menu-symbol'
     import cmdbColumnsConfig from '@/components/columns-config/columns-config'
     import cmdbAuditHistory from '@/components/audit-history/audit-history.vue'
     import cmdbRelation from '@/components/relation'
@@ -256,7 +261,6 @@
         },
         async created () {
             try {
-                this.setDynamicBreadcrumbs()
                 this.properties = await this.searchObjectAttribute({
                     params: this.$injectMetadata({
                         bk_obj_id: 'biz',
@@ -272,6 +276,8 @@
                     this.setTableHeader(),
                     this.setFilterOptions()
                 ])
+                
+                // 配合全文检索过滤列表
                 if (this.$route.params.bizName) {
                     this.filter.sendValue = this.$route.params.bizName
                     this.filter.value = this.$route.params.bizName
@@ -291,16 +297,6 @@
                 'createBusiness',
                 'searchBusinessById'
             ]),
-            setDynamicBreadcrumbs () {
-                this.$store.commit('setBreadcrumbs', [{
-                    label: this.$t('资源目录'),
-                    route: {
-                        name: MENU_RESOURCE_MANAGEMENT
-                    }
-                }, {
-                    label: this.$t('业务')
-                }])
-            },
             getPropertyGroups () {
                 return this.searchGroup({
                     objId: 'biz',
@@ -324,21 +320,24 @@
                 })
             },
             setFilterOptions () {
-                this.filter.options = this.properties
-                    .filter(property => !['singleasst', 'multiasst'].includes(property['bk_property_type']))
-                    .map(property => {
-                        return {
-                            id: property['bk_property_id'],
-                            name: property['bk_property_name']
-                        }
-                    })
-                this.filter.id = this.filter.options.length ? this.filter.options[0]['id'] : ''
+                this.filter.options = this.properties.map(property => {
+                    return {
+                        id: property['bk_property_id'],
+                        name: property['bk_property_name']
+                    }
+                })
+                if (this.$route.params.bizName) {
+                    this.filter.id = 'bk_biz_name'
+                } else {
+                    this.filter.id = this.filter.options.length ? this.filter.options[0]['id'] : ''
+                }
             },
             updateTableHeader (properties) {
                 this.table.header = properties.map(property => {
                     return {
                         id: property['bk_property_id'],
-                        name: property['bk_property_name']
+                        name: this.$tools.getHeaderPropertyName(property),
+                        property
                     }
                 })
             },
@@ -366,10 +365,10 @@
                     config: Object.assign({ requestId: 'post_searchBusiness_list' }, config)
                 })
             },
-            handleFilterData () {
+            handleFilterData (withFilter = true) {
                 this.table.pagination.current = 1
                 this.filter.sendValue = this.filter.value
-                this.getTableData(true)
+                this.getTableData(withFilter)
             },
             getTableData (event) {
                 this.getBusinessList({ cancelPrevious: true, globalPermission: false }).then(data => {
@@ -377,12 +376,10 @@
                         this.table.pagination.current -= 1
                         this.getTableData()
                     }
-                    this.table.list = this.$tools.flattenList(this.properties, data.info)
+                    this.table.list = data.info
                     this.table.pagination.count = data.count
 
-                    if (event) {
-                        this.table.stuff.type = 'search'
-                    }
+                    this.table.stuff.type = event ? 'search' : 'default'
 
                     return data
                 }).catch(({ permission }) => {
@@ -419,9 +416,7 @@
                 }
                 return params
             },
-            async handleEdit (flattenItem) {
-                const list = await this.getBusinessList({ fromCache: true })
-                const inst = list.info.find(item => item['bk_biz_id'] === flattenItem['bk_biz_id'])
+            async handleEdit (inst) {
                 const bizNameProperty = this.$tools.getProperty(this.properties, 'bk_biz_name')
                 bizNameProperty.isreadonly = inst['bk_biz_name'] === '蓝鲸'
                 this.attribute.inst.edit = inst
@@ -436,6 +431,7 @@
             handleDelete (inst) {
                 this.$bkInfo({
                     title: this.$t('确认要归档', { name: inst['bk_biz_name'] }),
+                    subTitle: this.$t('归档确认信息'),
                     confirmFn: () => {
                         this.archiveBusiness(inst['bk_biz_id']).then(() => {
                             this.slider.show = false
@@ -452,10 +448,8 @@
                         bizId: originalValues['bk_biz_id'],
                         params: values
                     }).then(() => {
+                        this.attribute.inst.details = Object.assign({}, originalValues, values)
                         this.getTableData()
-                        this.searchBusinessById({ bizId: originalValues['bk_biz_id'] }).then(item => {
-                            this.attribute.inst.details = this.$tools.flattenItem(this.properties, item)
-                        })
                         this.handleCancel()
                         this.$success(this.$t('修改成功'))
                         this.$http.cancel('post_searchBusiness_$ne_disabled')
@@ -526,7 +520,7 @@
 
 <style lang="scss" scoped>
     .business-layout {
-        padding: 0 20px;
+        padding: 15px 20px 0;
     }
     .options-filter{
         position: relative;

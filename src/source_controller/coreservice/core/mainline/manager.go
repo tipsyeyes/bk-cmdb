@@ -15,14 +15,16 @@ package mainline
 import (
 	"context"
 	"fmt"
+	"net/http"
 	"strconv"
 
 	"configcenter/src/common"
 	"configcenter/src/common/blog"
+	"configcenter/src/common/language"
 	"configcenter/src/common/mapstr"
 	"configcenter/src/common/metadata"
-	"configcenter/src/common/universalsql/mongo"
 	"configcenter/src/common/util"
+	"configcenter/src/source_controller/coreservice/multilingual"
 	"configcenter/src/storage/dal"
 )
 
@@ -30,6 +32,8 @@ type InstanceMainline struct {
 	dbProxy   dal.RDB
 	bkBizID   int64
 	modelTree *metadata.TopoModelNode
+
+	lang language.DefaultCCLanguageIf
 
 	modelIDs        []string
 	objectParentMap map[string]string
@@ -45,8 +49,9 @@ type InstanceMainline struct {
 	root *metadata.TopoInstanceNode
 }
 
-func NewInstanceMainline(proxy dal.DB, bkBizID int64) (*InstanceMainline, error) {
+func NewInstanceMainline(lang language.DefaultCCLanguageIf, proxy dal.DB, bkBizID int64) (*InstanceMainline, error) {
 	im := &InstanceMainline{
+		lang:              lang,
 		dbProxy:           proxy,
 		bkBizID:           bkBizID,
 		objectParentMap:   map[string]string{},
@@ -77,56 +82,60 @@ func (im *InstanceMainline) LoadModelParentMap(ctx context.Context) {
 	blog.V(5).Infof("LoadModelParentMap mainline models: %#v, objectParentMap: %#v, rid: %s", im.modelIDs, im.objectParentMap, rid)
 }
 
-func (im *InstanceMainline) LoadSetInstances(ctx context.Context) error {
+func (im *InstanceMainline) LoadSetInstances(ctx context.Context, header http.Header) error {
 	rid := util.ExtractRequestIDFromContext(ctx)
 	// set instance list of target business
-	mongoCondition := mongo.NewCondition()
-	mongoCondition.Element(&mongo.Eq{Key: common.BKAppIDField, Val: im.bkBizID})
-
-	err := im.dbProxy.Table(common.BKTableNameBaseSet).Find(mongoCondition.ToMapStr()).All(ctx, &im.setInstances)
+	filter := map[string]interface{}{
+		common.BKAppIDField:      im.bkBizID,
+	}
+    filter = util.SetQueryOwner(filter, util.GetOwnerID(header))
+	err := im.dbProxy.Table(common.BKTableNameBaseSet).Find(filter).All(ctx, &im.setInstances)
 	if err != nil {
-		blog.Errorf("get set instances by business:%d failed, %+v, cond: %#v, rid: %s", im.bkBizID, err, mongoCondition.ToMapStr(), rid)
+		blog.Errorf("get set instances by business:%d failed, %+v, cond: %#v, rid: %s", im.bkBizID, err, filter, rid)
 		return fmt.Errorf("get set instances by business:%d failed, %+v", im.bkBizID, err)
 	}
-	blog.V(5).Infof("get set instances by business:%d result: %+v, cond: %#v, rid: %s", im.bkBizID, im.setInstances, mongoCondition.ToMapStr(), rid)
+	blog.V(5).Infof("get set instances by business:%d result: %+v, cond: %#v, rid: %s", im.bkBizID, im.setInstances, filter, rid)
 	return nil
 }
 
-func (im *InstanceMainline) LoadModuleInstances(ctx context.Context) error {
+func (im *InstanceMainline) LoadModuleInstances(ctx context.Context, header http.Header) error {
 	rid := util.ExtractRequestIDFromContext(ctx)
 	// module instance list of target business
-	mongoCondition := mongo.NewCondition()
-	mongoCondition.Element(&mongo.Eq{Key: common.BKAppIDField, Val: im.bkBizID})
-
-	err := im.dbProxy.Table(common.BKTableNameBaseModule).Find(mongoCondition.ToMapStr()).All(ctx, &im.moduleInstances)
+	filter := map[string]interface{}{
+		common.BKAppIDField:      im.bkBizID,
+	}
+    filter = util.SetQueryOwner(filter, util.GetOwnerID(header))
+	err := im.dbProxy.Table(common.BKTableNameBaseModule).Find(filter).All(ctx, &im.moduleInstances)
 	if err != nil {
-		blog.Errorf("get module instances by business:%d failed, err:%v, cond: %#v, rid: %s", im.bkBizID, err, mongoCondition.ToMapStr(), rid)
+		blog.Errorf("get module instances by business:%d failed, err:%v, cond: %#v, rid: %s", im.bkBizID, err, filter, rid)
 		return fmt.Errorf("get module instances by business:%d failed, %+v", im.bkBizID, err)
 	}
-	blog.V(5).Infof("get module instances by business:%d result: %+v,cond:%#v, rid: %s", im.bkBizID, im.moduleInstances, mongoCondition.ToMapStr(), rid)
+	multilingual.TranslateInstanceName(im.lang, common.BKInnerObjIDModule, im.moduleInstances)
+	blog.V(5).Infof("get module instances by business:%d result: %+v,cond:%#v, rid: %s", im.bkBizID, im.moduleInstances, filter, rid)
 	return nil
 }
 
-func (im *InstanceMainline) LoadMainlineInstances(ctx context.Context) error {
+func (im *InstanceMainline) LoadMainlineInstances(ctx context.Context, header http.Header) error {
 	rid := util.ExtractRequestIDFromContext(ctx)
 	// load other mainline instance(except business,set,module) list of target business
 	var err error
-	condCheckModel := mongo.NewCondition()
-	_, metaCond := condCheckModel.Embed(metadata.BKMetadata)
-	_, labelCond := metaCond.Embed(metadata.BKLabel)
-	labelCond.Element(&mongo.Eq{Key: common.BKAppIDField, Val: strconv.FormatInt(im.bkBizID, 10)})
-	condCheckModel.Element(&mongo.In{Key: common.BKObjIDField, Val: im.modelIDs})
-	cond := condCheckModel.ToMapStr()
-	err = im.dbProxy.Table(common.BKTableNameBaseInst).Find(cond).All(ctx, &im.mainlineInstances)
+	filter := map[string]interface{}{
+		common.BKObjIDField: map[string]interface{}{
+			common.BKDBIN: im.modelIDs,
+		},
+		common.MetadataLabelBiz:  strconv.FormatInt(im.bkBizID, 10),
+	}
+    filter = util.SetQueryOwner(filter, util.GetOwnerID(header))
+	err = im.dbProxy.Table(common.BKTableNameBaseInst).Find(filter).All(ctx, &im.mainlineInstances)
 	if err != nil {
-		blog.Errorf("get other mainline instances by business:%d failed, err: %v, cond: %#v, rid: %s", im.bkBizID, err, cond, rid)
+		blog.Errorf("get other mainline instances by business:%d failed, err: %v, cond: %#v, rid: %s", im.bkBizID, err, filter, rid)
 		return fmt.Errorf("get other mainline instances by business:%d failed, %+v", im.bkBizID, err)
 	}
-	blog.V(5).Infof("get other mainline instances by business:%d result: %#v, cond: %#v, rid: %s", im.bkBizID, im.mainlineInstances, cond, rid)
+	blog.V(5).Infof("get other mainline instances by business:%d result: %#v, cond: %#v, rid: %s", im.bkBizID, im.mainlineInstances, filter, rid)
 	return nil
 }
 
-func (im *InstanceMainline) ConstructBizTopoInstance(ctx context.Context, withDetail bool) error {
+func (im *InstanceMainline) ConstructBizTopoInstance(ctx context.Context, header http.Header, withDetail bool) error {
 	rid := util.ExtractRequestIDFromContext(ctx)
 	// enqueue business instance to allTopoInstances, instanceMap
 	bizTopoInstance := &metadata.TopoInstance{
@@ -138,8 +147,9 @@ func (im *InstanceMainline) ConstructBizTopoInstance(ctx context.Context, withDe
 
 	// get business detail here
 	bizFilter := map[string]interface{}{
-		common.BKAppIDField: im.bkBizID,
+		common.BKAppIDField:      im.bkBizID,
 	}
+    bizFilter = util.SetQueryOwner(bizFilter, util.GetOwnerID(header))
 	err := im.dbProxy.Table(common.BKTableNameBaseApp).Find(bizFilter).One(ctx, &im.businessInstance)
 	if err != nil {
 		blog.Errorf("get business instances by business:%d failed, err: %+v, cond: %#v, rid: %s", im.bkBizID, err, rid)
@@ -147,7 +157,7 @@ func (im *InstanceMainline) ConstructBizTopoInstance(ctx context.Context, withDe
 	}
 	blog.V(5).Infof("SearchMainlineInstanceTopo businessInstances: %+v, rid: %s", im.businessInstance, rid)
 	bizTopoInstance.InstanceName = util.GetStrByInterface(im.businessInstance[common.BKAppNameField])
-	if withDetail == true {
+	if withDetail {
 		bizTopoInstance.Detail = im.businessInstance
 	}
 
@@ -185,7 +195,7 @@ func (im *InstanceMainline) OrganizeSetInstance(ctx context.Context, withDetail 
 			ParentInstanceID: parentInstanceID,
 			Detail:           map[string]interface{}{},
 		}
-		if withDetail == true {
+		if withDetail {
 			topoInstance.Detail = instance
 		}
 		im.allTopoInstances = append(im.allTopoInstances, topoInstance)
@@ -224,7 +234,7 @@ func (im *InstanceMainline) OrganizeModuleInstance(ctx context.Context, withDeta
 			ParentInstanceID: parentInstanceID,
 			Detail:           map[string]interface{}{},
 		}
-		if withDetail == true {
+		if withDetail {
 			topoInstance.Detail = instance
 		}
 		im.allTopoInstances = append(im.allTopoInstances, topoInstance)
@@ -254,7 +264,7 @@ func (im *InstanceMainline) OrganizeMainlineInstance(ctx context.Context, withDe
 			ParentInstanceID: parentInstanceID,
 			Detail:           map[string]interface{}{},
 		}
-		if withDetail == true {
+		if withDetail {
 			topoInstance.Detail = instance
 		}
 		im.allTopoInstances = append(im.allTopoInstances, topoInstance)
@@ -263,7 +273,7 @@ func (im *InstanceMainline) OrganizeMainlineInstance(ctx context.Context, withDe
 	return nil
 }
 
-func (im *InstanceMainline) CheckAndFillingMissingModels(ctx context.Context, withDetail bool) error {
+func (im *InstanceMainline) CheckAndFillingMissingModels(ctx context.Context, header http.Header, withDetail bool) error {
 	rid := util.ExtractRequestIDFromContext(ctx)
 	for _, topoInstance := range im.allTopoInstances {
 		blog.V(5).Infof("topo instance: %#v, rid: %s", topoInstance, rid)
@@ -281,7 +291,7 @@ func (im *InstanceMainline) CheckAndFillingMissingModels(ctx context.Context, wi
 		}
 		// check whether parent instance exist, if not, try to get it at best.
 		_, exist := im.instanceMap[parentKey]
-		if exist == true {
+		if exist {
 			continue
 		}
 		blog.Warnf("get parent of %+v with key=%s failed, not Found, rid: %s", topoInstance, parentKey, rid)
@@ -289,11 +299,12 @@ func (im *InstanceMainline) CheckAndFillingMissingModels(ctx context.Context, wi
 		// and therefore find parentInstance failed.
 		// In this case current algorithm degenerate in to o(n) query cost.
 
-		mongoCondition := mongo.NewCondition()
-		mongoCondition.Element(&mongo.Eq{Key: common.BKInstIDField, Val: topoInstance.ParentInstanceID})
-
+		filter := map[string]interface{}{
+			common.BKInstIDField:     topoInstance.ParentInstanceID,
+		}
+        filter = util.SetQueryOwner(filter, util.GetOwnerID(header))
 		missedInstances := make([]mapstr.MapStr, 0)
-		err := im.dbProxy.Table(common.BKTableNameBaseInst).Find(mongoCondition.ToMapStr()).All(ctx, &missedInstances)
+		err := im.dbProxy.Table(common.BKTableNameBaseInst).Find(filter).All(ctx, &missedInstances)
 		if err != nil {
 			blog.Errorf("get common instances with ID:%d failed, %+v, rid: %s", topoInstance.ParentInstanceID, err, rid)
 			return err
@@ -307,13 +318,12 @@ func (im *InstanceMainline) CheckAndFillingMissingModels(ctx context.Context, wi
 				continue
 			} else {
 				// parent id not found, ignore node
-				blog.Warnf("found unexpected count of missedInstances: %#v, cond: %#v, rid: %s", missedInstances, mongoCondition.ToMapStr(), rid)
-				// return fmt.Errorf("SearchMainlineInstanceTopo found %d missedInstances with instanceID=%d", len(missedInstances), topoInstance.ParentInstanceID)
+				blog.Warnf("found unexpected count of missedInstances: %#v, cond: %#v, rid: %s", missedInstances, filter, rid)
 				continue
 			}
 		}
 		if len(missedInstances) > 1 {
-			blog.Errorf("found too many(%d) missedInstances: %#v by id: %d, cond: %#v, rid: %s", len(missedInstances), missedInstances, topoInstance.ParentInstanceID, mongoCondition.ToMapStr(), rid)
+			blog.Errorf("found too many(%d) missedInstances: %#v by id: %d, cond: %#v, rid: %s", len(missedInstances), missedInstances, topoInstance.ParentInstanceID, filter, rid)
 			return fmt.Errorf("found too many(%d) missedInstances: %+v by id: %d", len(missedInstances), missedInstances, topoInstance.ParentInstanceID)
 		}
 		instance := missedInstances[0]
@@ -325,7 +335,7 @@ func (im *InstanceMainline) CheckAndFillingMissingModels(ctx context.Context, wi
 
 		var parentInstanceID int64
 		parentValue, existed := instance[common.BKInstParentStr]
-		if existed == true {
+		if existed {
 			parentInstanceID, err = util.GetInt64ByInterface(parentValue)
 			if err != nil {
 				blog.Errorf("parse instanceID:%+v to int64 failed, %+v, rid: %s", instance[common.BKInstParentStr], err, rid)
@@ -349,7 +359,7 @@ func (im *InstanceMainline) CheckAndFillingMissingModels(ctx context.Context, wi
 			ParentInstanceID: parentInstanceID,
 			Detail:           map[string]interface{}{},
 		}
-		if withDetail == true {
+		if withDetail {
 			topoInstance.Detail = instance
 		}
 		im.allTopoInstances = append(im.allTopoInstances, topoInstance)
@@ -358,7 +368,7 @@ func (im *InstanceMainline) CheckAndFillingMissingModels(ctx context.Context, wi
 	return nil
 }
 
-func (im *InstanceMainline) ConstructInstanceTopoTree(ctx context.Context, withDetail bool) error {
+func (im *InstanceMainline) ConstructInstanceTopoTree(ctx context.Context, header http.Header, withDetail bool) error {
 	rid := util.ExtractRequestIDFromContext(ctx)
 	topoInstanceNodeMap := map[string]*metadata.TopoInstanceNode{}
 	for index := 0; index < len(im.allTopoInstances); index++ {
@@ -370,23 +380,24 @@ func (im *InstanceMainline) ConstructInstanceTopoTree(ctx context.Context, withD
 
 		parentObjectID := im.objectParentMap[topoInstance.ObjectID]
 		parentKey := fmt.Sprintf("%s:%d", parentObjectID, topoInstance.ParentInstanceID)
-		if _, exist := topoInstanceNodeMap[parentKey]; exist == false {
+		if _, exist := topoInstanceNodeMap[parentKey]; !exist {
 			parentInstance, exist := im.instanceMap[parentKey]
-			if exist == false {
+			if !exist {
 				// 空闲机池 是一种特殊的set，它用来包含空闲机和故障机两个模块，它的父节点直接是业务（不论是否有自定义层级）
 				if topoInstance.ObjectID == common.BKInnerObjIDSet && im.bkBizID == topoInstance.ParentInstanceID {
 					parentObjectID = common.BKInnerObjIDApp
 					parentKey = fmt.Sprintf("%s:%d", parentObjectID, im.bkBizID)
 					parentInstance, exist = im.instanceMap[parentKey]
 				}
-				if exist == false {
+				if !exist {
 					cond := map[string]interface{}{
-						common.BKObjIDField:  parentObjectID,
-						common.BKInstIDField: topoInstance.ParentInstanceID,
+						common.BKObjIDField:      parentObjectID,
+						common.BKInstIDField:     topoInstance.ParentInstanceID,
 					}
+                    cond = util.SetQueryOwner(cond, util.GetOwnerID(header))
 					inst := mapstr.MapStr{}
 					if err := im.dbProxy.Table(common.BKTableNameBaseInst).Find(cond).One(context.Background(), &inst); err != nil {
-						if im.dbProxy.IsNotFoundError(err) == false {
+						if isNotFound := im.dbProxy.IsNotFoundError(err); !isNotFound {
 							blog.Errorf("get mainline instances failed, filter: %+v, err: %+v, rid: %s", cond, err, rid)
 							return fmt.Errorf("get other mainline instances failed, filer: %+v, err: %+v", cond, err)
 						} else {
@@ -396,7 +407,7 @@ func (im *InstanceMainline) ConstructInstanceTopoTree(ctx context.Context, withD
 						}
 					}
 					parentValue, existed := inst[common.BKInstParentStr]
-					if existed == false {
+					if !existed {
 						blog.Errorf("get mainline instances failed, field %s not in db data, data: %+v, rid: %s", common.BKInstParentStr, inst, rid)
 						return fmt.Errorf("get mainline instances failed, field %s not in db data, data: %+v", common.BKInstParentStr, inst)
 					}
@@ -433,7 +444,7 @@ func (im *InstanceMainline) ConstructInstanceTopoTree(ctx context.Context, withD
 			im.root = parentInstanceNode
 		}
 
-		if _, exist := topoInstanceNodeMap[topoInstance.Key()]; exist == false {
+		if _, exist := topoInstanceNodeMap[topoInstance.Key()]; !exist {
 			childTopoInstanceNode := &metadata.TopoInstanceNode{
 				ObjectID:     topoInstance.ObjectID,
 				InstanceID:   topoInstance.InstanceID,
@@ -443,7 +454,7 @@ func (im *InstanceMainline) ConstructInstanceTopoTree(ctx context.Context, withD
 			}
 			topoInstanceNodeMap[topoInstance.Key()] = childTopoInstanceNode
 		}
-		childTopoInstanceNode, _ := topoInstanceNodeMap[topoInstance.Key()]
+		childTopoInstanceNode := topoInstanceNodeMap[topoInstance.Key()]
 		parentInstanceNode.Children = append(parentInstanceNode.Children, childTopoInstanceNode)
 	}
 	return nil

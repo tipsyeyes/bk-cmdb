@@ -2,7 +2,6 @@ package operation
 
 import (
 	"context"
-	"fmt"
 	"net/http"
 
 	"configcenter/src/common/metadata"
@@ -10,26 +9,26 @@ import (
 
 func (s *operation) SearchInstCount(ctx context.Context, h http.Header, data interface{}) (resp *metadata.CoreUint64Response, err error) {
 	resp = new(metadata.CoreUint64Response)
-	subPath := "read/operation/inst/count"
+	subPath := "/find/operation/inst/count"
 
 	err = s.client.Post().
 		WithContext(ctx).
 		Body(data).
-		SubResource(subPath).
+		SubResourcef(subPath).
 		WithHeaders(h).
 		Do().
 		Into(resp)
 	return
 }
 
-func (s *operation) SearchChartDataCommon(ctx context.Context, h http.Header, data metadata.ChartConfig) (resp *metadata.Response, err error) {
+func (s *operation) SearchChartData(ctx context.Context, h http.Header, data metadata.ChartConfig) (resp *metadata.Response, err error) {
 	resp = new(metadata.Response)
-	subPath := "/read/operation/chart/data/common"
+	subPath := "/find/operation/chart/data"
 
 	err = s.client.Post().
 		WithContext(ctx).
 		Body(data).
-		SubResource(subPath).
+		SubResourcef(subPath).
 		WithHeaders(h).
 		Do().
 		Into(resp)
@@ -43,7 +42,7 @@ func (s *operation) CreateOperationChart(ctx context.Context, h http.Header, dat
 	err = s.client.Post().
 		WithContext(ctx).
 		Body(data).
-		SubResource(subPath).
+		SubResourcef(subPath).
 		WithHeaders(h).
 		Do().
 		Into(resp)
@@ -52,26 +51,26 @@ func (s *operation) CreateOperationChart(ctx context.Context, h http.Header, dat
 
 func (s *operation) DeleteOperationChart(ctx context.Context, h http.Header, id string) (resp *metadata.Response, err error) {
 	resp = new(metadata.Response)
-	subPath := fmt.Sprintf("delete/operation/chart/%v", id)
+	subPath := "delete/operation/chart/%v"
 
 	err = s.client.Delete().
 		WithContext(ctx).
 		Body(nil).
-		SubResource(subPath).
+		SubResourcef(subPath, id).
 		WithHeaders(h).
 		Do().
 		Into(resp)
 	return
 }
 
-func (s *operation) SearchOperationChart(ctx context.Context, h http.Header, data interface{}) (resp *metadata.SearchChartResponse, err error) {
+func (s *operation) SearchOperationCharts(ctx context.Context, h http.Header, data interface{}) (resp *metadata.SearchChartResponse, err error) {
 	resp = new(metadata.SearchChartResponse)
-	subPath := "/search/operation/chart"
+	subPath := "/findmany/operation/chart"
 
 	err = s.client.Post().
 		WithContext(ctx).
 		Body(data).
-		SubResource(subPath).
+		SubResourcef(subPath).
 		WithHeaders(h).
 		Do().
 		Into(resp)
@@ -85,7 +84,7 @@ func (s *operation) UpdateOperationChart(ctx context.Context, h http.Header, dat
 	err = s.client.Post().
 		WithContext(ctx).
 		Body(data).
-		SubResource(subPath).
+		SubResourcef(subPath).
 		WithHeaders(h).
 		Do().
 		Into(resp)
@@ -94,12 +93,12 @@ func (s *operation) UpdateOperationChart(ctx context.Context, h http.Header, dat
 
 func (s *operation) SearchTimerChartData(ctx context.Context, h http.Header, data interface{}) (resp *metadata.Response, err error) {
 	resp = new(metadata.Response)
-	subPath := "/search/operation/chart/data"
+	subPath := "/find/operation/timer/chart/data"
 
 	err = s.client.Post().
 		WithContext(ctx).
 		Body(data).
-		SubResource(subPath).
+		SubResourcef(subPath).
 		WithHeaders(h).
 		Do().
 		Into(resp)
@@ -113,7 +112,7 @@ func (s *operation) UpdateChartPosition(ctx context.Context, h http.Header, data
 	err = s.client.Post().
 		WithContext(ctx).
 		Body(data).
-		SubResource(subPath).
+		SubResourcef(subPath).
 		WithHeaders(h).
 		Do().
 		Into(resp)
@@ -122,12 +121,12 @@ func (s *operation) UpdateChartPosition(ctx context.Context, h http.Header, data
 
 func (s *operation) SearchChartCommon(ctx context.Context, h http.Header, data interface{}) (resp *metadata.SearchChartCommon, err error) {
 	resp = new(metadata.SearchChartCommon)
-	subPath := "/search/operation/chart/common"
+	subPath := "/find/operation/chart/common"
 
 	err = s.client.Post().
 		WithContext(ctx).
 		Body(data).
-		SubResource(subPath).
+		SubResourcef(subPath).
 		WithHeaders(h).
 		Do().
 		Into(resp)
@@ -141,7 +140,7 @@ func (s *operation) TimerFreshData(ctx context.Context, h http.Header, data inte
 	err = s.client.Post().
 		WithContext(ctx).
 		Body(nil).
-		SubResource(subPath).
+		SubResourcef(subPath).
 		WithHeaders(h).
 		Do().
 		Into(resp)

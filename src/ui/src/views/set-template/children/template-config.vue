@@ -11,9 +11,9 @@
                 <bk-input class="row-content"
                     data-vv-name="name"
                     font-size="medium"
-                    v-validate="'required|singlechar|length:256'"
+                    v-validate="'required|singlechar|length:20'"
                     v-model.trim="templateName"
-                    :placeholder="$t('集群模板名称占位符')">
+                    :placeholder="$t('请输入xx', { name: $t('模板名称') })">
                 </bk-input>
             </template>
             <p class="row-error" v-if="errors.has('name')">{{errors.first('name')}}</p>
@@ -84,8 +84,16 @@
                 <i class="bk-icon icon-check-1"></i>
                 <h3>{{$t('修改成功')}}</h3>
                 <div class="btns">
-                    <bk-button class="mr10" theme="primary" v-if="isApplied" @click="handleToSyncInstance">{{$t('同步集群')}}</bk-button>
-                    <bk-button class="mr10" :theme="isApplied ? 'default' : 'primary'" @click="handleToCreateInstance">{{$t('创建集群')}}</bk-button>
+                    <bk-button class="mr10" theme="primary"
+                        v-if="isApplied && serviceChange"
+                        @click="handleToSyncInstance">
+                        {{$t('同步集群')}}
+                    </bk-button>
+                    <bk-button class="mr10"
+                        :theme="isApplied && serviceChange ? 'default' : 'primary'"
+                        @click="handleToCreateInstance">
+                        {{$t('创建集群')}}
+                    </bk-button>
                     <bk-button theme="default" @click="handleBackToList">{{$t('返回列表')}}</bk-button>
                 </div>
             </div>
@@ -96,12 +104,14 @@
 <script>
     import { MENU_BUSINESS_SET_TEMPLATE, MENU_BUSINESS_HOST_AND_SERVICE } from '@/dictionary/menu-symbol'
     import cmdbSetTemplateTree from './template-tree.vue'
+    import { mapGetters } from 'vuex'
     export default {
         components: {
             cmdbSetTemplateTree
         },
         data () {
             return {
+                templateInfo: null,
                 templateName: '',
                 originalTemplateName: '',
                 serviceChange: false,
@@ -112,11 +122,12 @@
             }
         },
         computed: {
+            ...mapGetters('objectBiz', ['bizId']),
             mode () {
                 return this.insideMode || this.$route.params.mode
             },
             isApplied () {
-                return this.$route.params.isApplied
+                return this.templateInfo && this.templateInfo.set_instance_count > 0
             },
             isViewMode () {
                 return this.mode === 'view'
@@ -151,26 +162,22 @@
         },
         methods: {
             setBreadcrumbs () {
-                this.$store.commit('setBreadcrumbs', [{
-                    label: this.$t('集群模板'),
-                    route: {
-                        name: MENU_BUSINESS_SET_TEMPLATE
-                    }
-                }, {
-                    label: this.mode === 'create' ? this.$t('创建') : this.templateName
-                }])
                 if (this.mode !== 'create') {
                     this.$store.commit('setTitle', this.templateName)
                 }
             },
             async getSetTemplateInfo () {
                 try {
-                    const info = await this.$store.dispatch('setTemplate/getSingleSetTemplateInfo', {
-                        bizId: this.$store.getters['objectBiz/bizId'],
-                        setTemplateId: this.templateId
+                    const data = await this.$store.dispatch('setTemplate/getSetTemplates', {
+                        bizId: this.bizId,
+                        params: {
+                            set_template_ids: [this.templateId]
+                        }
                     })
-                    this.templateName = info.name
-                    this.originalTemplateName = info.name
+                    const info = data.info[0]
+                    this.templateInfo = info
+                    this.templateName = info.set_template.name
+                    this.originalTemplateName = info.set_template.name
                     this.setBreadcrumbs()
                 } catch (e) {
                     console.error(e)
@@ -372,7 +379,7 @@
             width: 58px;
             height: 58px;
             line-height: 58px;
-            font-size: 30px;
+            font-size: 50px;
             color: #fff;
             border-radius: 50%;
             background-color: #2dcb56;
