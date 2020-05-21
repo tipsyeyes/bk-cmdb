@@ -134,6 +134,18 @@ func addPresetAssociationType(ctx context.Context, db dal.RDB, conf *upgrader.Co
 			Direction:               metadata.DestinationToSource,
 			IsPre:                   ptrue(),
 		},
+
+		// add by tes
+		// 新增内部关联类型，源是被关联的，源->目标（1->n）
+		{
+			AssociationKindID:       "internal",
+			AssociationKindName:     "内部关联",
+			OwnerID:                 conf.OwnerID,
+			SourceToDestinationNote: "被关联",
+			DestinationToSourceNote: "关联",
+			Direction:               metadata.DestinationToSource,
+			IsPre:                   ptrue(),
+		},
 	}
 
 	for _, asstType := range asstTypes {

@@ -119,6 +119,12 @@ const (
 	BKInnerObjIDTomcat = "bk_tomcat"
 	// BKInnerObjIDApache the inner object
 	BKInnerObjIDApache = "bk_apache"
+
+	// add by tes
+	// BKInnerObjIDVMHOST the inner object
+	BKInnerObjIDVMHOST = "bk_vm"
+	// BKInnerObjIDIPRES the inner object
+	BKInnerObjIDIPRES = "bk_ip"
 )
 
 // Revision

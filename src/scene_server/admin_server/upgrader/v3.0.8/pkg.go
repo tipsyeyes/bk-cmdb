@@ -49,5 +49,11 @@ func upgrade(ctx context.Context, db dal.RDB, conf *upgrader.Config) (err error)
 		return err
 	}
 
+	// add by tes
+	err = addCusApp(ctx, db, conf)
+	if err != nil {
+		return err
+	}
+
 	return
 }

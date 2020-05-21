@@ -33,6 +33,10 @@ func reconcilUnique(ctx context.Context, db dal.RDB, conf *upgrader.Config) erro
 		common.BKInnerObjIDRouter,
 		common.BKInnerObjIDBlance,
 		common.BKInnerObjIDFirewall,
+
+		// add by tes
+		common.BKInnerObjIDVMHOST,
+		common.BKInnerObjIDIPRES,
 	})
 
 	objStrMapArr := make([]map[string]string, 0)
@@ -71,6 +75,15 @@ func reconcilUnique(ctx context.Context, db dal.RDB, conf *upgrader.Config) erro
 		case common.BKInnerObjIDFirewall:
 			shouldCheck = append(shouldCheck, keyfunc(common.BKInnerObjIDFirewall, common.BKAssetIDField))
 			uniques = append(uniques, buildUnique(propertyIDToProperty, common.BKInnerObjIDFirewall, common.BKAssetIDField))
+
+			// add by tes
+		// 增加 ip、vm唯一索引
+		case common.BKInnerObjIDVMHOST:
+			shouldCheck = append(shouldCheck, keyfunc(common.BKInnerObjIDVMHOST, common.BKInstNameField))
+			uniques = append(uniques, buildUnique(propertyIDToProperty, common.BKInnerObjIDVMHOST, common.BKInstNameField))
+		case common.BKInnerObjIDIPRES:
+			shouldCheck = append(shouldCheck, keyfunc(common.BKInnerObjIDIPRES, common.BKInstNameField))
+			uniques = append(uniques, buildUnique(propertyIDToProperty, common.BKInnerObjIDIPRES, common.BKInstNameField))
 		}
 	}
 

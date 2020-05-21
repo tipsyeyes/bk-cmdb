@@ -113,11 +113,16 @@ func HostRow() []*Attribute {
 	groupAgent := mCommon.HostAutoFields
 	dataRows := []*Attribute{
 		//基本信息分组
-		&Attribute{ObjectID: objID, PropertyID: common.BKHostInnerIPField, PropertyName: "内网IP", IsRequired: true, IsOnly: true, IsEditable: false, PropertyGroup: groupBaseInfo, PropertyType: common.FieldTypeSingleChar, Option: common.PatternMultipleIP},
+		// add by tes
+		&Attribute{ObjectID: objID, PropertyID: common.BKHostInnerIPField, PropertyName: "内网IP", IsRequired: false, IsOnly: true, IsEditable: true, PropertyGroup: groupBaseInfo, PropertyType: common.FieldTypeSingleChar, Option: common.PatternMultipleIP},
 		&Attribute{ObjectID: objID, PropertyID: common.BKHostOuterIPField, PropertyName: "外网IP", IsRequired: false, IsOnly: false, IsEditable: true, PropertyGroup: groupBaseInfo, PropertyType: common.FieldTypeSingleChar, Option: common.PatternMultipleIP},
+		&Attribute{ObjectID: objID, PropertyID: "bk_asset_id", PropertyName: "固资编号", IsRequired: true, IsOnly: false, IsEditable: false, PropertyGroup: groupBaseInfo, PropertyType: common.FieldTypeSingleChar, Option: ""},
+
+		//&Attribute{ObjectID: objID, PropertyID: common.BKHostInnerIPField, PropertyName: "内网IP", IsRequired: true, IsOnly: true, IsEditable: false, PropertyGroup: groupBaseInfo, PropertyType: common.FieldTypeSingleChar, Option: common.PatternMultipleIP},
+		//&Attribute{ObjectID: objID, PropertyID: common.BKHostOuterIPField, PropertyName: "外网IP", IsRequired: false, IsOnly: false, IsEditable: true, PropertyGroup: groupBaseInfo, PropertyType: common.FieldTypeSingleChar, Option: common.PatternMultipleIP},
 		&Attribute{ObjectID: objID, PropertyID: "operator", PropertyName: "主要维护人", IsRequired: false, IsOnly: false, IsEditable: true, PropertyGroup: groupBaseInfo, PropertyType: common.FieldTypeUser, Option: ""},
 		&Attribute{ObjectID: objID, PropertyID: "bk_bak_operator", PropertyName: "备份维护人", IsRequired: false, IsOnly: false, IsEditable: true, PropertyGroup: groupBaseInfo, PropertyType: common.FieldTypeUser, Option: ""},
-		&Attribute{ObjectID: objID, PropertyID: "bk_asset_id", PropertyName: "固资编号", IsRequired: false, IsOnly: false, IsEditable: false, PropertyGroup: groupBaseInfo, PropertyType: common.FieldTypeSingleChar, Option: ""},
+		//&Attribute{ObjectID: objID, PropertyID: "bk_asset_id", PropertyName: "固资编号", IsRequired: false, IsOnly: false, IsEditable: false, PropertyGroup: groupBaseInfo, PropertyType: common.FieldTypeSingleChar, Option: ""},
 		&Attribute{ObjectID: objID, PropertyID: "bk_sn", PropertyName: "设备SN", IsRequired: false, IsOnly: false, IsEditable: true, PropertyGroup: groupBaseInfo, PropertyType: common.FieldTypeSingleChar, Option: ""},
 		&Attribute{ObjectID: objID, PropertyID: "bk_comment", PropertyName: "备注", IsRequired: false, IsOnly: false, IsEditable: true, PropertyGroup: groupBaseInfo, PropertyType: common.FieldTypeLongChar, Option: ""},
 		&Attribute{ObjectID: objID, PropertyID: "bk_service_term", PropertyName: "质保年限", IsRequired: false, IsOnly: false, IsEditable: false, PropertyGroup: groupBaseInfo, PropertyType: common.FieldTypeInt, Option: validator.IntOption{Min: "1", Max: "10"}},
@@ -128,18 +133,21 @@ func HostRow() []*Attribute {
 		&Attribute{ObjectID: objID, PropertyID: "bk_isp_name", PropertyName: "所属运营商", IsRequired: false, IsOnly: false, IsEditable: true, PropertyGroup: groupBaseInfo, PropertyType: common.FieldTypeEnum, Option: ispNameEnum},
 
 		//自动发现分组
-		&Attribute{ObjectID: objID, PropertyID: "bk_host_name", PropertyName: "主机名称", IsRequired: false, IsOnly: false, PropertyGroup: groupAgent, PropertyType: common.FieldTypeSingleChar, Option: ""},
-		&Attribute{ObjectID: objID, PropertyID: common.BKOSTypeField, PropertyName: "操作系统类型", IsRequired: false, IsOnly: false, PropertyGroup: groupAgent, PropertyType: common.FieldTypeEnum, Option: []validator.EnumVal{{ID: "1", Name: "Linux", Type: "text"}, {ID: "2", Name: "Windows", Type: "text"}}},
-		&Attribute{ObjectID: objID, PropertyID: common.BKOSNameField, PropertyName: "操作系统名称", IsRequired: false, IsOnly: false, PropertyGroup: groupAgent, PropertyType: common.FieldTypeSingleChar, Option: ""},
-		&Attribute{ObjectID: objID, PropertyID: "bk_os_version", PropertyName: "操作系统版本", IsRequired: false, IsOnly: false, PropertyGroup: groupAgent, PropertyType: common.FieldTypeSingleChar, Option: ""},
-		&Attribute{ObjectID: objID, PropertyID: "bk_os_bit", PropertyName: "操作系统位数", IsRequired: false, IsOnly: false, PropertyGroup: groupAgent, PropertyType: common.FieldTypeSingleChar, Option: ""},
-		&Attribute{ObjectID: objID, PropertyID: "bk_cpu", PropertyName: "CPU逻辑核心数", IsRequired: false, IsOnly: false, PropertyGroup: groupAgent, PropertyType: common.FieldTypeInt, Option: validator.IntOption{Min: "1", Max: "1000000"}},
-		&Attribute{ObjectID: objID, PropertyID: "bk_cpu_mhz", PropertyName: "CPU频率", IsRequired: false, IsOnly: false, PropertyGroup: groupAgent, PropertyType: common.FieldTypeInt, Unit: "Hz", Option: validator.IntOption{Min: "1", Max: "100000000"}},
-		&Attribute{ObjectID: objID, PropertyID: "bk_cpu_module", PropertyName: "CPU型号", IsRequired: false, IsOnly: false, PropertyGroup: groupAgent, PropertyType: common.FieldTypeSingleChar, Option: ""},
-		&Attribute{ObjectID: objID, PropertyID: "bk_mem", PropertyName: "内存容量", IsRequired: false, IsOnly: false, PropertyGroup: groupAgent, PropertyType: common.FieldTypeInt, Unit: "MB", Option: validator.IntOption{Min: "1", Max: "100000000"}},
-		&Attribute{ObjectID: objID, PropertyID: "bk_disk", PropertyName: "磁盘容量", IsRequired: false, IsOnly: false, PropertyGroup: groupAgent, PropertyType: common.FieldTypeInt, Unit: "GB", Option: validator.IntOption{Min: "1", Max: "100000000"}},
-		&Attribute{ObjectID: objID, PropertyID: "bk_mac", PropertyName: "内网MAC地址", IsRequired: false, IsOnly: false, PropertyGroup: groupAgent, PropertyType: common.FieldTypeSingleChar, Option: ""},
-		&Attribute{ObjectID: objID, PropertyID: "bk_outer_mac", PropertyName: "外网MAC", IsRequired: false, IsOnly: false, PropertyGroup: groupAgent, PropertyType: common.FieldTypeSingleChar, Option: ""},
+		// mod by tes
+		// 修改agent可编辑
+		&Attribute{ObjectID: objID, PropertyID: "bk_host_name", PropertyName: "主机名称", IsRequired: false, IsOnly: false, IsEditable: true, PropertyGroup: groupAgent, PropertyType: common.FieldTypeSingleChar, Option: ""},
+		&Attribute{ObjectID: objID, PropertyID: common.BKOSTypeField, PropertyName: "操作系统类型", IsRequired: false, IsOnly: false, IsEditable: true, PropertyGroup: groupAgent, PropertyType: common.FieldTypeEnum, Option: []validator.EnumVal{{ID: "1", Name: "Linux", Type: "text"}, {ID: "2", Name: "Windows", Type: "text"}}},
+		&Attribute{ObjectID: objID, PropertyID: common.BKOSNameField, PropertyName: "操作系统名称", IsRequired: false, IsOnly: false, IsEditable: true, PropertyGroup: groupAgent, PropertyType: common.FieldTypeSingleChar, Option: ""},
+		&Attribute{ObjectID: objID, PropertyID: "bk_os_version", PropertyName: "操作系统版本", IsRequired: false, IsOnly: false, IsEditable: true, PropertyGroup: groupAgent, PropertyType: common.FieldTypeSingleChar, Option: ""},
+		&Attribute{ObjectID: objID, PropertyID: "bk_os_bit", PropertyName: "操作系统位数", IsRequired: false, IsOnly: false, IsEditable: true, PropertyGroup: groupAgent, PropertyType: common.FieldTypeSingleChar, Option: ""},
+		&Attribute{ObjectID: objID, PropertyID: "bk_cpu", PropertyName: "CPU逻辑核心数", IsRequired: false, IsOnly: false, IsEditable: true, PropertyGroup: groupAgent, PropertyType: common.FieldTypeInt, Option: validator.IntOption{Min: "1", Max: "1000000"}},
+		&Attribute{ObjectID: objID, PropertyID: "bk_cpu_mhz", PropertyName: "CPU频率", IsRequired: false, IsOnly: false, IsEditable: true, PropertyGroup: groupAgent, PropertyType: common.FieldTypeInt, Unit: "Hz", Option: validator.IntOption{Min: "1", Max: "100000000"}},
+		&Attribute{ObjectID: objID, PropertyID: "bk_cpu_module", PropertyName: "CPU型号", IsRequired: false, IsOnly: false, IsEditable: true, PropertyGroup: groupAgent, PropertyType: common.FieldTypeSingleChar, Option: ""},
+		&Attribute{ObjectID: objID, PropertyID: "bk_mem", PropertyName: "内存容量", IsRequired: false, IsOnly: false, IsEditable: true, PropertyGroup: groupAgent, PropertyType: common.FieldTypeInt, Unit: "MB", Option: validator.IntOption{Min: "1", Max: "100000000"}},
+		&Attribute{ObjectID: objID, PropertyID: "bk_disk", PropertyName: "磁盘容量", IsRequired: false, IsOnly: false, IsEditable: true, PropertyGroup: groupAgent, PropertyType: common.FieldTypeInt, Unit: "GB", Option: validator.IntOption{Min: "1", Max: "100000000"}},
+		&Attribute{ObjectID: objID, PropertyID: "bk_mac", PropertyName: "内网MAC地址", IsRequired: false, IsOnly: false, IsEditable: true, PropertyGroup: groupAgent, PropertyType: common.FieldTypeSingleChar, Option: ""},
+		&Attribute{ObjectID: objID, PropertyID: "bk_outer_mac", PropertyName: "外网MAC", IsRequired: false, IsOnly: false, IsEditable: true, PropertyGroup: groupAgent, PropertyType: common.FieldTypeSingleChar, Option: ""},
+
 		//agent 没有分组
 		&Attribute{ObjectID: objID, PropertyID: common.CreateTimeField, PropertyName: "录入时间", IsRequired: false, IsOnly: false, IsEditable: false, PropertyGroup: mCommon.GroupNone, PropertyType: common.FieldTypeTime, Option: ""},
 		&Attribute{ObjectID: objID, PropertyID: "import_from", PropertyName: "录入方式", IsRequired: false, IsOnly: false, IsEditable: false, PropertyGroup: mCommon.GroupNone, PropertyType: common.FieldTypeEnum, Option: []validator.EnumVal{{ID: "1", Name: "excel", Type: "text"}, {ID: "2", Name: "agent", Type: "text"}, {ID: "3", Name: "api", Type: "text"}}},
@@ -260,6 +268,37 @@ func FirewallRow() []*Attribute {
 		&Attribute{ObjectID: objID, PropertyID: "bk_os_detail", PropertyName: "操作系统详情", IsRequired: false, IsOnly: false, IsPre: false, IsEditable: true, PropertyGroup: groupBaseInfo, PropertyType: common.FieldTypeSingleChar, Option: ""},
 		&Attribute{ObjectID: objID, PropertyID: "bk_detail", PropertyName: "详细描述", IsRequired: false, IsOnly: false, IsPre: false, IsEditable: true, PropertyGroup: groupBaseInfo, PropertyType: common.FieldTypeLongChar, Option: ""},
 		&Attribute{ObjectID: objID, PropertyID: "bk_biz_status", PropertyName: "运营状态", IsRequired: false, IsOnly: false, IsPre: false, IsEditable: true, PropertyGroup: groupBaseInfo, PropertyType: common.FieldTypeEnum, Option: []validator.EnumVal{{ID: "1", Name: "待运营", Type: "text"}, {ID: "2", Name: "运营中", Type: "text"}, {ID: "3", Name: "已下架", Type: "text"}}},
+	}
+	return dataRows
+}
+
+// add by tes
+// IpResRow ip structure
+func IpResRow() []*Attribute {
+	objID := common.BKInnerObjIDIPRES
+
+	netTypeOption := []validator.EnumVal{{ID: "1", Name: "电信", Type: "text", IsDefault: true}, {ID: "2", Name: "网通", Type: "text"}}
+	statusOption := []validator.EnumVal{{ID: "1", Name: "正常", Type: "text", IsDefault: true}, {ID: "2", Name: "待回收", Type: "text"}}
+	typeOption := []validator.EnumVal{{ID: "1", Name: "内网", Type: "text", IsDefault: true}, {ID: "2", Name: "外网", Type: "text"}}
+
+	dataRows := []*Attribute{
+		&Attribute{ObjectID: objID, PropertyID: "bk_inst_name", PropertyName: "IP地址", IsRequired: true, IsOnly: false, IsPre: true, IsEditable: true, PropertyGroup: groupBaseInfo, PropertyType: common.FieldTypeSingleChar, Option: ""},
+		&Attribute{ObjectID: objID, PropertyID: "bk_net_type", PropertyName: "网络类型", IsRequired: false, IsOnly: false, IsPre: false, IsEditable: true, PropertyGroup: groupBaseInfo, PropertyType: common.FieldTypeEnum, Option: netTypeOption},
+		&Attribute{ObjectID: objID, PropertyID: "bk_status", PropertyName: "状态", IsRequired: false, IsOnly: false, IsPre: false, IsEditable: true, PropertyGroup: groupBaseInfo, PropertyType: common.FieldTypeEnum, Option: statusOption},
+		&Attribute{ObjectID: objID, PropertyID: "bk_type", PropertyName: "标识", IsRequired: false, IsOnly: false, IsPre: false, IsEditable: true, PropertyGroup: groupBaseInfo, PropertyType: common.FieldTypeEnum, Option: typeOption},
+	}
+	return dataRows
+}
+
+// add by tes
+// VmHostRow vm structure
+func VmHostRow() []*Attribute {
+	objID := common.BKInnerObjIDVMHOST
+
+	statusOption := []validator.EnumVal{{ID: "1", Name: "已分配", Type: "text", IsDefault: true}, {ID: "2", Name: "待回收", Type: "text"}}
+	dataRows := []*Attribute{
+		&Attribute{ObjectID: objID, PropertyID: "bk_inst_name", PropertyName: "名称", IsRequired: true, IsOnly: false, IsPre: true, IsEditable: true, PropertyGroup: groupBaseInfo, PropertyType: common.FieldTypeSingleChar, Option: ""},
+		&Attribute{ObjectID: objID, PropertyID: "bk_status", PropertyName: "状态", IsRequired: false, IsOnly: false, IsPre: false, IsEditable: true, PropertyGroup: groupBaseInfo, PropertyType: common.FieldTypeEnum, Option: statusOption},
 	}
 	return dataRows
 }

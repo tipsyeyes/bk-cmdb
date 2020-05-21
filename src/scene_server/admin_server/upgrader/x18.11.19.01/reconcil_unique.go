@@ -119,16 +119,25 @@ func reconcilUnique(ctx context.Context, db dal.RDB, conf *upgrader.Config) erro
 		{
 			ObjID:     common.BKInnerObjIDHost,
 			MustCheck: true,
+			// mod by tes
+			// host唯一校验修改
+			//Keys: []metadata.UniqueKey{
+			//	{
+			//		Kind: metadata.UniqueKeyKindProperty,
+			//		ID:   uint64(propertyIDToProperty[keyfunc(common.BKInnerObjIDHost, common.BKCloudIDField)].ID),
+			//	},
+			//	{
+			//		Kind: metadata.UniqueKeyKindProperty,
+			//		ID:   uint64(propertyIDToProperty[keyfunc(common.BKInnerObjIDHost, common.BKHostInnerIPField)].ID),
+			//	},
+			//},
 			Keys: []metadata.UniqueKey{
 				{
 					Kind: metadata.UniqueKeyKindProperty,
-					ID:   uint64(propertyIDToProperty[keyfunc(common.BKInnerObjIDHost, common.BKCloudIDField)].ID),
-				},
-				{
-					Kind: metadata.UniqueKeyKindProperty,
-					ID:   uint64(propertyIDToProperty[keyfunc(common.BKInnerObjIDHost, common.BKHostInnerIPField)].ID),
+					ID:   uint64(propertyIDToProperty[keyfunc(common.BKInnerObjIDHost, common.BKAssetIDField)].ID),
 				},
 			},
+
 			Ispre:    true,
 			OwnerID:  conf.OwnerID,
 			LastTime: metadata.Now(),
