@@ -90,7 +90,6 @@ type ServiceInstance struct {
 	// it can be 0 when the service is not created with a service template.
 	ServiceTemplateID int64  `field:"service_template_id" json:"service_template_id,omitempty" bson:"service_template_id"`
 	HostID            int64  `field:"bk_host_id" json:"bk_host_id,omitempty" bson:"bk_host_id"`
-	InnerIP           string `field:"bk_host_innerip" json:"bk_host_innerip,omitempty" bson:"bk_host_innerip"`
 
 	// the module that this service belongs to.
 	ModuleID int64 `field:"bk_module_id" json:"bk_module_id,omitempty" bson:"bk_module_id"`
@@ -235,9 +234,18 @@ func upgradeServiceTemplate(ctx context.Context, db dal.RDB, conf *upgrader.Conf
 					return err
 				}
 
+				procName := ""
+				if oldInst.ProcessName != nil {
+					procName = *oldInst.ProcessName
+				}
+				if procName == "" && oldInst.FuncName != nil {
+					procName = *oldInst.FuncName
+				}
+
 				procTemplate := ProcessTemplate{
 					Metadata:          metadata.NewMetadata(bizID),
 					ID:                int64(procTemplateID),
+					ProcessName:       procName,
 					ServiceTemplateID: serviceTemplate.ID,
 					Property:          procInstToProcTemplate(oldInst),
 					Creator:           conf.User,
@@ -386,6 +394,10 @@ func procInstToProcTemplate(inst Process) *metadata.ProcessProperty {
 	}
 	if inst.FuncName != nil && len(*inst.FuncName) > 0 {
 		template.FuncName.Value = inst.FuncName
+		template.FuncName.AsDefaultValue = &True
+	} else if inst.ProcessName != nil && len(*inst.ProcessName) > 0 {
+		// FuncName empty, try use ProcessName
+		template.FuncName.Value = inst.ProcessName
 		template.FuncName.AsDefaultValue = &True
 	}
 	if inst.WorkPath != nil && len(*inst.WorkPath) > 0 {

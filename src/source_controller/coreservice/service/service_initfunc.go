@@ -49,6 +49,7 @@ func (s *coreService) initModel() {
 	s.addAction(http.MethodPost, "/create/model/{bk_obj_id}/attributes", s.CreateModelAttributes, nil)
 	s.addAction(http.MethodPost, "/set/model/{bk_obj_id}/attributes", s.SetModelAttributes, nil)
 	s.addAction(http.MethodPut, "/update/model/{bk_obj_id}/attributes", s.UpdateModelAttributes, nil)
+	s.addAction(http.MethodPost, "/update/model/{bk_obj_id}/attributes/index", s.UpdateModelAttributesIndex, nil)
 	s.addAction(http.MethodPut, "/update/model/attributes", s.UpdateModelAttributesByCondition, nil)
 	s.addAction(http.MethodDelete, "/delete/model/{bk_obj_id}/attributes", s.DeleteModelAttribute, nil)
 	s.addAction(http.MethodPost, "/read/model/{bk_obj_id}/attributes", s.SearchModelAttributes, nil)
@@ -172,15 +173,15 @@ func (s *coreService) audit() {
 
 func (s *coreService) initOperation() {
 	s.addAction(http.MethodPost, "/create/operation/chart", s.CreateOperationChart, nil)
-	s.addAction(http.MethodPost, "/search/operation/chart", s.SearchChartWithPosition, nil)
+	s.addAction(http.MethodPost, "/findmany/operation/chart", s.SearchChartWithPosition, nil)
 	s.addAction(http.MethodPost, "/update/operation/chart", s.UpdateOperationChart, nil)
 	s.addAction(http.MethodDelete, "/delete/operation/chart/{id}", s.DeleteOperationChart, nil)
-	s.addAction(http.MethodPost, "/search/operation/chart/common", s.SearchChartCommon, nil)
+	s.addAction(http.MethodPost, "/find/operation/chart/common", s.SearchChartCommon, nil)
 
-	s.addAction(http.MethodPost, "/read/operation/inst/count", s.SearchInstCount, nil)
-	s.addAction(http.MethodPost, "/read/operation/chart/data/common", s.SearchChartDataCommon, nil)
+	s.addAction(http.MethodPost, "/find/operation/inst/count", s.SearchInstCount, nil)
+	s.addAction(http.MethodPost, "/find/operation/chart/data", s.SearchChartData, nil)
 	s.addAction(http.MethodPost, "/update/operation/chart/position", s.UpdateChartPosition, nil)
-	s.addAction(http.MethodPost, "/search/operation/chart/data", s.SearchTimerChartData, nil)
+	s.addAction(http.MethodPost, "/find/operation/timer/chart/data", s.SearchTimerChartData, nil)
 	s.addAction(http.MethodPost, "/start/operation/chart/timer", s.TimerFreshData, nil)
 }
 
@@ -192,6 +193,10 @@ func (s *coreService) label() {
 func (s *coreService) topographics() {
 	s.addAction(http.MethodPost, "/topographics/search", s.SearchTopoGraphics, nil)
 	s.addAction(http.MethodPost, "/topographics/update", s.UpdateTopoGraphics, nil)
+}
+
+func (s *coreService) ccSystem() {
+	s.addAction(http.MethodPost, "/find/system/user_config", s.GetSystemUserConfig, nil)
 }
 
 func (s *coreService) initService() {
@@ -206,11 +211,11 @@ func (s *coreService) initService() {
 	s.initMainline()
 	s.host()
 	s.audit()
-	s.initOperation()
 	s.initProcess()
 	s.initOperation()
 	s.initCloudSync()
 	s.label()
 	s.topographics()
+	s.ccSystem()
 	s.initSetTemplate()
 }

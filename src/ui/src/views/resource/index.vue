@@ -22,23 +22,25 @@
                         {{$t('导入主机')}}
                     </bk-button>
                 </cmdb-auth>
-                <bk-select class="options-business-selector"
-                    v-if="isAdminView"
-                    font-size="medium"
-                    :popover-width="180"
-                    :searchable="businessList.length > 7"
-                    :disabled="!table.checked.length"
-                    :clearable="false"
-                    :placeholder="$t('分配到')"
-                    v-model="assignBusiness"
-                    @selected="handleAssignHosts">
-                    <bk-option id="empty" :name="$t('分配到')" hidden></bk-option>
-                    <bk-option v-for="option in businessList"
-                        :key="option.bk_biz_id"
-                        :id="option.bk_biz_id"
-                        :name="option.bk_biz_name">
-                    </bk-option>
-                </bk-select>
+                <cmdb-auth :auth="$authResources({ type: $OPERATION.U_RESOURCE_HOST })">
+                    <bk-select class="options-business-selector" slot-scope="{ disabled }"
+                        v-if="isAdminView"
+                        font-size="medium"
+                        :popover-width="180"
+                        :searchable="businessList.length > 7"
+                        :disabled="!table.checked.length || disabled"
+                        :clearable="false"
+                        :placeholder="$t('分配到')"
+                        v-model="assignBusiness"
+                        @selected="handleAssignHosts">
+                        <bk-option id="empty" :name="$t('分配到')" hidden></bk-option>
+                        <bk-option v-for="option in businessList"
+                            :key="option.bk_biz_id"
+                            :id="option.bk_biz_id"
+                            :name="option.bk_biz_name">
+                        </bk-option>
+                    </bk-select>
+                </cmdb-auth>
                 <cmdb-clipboard-selector class="options-clipboard"
                     :list="clipboardList"
                     :disabled="!table.checked.length"
@@ -86,7 +88,6 @@
     import cmdbHostsTable from '@/components/hosts/table'
     import cmdbImport from '@/components/import/import'
     import cmdbButtonGroup from '@/components/ui/other/button-group'
-    import { MENU_RESOURCE_MANAGEMENT } from '@/dictionary/menu-symbol'
     export default {
         components: {
             cmdbHostsTable,
@@ -176,7 +177,6 @@
         },
         async created () {
             try {
-                this.setDynamicBreadcrumbs()
                 await this.getFullAmountBusiness()
                 await this.getProperties()
                 this.getHostList()
@@ -194,16 +194,6 @@
             ...mapActions('hostDelete', ['deleteHost']),
             ...mapActions('hostRelation', ['transferResourcehostToIdleModule']),
             ...mapActions('objectModelProperty', ['batchSearchObjectAttribute']),
-            setDynamicBreadcrumbs () {
-                this.$store.commit('setBreadcrumbs', [{
-                    label: this.$t('资源目录'),
-                    route: {
-                        name: MENU_RESOURCE_MANAGEMENT
-                    }
-                }, {
-                    label: this.$t('主机')
-                }])
-            },
             async getFullAmountBusiness () {
                 try {
                     const data = await this.$http.get('biz/simplify?sort=bk_biz_name')
@@ -403,7 +393,7 @@
 
 <style lang="scss" scoped>
     .resource-layout{
-        padding: 0;
+        padding: 15px 0 0 0;
         overflow: hidden;
         .resource-main{
             height: 100%;

@@ -44,6 +44,7 @@ import (
 	"configcenter/src/source_controller/coreservice/core/operation"
 	"configcenter/src/source_controller/coreservice/core/process"
 	"configcenter/src/source_controller/coreservice/core/settemplate"
+	dbSystem "configcenter/src/source_controller/coreservice/core/system"
 	"configcenter/src/storage/dal"
 	"configcenter/src/storage/dal/mongo/local"
 	"configcenter/src/storage/dal/mongo/remote"
@@ -112,7 +113,7 @@ func (s *coreService) SetConfig(cfg options.Config, engin *backbone.Engine, err 
 
 	// connect the remote mongodb
 	s.core = core.New(
-		model.New(db, s),
+		model.New(db, s, cache),
 		instances.New(db, s, cache),
 		association.New(db, s),
 		datasynchronize.New(db, s),
@@ -121,6 +122,7 @@ func (s *coreService) SetConfig(cfg options.Config, engin *backbone.Engine, err 
 		auditlog.New(db),
 		process.New(db, s, cache),
 		label.New(db),
+		dbSystem.New(db),
 		settemplate.New(db),
 		operation.New(db),
 	)

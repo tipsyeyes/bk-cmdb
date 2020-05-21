@@ -158,7 +158,7 @@ func (a *attribute) IsValid(isUpdate bool, data mapstr.MapStr) error {
 		}
 	}
 
-	if val, ok := data[metadata.AttributeFieldPlaceHoler]; ok && val != "" {
+	if val, ok := data[metadata.AttributeFieldPlaceHolder]; ok && val != "" {
 		if placeholder, ok := val.(string); ok {
 			if err := a.FieldValid.ValidPlaceHoler(a.params, placeholder); nil != err {
 				return err
@@ -321,7 +321,7 @@ func (a *attribute) GetGroup() (GroupInterface, error) {
 
 	rsp, err := a.clientSet.CoreService().Model().ReadAttributeGroup(context.Background(), a.params.Header, a.attr.ObjectID, metadata.QueryCondition{Condition: cond.ToMapStr()})
 	if nil != err {
-		blog.Errorf("[model-grp] failed to request the object controller, err: %s, rid: %s", err.Error(), a.params.ReqID)
+		blog.Errorf("[model-grp] failed to request the coreservice, err: %s, rid: %s", err.Error(), a.params.ReqID)
 		return nil, a.params.Err.Error(common.CCErrCommHTTPDoRequestFailed)
 	}
 

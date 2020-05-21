@@ -3,6 +3,7 @@
         <div class="info-basic">
             <i :class="['info-icon', model.bk_obj_icon]"></i>
             <span class="info-ip">{{hostIp}}</span>
+            <span class="info-area">{{cloudArea}}</span>
         </div>
         <div class="info-topology clearfix">
             <div class="topology-label fl">{{$t('业务拓扑')}}：</div>
@@ -65,6 +66,11 @@
                 } else {
                     return ''
                 }
+            },
+            cloudArea () {
+                return (this.host.bk_cloud_id || []).map(cloud => {
+                    return `${this.$t('云区域')}：${cloud.bk_inst_name} (ID：${cloud.bk_inst_id})`
+                }).join('\n')
             },
             topology () {
                 const topology = []
@@ -132,7 +138,6 @@
     .info {
         padding: 11px 24px 2px;
         background:rgba(235, 244, 255, .6);
-        border-top: 1px solid #dcdee5;
         border-bottom: 1px solid #dcdee5;
     }
     .info-basic {
@@ -156,7 +161,21 @@
             vertical-align: middle;
             line-height: 38px;
             font-size: 16px;
+            font-weight: bold;
             color: #333948;
+        }
+        .info-area {
+             display: inline-block;
+            vertical-align: middle;
+            height: 18px;
+            margin-left: 10px;
+            padding: 0 5px;
+            line-height: 16px;
+            font-size: 12px;
+            color: #979BA5;
+            border: 1px solid #C4C6CC;
+            border-radius: 2px;
+            background-color: #fff;
         }
     }
     .info-topology {

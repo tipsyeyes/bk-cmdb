@@ -31,23 +31,30 @@ import (
 
 func (am *AuthManager) CollectDynamicGroupByBusinessID(ctx context.Context, header http.Header, businessID int64) ([]DynamicGroupSimplify, error) {
 	rid := util.ExtractRequestIDFromContext(ctx)
-
-	cond := metadata.QueryCondition{
-		Condition: condition.CreateCondition().Field(common.BKAppIDField).Eq(businessID).ToMapStr(),
-	}
-	result, err := am.clientSet.CoreService().Instance().ReadInstance(ctx, header, common.BKTableNameUserAPI, &cond)
-	if err != nil {
-		blog.V(3).Infof("get user api by business %d failed, err: %+v, rid: %s", businessID, err, rid)
-		return nil, fmt.Errorf("get user api by business %d failed, err: %+v", businessID, err)
-	}
 	dynamicGroups := make([]DynamicGroupSimplify, 0)
-	for _, item := range result.Data.Info {
-		dynamicGroup := DynamicGroupSimplify{}
-		_, err = dynamicGroup.Parse(item)
+	count := -1
+	for offset := 0; count == -1 || offset < count; offset += common.BKMaxRecordsAtOnce {
+		cond := metadata.QueryCondition{
+			Condition: condition.CreateCondition().Field(common.BKAppIDField).Eq(businessID).ToMapStr(),
+			Limit: metadata.SearchLimit{
+				Offset: int64(offset),
+				Limit:  common.BKMaxRecordsAtOnce,
+			},
+		}
+		result, err := am.clientSet.CoreService().Instance().ReadInstance(ctx, header, common.BKTableNameUserAPI, &cond)
 		if err != nil {
+			blog.V(3).Infof("get user api by business %d failed, err: %+v, rid: %s", businessID, err, rid)
 			return nil, fmt.Errorf("get user api by business %d failed, err: %+v", businessID, err)
 		}
-		dynamicGroups = append(dynamicGroups, dynamicGroup)
+		for _, item := range result.Data.Info {
+			dynamicGroup := DynamicGroupSimplify{}
+			_, err = dynamicGroup.Parse(item)
+			if err != nil {
+				return nil, fmt.Errorf("get user api by business %d failed, err: %+v", businessID, err)
+			}
+			dynamicGroups = append(dynamicGroups, dynamicGroup)
+		}
+		count = result.Data.Count
 	}
 	return dynamicGroups, nil
 }
@@ -128,7 +135,7 @@ func (am *AuthManager) extractBusinessIDFromDynamicGroups(dynamicGroups ...Dynam
 // }
 
 func (am *AuthManager) UpdateRegisteredDynamicGroups(ctx context.Context, header http.Header, dynamicGroups ...DynamicGroupSimplify) error {
-	if am.Enabled() == false {
+	if !am.Enabled() {
 		return nil
 	}
 
@@ -155,7 +162,7 @@ func (am *AuthManager) UpdateRegisteredDynamicGroups(ctx context.Context, header
 }
 
 func (am *AuthManager) UpdateRegisteredDynamicGroupByID(ctx context.Context, header http.Header, ids ...string) error {
-	if am.Enabled() == false {
+	if !am.Enabled() {
 		return nil
 	}
 
@@ -171,7 +178,7 @@ func (am *AuthManager) UpdateRegisteredDynamicGroupByID(ctx context.Context, hea
 }
 
 func (am *AuthManager) RegisterDynamicGroups(ctx context.Context, header http.Header, dynamicGroups ...DynamicGroupSimplify) error {
-	if am.Enabled() == false {
+	if !am.Enabled() {
 		return nil
 	}
 
@@ -192,7 +199,7 @@ func (am *AuthManager) RegisterDynamicGroups(ctx context.Context, header http.He
 }
 
 func (am *AuthManager) RegisterDynamicGroupByID(ctx context.Context, header http.Header, ids ...string) error {
-	if am.Enabled() == false {
+	if !am.Enabled() {
 		return nil
 	}
 
@@ -207,7 +214,7 @@ func (am *AuthManager) RegisterDynamicGroupByID(ctx context.Context, header http
 }
 
 func (am *AuthManager) DeregisterDynamicGroupByID(ctx context.Context, header http.Header, configMeta metadata.UserConfigMeta) error {
-	if am.Enabled() == false {
+	if !am.Enabled() {
 		return nil
 	}
 

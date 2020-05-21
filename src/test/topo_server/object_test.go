@@ -44,7 +44,8 @@ var _ = Describe("object test", func() {
 			Expect(err).NotTo(HaveOccurred())
 			Expect(rsp.Result).To(Equal(true))
 			Expect(rsp.Data).To(ContainElement("abc"))
-			bizIdInt = int64(rsp.Data["bk_biz_id"].(float64))
+			bizIdInt, err = commonutil.GetInt64ByInterface(rsp.Data["bk_biz_id"])
+			Expect(err).NotTo(HaveOccurred())
 			bizId = strconv.FormatInt(bizIdInt, 10)
 		})
 
@@ -305,7 +306,8 @@ var _ = Describe("object test", func() {
 			Expect(child["bk_obj_id"].(string)).To(Equal("cc_test_object"))
 			Expect(child["bk_obj_name"].(string)).To(Equal("cc_test_object"))
 			Expect(len(child["child"].([]interface{}))).To(Equal(0))
-			childInstIdInt = int64(child["bk_inst_id"].(float64))
+			childInstIdInt, err = commonutil.GetInt64ByInterface(child["bk_inst_id"])
+			Expect(err).NotTo(HaveOccurred())
 			childInstId = strconv.FormatInt(childInstIdInt, 10)
 		})
 
@@ -355,7 +357,7 @@ var _ = Describe("object test", func() {
 			Expect(data["bk_classification_id"].(string)).To(Equal("cc_class"))
 			Expect(data["bk_classification_name"].(string)).To(Equal("新测试分类"))
 			Expect(data["bk_classification_type"].(string)).To(Equal(""))
-			clsId = strconv.FormatInt(int64(data["id"].(float64)), 10)
+			clsId = commonutil.GetStrByInterface(data["id"])
 		})
 
 		It("create classification", func() {
@@ -376,7 +378,7 @@ var _ = Describe("object test", func() {
 			Expect(data["bk_classification_id"].(string)).To(Equal("cc_est_object"))
 			Expect(data["bk_classification_name"].(string)).To(Equal("cc_est_object"))
 			Expect(data["bk_classification_type"].(string)).To(Equal(""))
-			clsId2 = strconv.FormatInt(int64(data["id"].(float64)), 10)
+			clsId2 = commonutil.GetStrByInterface(data["id"])
 		})
 
 		It("create classification same ClassificationID", func() {
@@ -534,21 +536,6 @@ var _ = Describe("object test", func() {
 			Expect(rsp.Result).To(Equal(false))
 		})
 
-		It("create object invalid bk_obj_name", func() {
-			input := metadata.Object{
-				ObjCls:     "bk_network",
-				ObjIcon:    "icon-cc-business",
-				ObjectID:   "cc1234",
-				ObjectName: "~!@#$%^&*()",
-				OwnerID:    "0",
-				Creator:    "admin",
-			}
-			rsp, err := objectClient.CreateObject(context.Background(), header, input)
-			util.RegisterResponse(rsp)
-			Expect(err).NotTo(HaveOccurred())
-			Expect(rsp.Result).To(Equal(false))
-		})
-
 		It("create object bk_classification_id = 'cc_class' and bk_obj_id='test_obj'", func() {
 			input := metadata.Object{
 				ObjCls:     "cc_class",
@@ -607,16 +594,6 @@ var _ = Describe("object test", func() {
 		It("update object same bk_obj_name", func() {
 			input := map[string]interface{}{
 				"bk_obj_name": "cc模型",
-			}
-			rsp, err := objectClient.UpdateObject(context.Background(), objId, header, input)
-			util.RegisterResponse(rsp)
-			Expect(err).NotTo(HaveOccurred())
-			Expect(rsp.Result).To(Equal(false))
-		})
-
-		It("update object invalid bk_obj_name", func() {
-			input := map[string]interface{}{
-				"bk_obj_name": "~!@#$%^&*()",
 			}
 			rsp, err := objectClient.UpdateObject(context.Background(), objId, header, input)
 			util.RegisterResponse(rsp)
@@ -974,24 +951,6 @@ var _ = Describe("object test", func() {
 				Expect(rsp.Result).To(Equal(false))
 			})
 
-			It("create object attribute invalid PropertyName", func() {
-				input := &metadata.ObjAttDes{
-					Attribute: metadata.Attribute{
-						OwnerID:       "0",
-						ObjectID:      "cc_obj",
-						PropertyID:    "cc1",
-						PropertyName:  "~!@#$%^%^",
-						PropertyGroup: "default",
-						IsEditable:    true,
-						PropertyType:  "singlechar",
-					},
-				}
-				rsp, err := apiServerClient.CreateObjectAtt(context.Background(), header, input)
-				util.RegisterResponse(rsp)
-				Expect(err).NotTo(HaveOccurred())
-				Expect(rsp.Result).To(Equal(false))
-			})
-
 			It("create object attribute invalid PropertyType", func() {
 				input := &metadata.ObjAttDes{
 					Attribute: metadata.Attribute{
@@ -1052,16 +1011,6 @@ var _ = Describe("object test", func() {
 			It("update object attribute same bk_property_name", func() {
 				input := map[string]interface{}{
 					"bk_property_name": "test_sglchar",
-				}
-				rsp, err := apiServerClient.UpdateObjectAtt(context.Background(), attrId1, header, input)
-				util.RegisterResponse(rsp)
-				Expect(err).NotTo(HaveOccurred())
-				Expect(rsp.Result).To(Equal(false))
-			})
-
-			It("update object attribute invalid bk_property_name", func() {
-				input := map[string]interface{}{
-					"bk_property_name": "~!@#$%^%^",
 				}
 				rsp, err := apiServerClient.UpdateObjectAtt(context.Background(), attrId1, header, input)
 				util.RegisterResponse(rsp)
@@ -1205,8 +1154,11 @@ var _ = Describe("object test", func() {
 			Expect(rsp.Result).To(Equal(true))
 			Expect(rsp.Data["bk_set_name"].(string)).To(Equal("cc_set"))
 			Expect(commonutil.GetStrByInterface(rsp.Data["bk_parent_id"])).To(Equal(strconv.FormatInt(childInstIdInt, 10)))
-			Expect(int64(rsp.Data["bk_biz_id"].(float64))).To(Equal(bizIdInt))
-			setId = strconv.FormatInt(int64(rsp.Data["bk_set_id"].(float64)), 10)
+
+			bizIdRes, err := commonutil.GetInt64ByInterface(rsp.Data["bk_biz_id"])
+			Expect(err).NotTo(HaveOccurred())
+			Expect(bizIdRes).To(Equal(bizIdInt))
+			setId = commonutil.GetStrByInterface(rsp.Data["bk_set_id"])
 		})
 
 		It(fmt.Sprintf("create set bk_biz_id=%s and bk_parent_id=%s", bizId, childInstId), func() {
@@ -1224,8 +1176,11 @@ var _ = Describe("object test", func() {
 			Expect(rsp.Result).To(Equal(true))
 			Expect(rsp.Data["bk_set_name"].(string)).To(Equal("test"))
 			Expect(commonutil.GetStrByInterface(rsp.Data["bk_parent_id"])).To(Equal(strconv.FormatInt(childInstIdInt, 10)))
-			Expect(int64(rsp.Data["bk_biz_id"].(float64))).To(Equal(bizIdInt))
-			setId1 = strconv.FormatInt(int64(rsp.Data["bk_set_id"].(float64)), 10)
+
+			bizIdRes, err := commonutil.GetInt64ByInterface(rsp.Data["bk_biz_id"])
+			Expect(err).NotTo(HaveOccurred())
+			Expect(bizIdRes).To(Equal(bizIdInt))
+			setId1 = commonutil.GetStrByInterface(rsp.Data["bk_set_id"])
 		})
 
 		It("create set same bk_biz_id and bk_parent_id and bk_set_name", func() {
@@ -1302,21 +1257,6 @@ var _ = Describe("object test", func() {
 			Expect(rsp.Result).To(Equal(false))
 		})
 
-		It("create set invalid bk_set_name", func() {
-			input := mapstr.MapStr{
-				"bk_set_name":         "~!@#$%^&*()_+-=",
-				"bk_parent_id":        childInstIdInt,
-				"bk_supplier_account": "0",
-				"bk_biz_id":           bizIdInt,
-				"bk_service_status":   "1",
-				"bk_set_env":          "2",
-			}
-			rsp, err := instClient.CreateSet(context.Background(), bizId, header, input)
-			util.RegisterResponse(rsp)
-			Expect(err).NotTo(HaveOccurred())
-			Expect(rsp.Result).To(Equal(false))
-		})
-
 		It("update set", func() {
 			input := map[string]interface{}{
 				"bk_set_name": "new_test",
@@ -1340,16 +1280,6 @@ var _ = Describe("object test", func() {
 		It("update set same bk_set_name", func() {
 			input := map[string]interface{}{
 				"bk_set_name": "test",
-			}
-			rsp, err := instClient.UpdateSet(context.Background(), bizId, setId, header, input)
-			util.RegisterResponse(rsp)
-			Expect(err).NotTo(HaveOccurred())
-			Expect(rsp.Result).To(Equal(false))
-		})
-
-		It("update set invalid bk_set_name", func() {
-			input := map[string]interface{}{
-				"bk_set_name": "~!@#$%^&*()_+-=",
 			}
 			rsp, err := instClient.UpdateSet(context.Background(), bizId, setId, header, input)
 			util.RegisterResponse(rsp)
@@ -1390,7 +1320,10 @@ var _ = Describe("object test", func() {
 			Expect(map[string]interface{}(rsp.Data.Info[rsp.Data.Count-1])).To(HaveKeyWithValue("bk_service_status", "1"))
 			Expect(map[string]interface{}(rsp.Data.Info[rsp.Data.Count-1])).To(HaveKeyWithValue("bk_set_env", "2"))
 			Expect(commonutil.GetStrByInterface(rsp.Data.Info[rsp.Data.Count-1]["bk_parent_id"])).To(Equal(strconv.FormatInt(childInstIdInt, 10)))
-			Expect(int64(rsp.Data.Info[rsp.Data.Count-1]["bk_biz_id"].(float64))).To(Equal(bizIdInt))
+
+			bizIdRes, err := commonutil.GetInt64ByInterface(rsp.Data.Info[rsp.Data.Count-1]["bk_biz_id"])
+			Expect(err).NotTo(HaveOccurred())
+			Expect(bizIdRes).To(Equal(bizIdInt))
 		})
 	})
 
@@ -1409,9 +1342,9 @@ var _ = Describe("object test", func() {
 			Expect(err).NotTo(HaveOccurred())
 			Expect(rsp.Result).To(Equal(true))
 			Expect(rsp.Data["bk_module_name"].(string)).To(Equal("cc_module"))
-			Expect(strconv.FormatInt(int64(rsp.Data["bk_set_id"].(float64)), 10)).To(Equal(setId))
+			Expect(commonutil.GetStrByInterface(rsp.Data["bk_set_id"])).To(Equal(setId))
 			Expect(commonutil.GetStrByInterface(rsp.Data["bk_parent_id"])).To(Equal(setId))
-			moduleId = strconv.FormatInt(int64(rsp.Data["bk_module_id"].(float64)), 10)
+			moduleId = commonutil.GetStrByInterface(rsp.Data["bk_module_id"])
 		})
 
 		It(fmt.Sprintf("create module bk_biz_id=%s and bk_set_id=%s", bizId, setId), func() {
@@ -1426,9 +1359,9 @@ var _ = Describe("object test", func() {
 			Expect(err).NotTo(HaveOccurred())
 			Expect(rsp.Result).To(Equal(true))
 			Expect(rsp.Data["bk_module_name"].(string)).To(Equal("test_module"))
-			Expect(strconv.FormatInt(int64(rsp.Data["bk_set_id"].(float64)), 10)).To(Equal(setId))
+			Expect(commonutil.GetStrByInterface(rsp.Data["bk_set_id"])).To(Equal(setId))
 			Expect(commonutil.GetStrByInterface(rsp.Data["bk_parent_id"])).To(Equal(setId))
-			moduleId1 = strconv.FormatInt(int64(rsp.Data["bk_module_id"].(float64)), 10)
+			moduleId1 = commonutil.GetStrByInterface(rsp.Data["bk_module_id"])
 		})
 
 		It("create module same bk_module_name", func() {
@@ -1478,19 +1411,6 @@ var _ = Describe("object test", func() {
 				"service_template_id": 0,
 			}
 			rsp, err := instClient.CreateModule(context.Background(), "2", setId, header, input)
-			util.RegisterResponse(rsp)
-			Expect(err).NotTo(HaveOccurred())
-			Expect(rsp.Result).To(Equal(false))
-		})
-
-		It("create module invalid bk_module_name", func() {
-			input := map[string]interface{}{
-				"bk_module_name":      "~!@#$%^&*()_+-=",
-				"bk_parent_id":        setId,
-				"service_category_id": 2,
-				"service_template_id": 0,
-			}
-			rsp, err := instClient.CreateModule(context.Background(), bizId, setId, header, input)
 			util.RegisterResponse(rsp)
 			Expect(err).NotTo(HaveOccurred())
 			Expect(rsp.Result).To(Equal(false))
@@ -1551,16 +1471,6 @@ var _ = Describe("object test", func() {
 			Expect(rsp.Result).To(Equal(false))
 		})
 
-		It("update module invalid bk_module_name", func() {
-			input := map[string]interface{}{
-				"bk_module_name": "~!@#$%^&*()_+-=",
-			}
-			rsp, err := instClient.UpdateModule(context.Background(), bizId, setId, moduleId, header, input)
-			util.RegisterResponse(rsp)
-			Expect(err).NotTo(HaveOccurred())
-			Expect(rsp.Result).To(Equal(false))
-		})
-
 		It("update module set, biz, parent", func() {
 			input := map[string]interface{}{
 				"bk_set_id":    1,
@@ -1593,7 +1503,7 @@ var _ = Describe("object test", func() {
 			Expect(rsp.Result).To(Equal(true))
 			Expect(rsp.Data.Count).To(Equal(1))
 			Expect(map[string]interface{}(rsp.Data.Info[0])).To(HaveKeyWithValue("bk_module_name", "new_module"))
-			Expect(strconv.FormatInt(int64(rsp.Data.Info[0]["bk_set_id"].(float64)), 10)).To(Equal(setId))
+			Expect(commonutil.GetStrByInterface(rsp.Data.Info[0]["bk_set_id"])).To(Equal(setId))
 			Expect(commonutil.GetStrByInterface(rsp.Data.Info[0]["bk_parent_id"])).To(Equal(setId))
 		})
 	})

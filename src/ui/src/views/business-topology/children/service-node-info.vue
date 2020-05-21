@@ -57,8 +57,8 @@
             v-if="type === 'details'"
             :properties="properties"
             :property-groups="propertyGroups"
-            :inst="flattenedInstance"
-            :show-options="modelId !== 'biz' && !isBlueking">
+            :inst="instance"
+            :show-options="modelId !== 'biz' && editable">
             <template slot="details-options">
                 <cmdb-auth :auth="$authResources({ type: $OPERATION.U_TOPO })">
                     <template slot-scope="{ disabled }">
@@ -193,11 +193,12 @@
             withSetTemplate () {
                 return this.isSetNode && !!this.instance.set_template_id
             },
-            flattenedInstance () {
-                return this.$tools.flattenItem(this.properties, this.instance)
-            },
             moduleFromSetTemplate () {
                 return this.isModuleNode && !!this.selectedNode.parent.data.set_template_id
+            },
+            editable () {
+                const editable = this.$store.state.businessHost.blueKingEditable
+                return this.isBlueking ? this.isBlueking && editable : true
             }
         },
         watch: {
@@ -627,11 +628,12 @@
                             requestId: 'diffTemplateAndInstances'
                         }
                     })
-                    const diff = data[0] ? data[0].module_diffs : []
+                    const diff = data.difference ? (data.difference[0] || {}).module_diffs : []
                     const len = diff.filter(_module => _module.diff_type !== 'unchanged').length
                     this.hasChange = !!len
                 } catch (e) {
                     console.error(e)
+                    this.hasChange = false
                 }
             },
             handleSyncSetTemplate () {

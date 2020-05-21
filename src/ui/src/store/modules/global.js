@@ -1,11 +1,6 @@
 import { language } from '@/i18n'
 import $http from '@/api'
 
-let businessSelectorResolver
-const businessSelectorPromise = new Promise(resolve => {
-    businessSelectorResolver = resolve
-})
-
 const state = {
     site: window.Site,
     user: window.User,
@@ -40,11 +35,10 @@ const state = {
     permission: [],
     appHeight: window.innerHeight,
     isAdminView: true,
-    breadcrumbs: [],
     title: null,
     businessSelectorVisible: false,
-    businessSelectorPromise,
-    businessSelectorResolver,
+    businessSelectorPromise: null,
+    businessSelectorResolver: null,
     scrollerState: {
         scrollbar: false
     }
@@ -71,7 +65,6 @@ const getters = {
     headerTitle: state => state.headerTitle,
     featureTipsParams: state => state.featureTipsParams,
     permission: state => state.permission,
-    breadcrumbs: state => state.breadcrumbs,
     title: state => state.title,
     businessSelectorVisible: state => state.businessSelectorVisible,
     scrollerState: state => state.scrollerState
@@ -87,6 +80,9 @@ const actions = {
             commit('setUserList', list)
             return list
         })
+    },
+    getBlueKingEditStatus ({ commit }, { config }) {
+        return $http.post('system/config/user_config/blueking_modify', {}, config)
     }
 }
 
@@ -129,14 +125,16 @@ const mutations = {
     setAppHeight (state, height) {
         state.appHeight = height
     },
-    setBreadcrumbs (state, breadcrumbs) {
-        state.breadcrumbs = breadcrumbs
-    },
     setTitle (state, title) {
         state.title = title
     },
     setBusinessSelectorVisible (state, visible) {
         state.businessSelectorVisible = visible
+    },
+    createBusinessSelectorPromise (state) {
+        state.businessSelectorPromise = new Promise(resolve => {
+            state.businessSelectorResolver = resolve
+        })
     },
     resolveBusinessSelectorPromise (state, val) {
         state.businessSelectorResolver && state.businessSelectorResolver(val)

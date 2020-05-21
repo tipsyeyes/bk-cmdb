@@ -126,9 +126,6 @@ func (lgc *Logics) GetImportHosts(f *xlsx.File, header http.Header, defLang lang
 	if nil == sheet {
 		return nil, nil, errors.New(defLang.Language("web_excel_sheet_not_found"))
 	}
-	if nil == sheet {
-		return nil, nil, errors.New(defLang.Language("web_excel_sheet_not_found"))
-	}
 
 	return GetExcelData(ctx, sheet, fields, common.KvMap{"import_from": common.HostAddMethodExcel}, true, 0, defLang)
 }
@@ -163,7 +160,6 @@ func (lgc *Logics) ImportHosts(ctx context.Context, f *xlsx.File, header http.He
 	if 0 != len(hosts) {
 		params := map[string]interface{}{
 			"host_info":      hosts,
-			"bk_supplier_id": common.BKDefaultSupplierID,
 			"input_type":     common.InputTypeExcel,
 		}
 		result, resultErr = lgc.CoreAPI.ApiServer().AddHost(context.Background(), header, params)

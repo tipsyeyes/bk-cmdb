@@ -64,7 +64,7 @@
         <bk-table
             v-show="localExpanded"
             v-bkloading="{ isLoading: $loading(Object.values(requestId)) }"
-            :data="flattenList"
+            :data="list"
             :row-style="{ cursor: 'pointer' }"
             @row-click="showProcessDetails">
             <bk-table-column v-for="(column, index) in header"
@@ -72,13 +72,17 @@
                 :key="column.id"
                 :prop="column.id"
                 :label="column.name">
+                <template slot-scope="{ row }">{{(row.property || {})[column.id] | formatter(column.property)}}</template>
             </bk-table-column>
         </bk-table>
     </div>
 </template>
 
 <script>
-    import { MENU_BUSINESS_HOST_AND_SERVICE } from '@/dictionary/menu-symbol'
+    import {
+        MENU_BUSINESS_HOST_AND_SERVICE,
+        MENU_BUSINESS_DELETE_SERVICE
+    } from '@/dictionary/menu-symbol'
     export default {
         props: {
             instance: {
@@ -104,7 +108,7 @@
                 header: [],
                 list: [],
                 pathToolTips: {
-                    content: this.$t('跳转服务拓扑'),
+                    content: this.$t('去业务拓扑添加'),
                     placement: 'top'
                 }
             }
@@ -120,9 +124,6 @@
                     auth: 'D_SERVICE_INSTANCE'
                 }]
                 return menu
-            },
-            flattenList () {
-                return this.$tools.flattenList(this.properties, this.list.map(data => data.property))
             },
             requestId () {
                 return {
@@ -209,35 +210,31 @@
                     'bk_start_param_regex',
                     'bind_ip',
                     'port',
-                    'work_path'
+                    'protocol',
+                    'work_path',
+                    'user'
                 ]
                 const header = display.map(id => {
                     const property = this.properties.find(property => property.bk_property_id === id) || {}
                     return {
                         id: property.bk_property_id,
-                        name: property.bk_property_name
+                        name: this.$tools.getHeaderPropertyName(property),
+                        property
                     }
                 })
                 this.header = header
             },
             handleDeleteInstance () {
-                this.$bkInfo({
-                    title: this.$t('确认删除实例'),
-                    subTitle: this.$t('即将删除实例', { name: this.instance.name }),
-                    confirmFn: async () => {
-                        try {
-                            await this.$store.dispatch('serviceInstance/deleteServiceInstance', {
-                                config: {
-                                    data: this.$injectMetadata({
-                                        service_instance_ids: [this.instance.id]
-                                    }, { injectBizId: true }),
-                                    requestId: this.requestId.deleteProcess
-                                }
-                            })
-                            this.$success(this.$t('删除成功'))
-                            this.$emit('delete-instance', this.instance.id)
-                        } catch (e) {
-                            console.error(e)
+                this.$router.push({
+                    name: MENU_BUSINESS_DELETE_SERVICE,
+                    params: {
+                        ids: this.instance.id
+                    },
+                    query: {
+                        from: this.$route.path,
+                        query: {
+                            ...this.$route.query,
+                            tab: 'service'
                         }
                     }
                 })

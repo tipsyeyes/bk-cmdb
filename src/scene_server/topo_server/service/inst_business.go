@@ -13,6 +13,7 @@
 package service
 
 import (
+	"encoding/json"
 	"fmt"
 	"reflect"
 	"sort"
@@ -140,10 +141,7 @@ func (s *Service) UpdateBusinessStatus(params types.ContextParams, pathParams, q
 	data = mapstr.New()
 	switch common.DataStatusFlag(pathParams("flag")) {
 	case common.DataStatusDisabled:
-		innerCond := condition.CreateCondition()
-		innerCond.Field(common.BKAsstObjIDField).Eq(obj.Object().ObjectID)
-		innerCond.Field(common.BKAsstInstIDField).Eq(bizID)
-		if err := s.Core.AssociationOperation().CheckBeAssociation(params, obj, innerCond); nil != err {
+		if err := s.Core.AssociationOperation().CheckAssociation(params, obj, obj.Object().ObjectID, bizID); nil != err {
 			return nil, err
 		}
 
@@ -188,9 +186,20 @@ func (s *Service) UpdateBusinessStatus(params types.ContextParams, pathParams, q
 // 1. have any authorized resources in a business.
 // 2. only returned with a few field for this business info.
 func (s *Service) SearchReducedBusinessList(params types.ContextParams, pathParams, queryParams ParamsGetter, data mapstr.MapStr) (interface{}, error) {
+	page := metadata.BasePage{
+		Limit: common.BKNoLimit,
+	}
+	sortParam := queryParams("sort")
+	if len(sortParam) > 0 {
+		page.Sort = sortParam
+	}
+	if errKey, err := page.Validate(true); err != nil {
+		blog.Errorf("[api-biz] SearchReducedBusinessList failed, page parameter invalid, errKey: %s, err: %s, rid: %s", errKey, err.Error(), params.ReqID)
+		return nil, params.Err.Errorf(common.CCErrCommParamsInvalid, errKey)
+	}
 	query := &metadata.QueryBusinessRequest{
 		Fields: []string{common.BKAppIDField, common.BKAppNameField, "business_dept_id", "business_dept_name"},
-		Page:   metadata.BasePage{},
+		Page:   page,
 		Condition: mapstr.MapStr{
 			common.BKDataStatusField: mapstr.MapStr{common.BKDBNE: common.DataStatusDisabled},
 			common.BKDefaultField:    0,
@@ -284,6 +293,10 @@ func handleSpecialBusinessFieldSearchCond(input map[string]interface{}, userFiel
 		objType := reflect.TypeOf(j)
 		switch objType.Kind() {
 		case reflect.String:
+			if _, ok := j.(json.Number); ok {
+				output[i] = j
+				continue
+			}
 			targetStr := j.(string)
 			if util.InStrArr(userFieldArr, i) {
 				exactOr := make([]map[string]interface{}, 0)
@@ -294,12 +307,14 @@ func handleSpecialBusinessFieldSearchCond(input map[string]interface{}, userFiel
 				}
 				output[common.BKDBOR] = exactOr
 			} else {
-				output[i] = targetStr
+				attrVal := gparams.SpecialCharChange(targetStr)
+				output[i] = map[string]interface{}{"$regex": attrVal, "$options": "i"}
 			}
 		default:
 			output[i] = j
 		}
 	}
+
 	return output
 }
 
@@ -312,7 +327,6 @@ func (s *Service) SearchBusiness(params types.ContextParams, pathParams, queryPa
 	}
 
 	attrCond := condition.CreateCondition()
-	attrCond.Field(metadata.AttributeFieldSupplierAccount).Eq(params.SupplierAccount)
 	attrCond.Field(metadata.AttributeFieldObjectID).Eq(common.BKInnerObjIDApp)
 	attrCond.Field(metadata.AttributeFieldPropertyType).Eq(common.FieldTypeUser)
 	attrArr, err := s.Core.AttributeOperation().FindObjectAttribute(params, attrCond)
@@ -336,25 +350,29 @@ func (s *Service) SearchBusiness(params types.ContextParams, pathParams, queryPa
 		// operators like or/in/and is not allowed.
 		if bizcond, ok := biz.(map[string]interface{}); ok {
 			if cond, ok := bizcond["$eq"]; ok {
-				if reflect.TypeOf(cond).ConvertibleTo(reflect.TypeOf(int64(1))) == false {
+				bizID, err := util.GetInt64ByInterface(cond)
+				if err != nil {
 					return nil, params.Err.Errorf(common.CCErrCommParamsInvalid, common.BKAppIDField)
 				}
-				bizIDs = []int64{int64(cond.(float64))}
+				bizIDs = []int64{bizID}
 			}
 			if cond, ok := bizcond["$in"]; ok {
 				if conds, ok := cond.([]interface{}); ok {
 					for _, c := range conds {
-						if reflect.TypeOf(c).ConvertibleTo(reflect.TypeOf(int64(1))) == false {
+						bizID, err := util.GetInt64ByInterface(c)
+						if err != nil {
 							return nil, params.Err.Errorf(common.CCErrCommParamsInvalid, common.BKAppIDField)
 						}
-						bizIDs = append(bizIDs, int64(c.(float64)))
+						bizIDs = append(bizIDs, bizID)
 					}
 				}
 			}
-		} else if reflect.TypeOf(biz).ConvertibleTo(reflect.TypeOf(int64(1))) {
-			bizIDs = []int64{int64(searchCond.Condition[common.BKAppIDField].(float64))}
 		} else {
-			return nil, params.Err.New(common.CCErrCommParamsInvalid, common.BKAppIDField)
+			bizID, err := util.GetInt64ByInterface(searchCond.Condition[common.BKAppIDField])
+			if err != nil {
+				return nil, params.Err.Errorf(common.CCErrCommParamsInvalid, common.BKAppIDField)
+			}
+			bizIDs = []int64{bizID}
 		}
 	}
 
@@ -407,8 +425,8 @@ func (s *Service) SearchBusiness(params types.ContextParams, pathParams, queryPa
 	return result, nil
 }
 
-// search archived business by condition
-func (s *Service) SearchArchivedBusiness(params types.ContextParams, pathParams, queryParams ParamsGetter, data mapstr.MapStr) (interface{}, error) {
+// SearchOwnerResourcePoolBusiness search archived business by condition
+func (s *Service) SearchOwnerResourcePoolBusiness(params types.ContextParams, pathParams, queryParams ParamsGetter, data mapstr.MapStr) (interface{}, error) {
 
 	supplierAccount := pathParams("owner_id")
 	query := metadata.QueryBusinessRequest{
@@ -418,23 +436,13 @@ func (s *Service) SearchArchivedBusiness(params types.ContextParams, pathParams,
 		},
 	}
 
-	if s.AuthManager.Enabled() {
-		user := authmeta.UserInfo{UserName: params.User, SupplierAccount: params.SupplierAccount}
-		appList, err := s.AuthManager.Authorize.GetExactAuthorizedBusinessList(params.Context, user)
-		if err != nil {
-			blog.Errorf("[api-biz] SearchArchivedBusiness failed, GetExactAuthorizedBusinessList failed, user: %s, err: %s, rid: %s", user, err.Error(), params.ReqID)
-			return nil, params.Err.Error(common.CCErrorTopoGetAuthorizedBusinessListFailed)
-		}
-		// sort for prepare to find business with page.
-		sort.Sort(util.Int64Slice(appList))
-		// user can only find business that is already authorized.
-		query.Condition[common.BKAppIDField] = mapstr.MapStr{common.BKDBIN: appList}
-	}
-
 	cnt, instItems, err := s.Core.BusinessOperation().FindBusiness(params, &query)
 	if nil != err {
 		blog.Errorf("[api-business] failed to find the objects(%s), error info is %s, rid: %s", pathParams("obj_id"), err.Error(), params.ReqID)
 		return nil, err
+	}
+	if cnt == 0 {
+		blog.InfoJSON("cond:%s, header:%s, rid:%s", query, params.Header, params.ReqID)
 	}
 	result := mapstr.MapStr{}
 	result.Set("count", cnt)
@@ -551,6 +559,17 @@ func (s *Service) GetInternalModuleWithStatistics(params types.ContextParams, pa
 
 // ListAllBusinessSimplify list all businesses with return only several fields
 func (s *Service) ListAllBusinessSimplify(params types.ContextParams, pathParams, queryParams ParamsGetter, data mapstr.MapStr) (interface{}, error) {
+	page := metadata.BasePage{
+		Limit: common.BKNoLimit,
+	}
+	sortParam := queryParams("sort")
+	if len(sortParam) > 0 {
+		page.Sort = sortParam
+	}
+	if errKey, err := page.Validate(true); err != nil {
+		blog.Errorf("[api-biz] ListAllBusinessSimplify failed, page parameter invalid, errKey: %s, err: %s, rid: %s", errKey, err.Error(), params.ReqID)
+		return nil, params.Err.Errorf(common.CCErrCommParamsInvalid, errKey)
+	}
 
 	fields := []string{
 		common.BKAppIDField,

@@ -781,6 +781,7 @@
     "从模板创建": "Create from template",
     "直接创建": "Create directly",
     "添加进程": "Add Process",
+    "暂未配置进程": "No Process",
     "克隆": "Clone",
     "确认删除实例": "Confirm to delete instance？",
     "即将删除实例": "Will delete instalce {name}",
@@ -1052,7 +1053,7 @@
     "蓝鲸业务拓扑节点提示": "Can not create node under BlueKing business.",
     "请编辑": "Please edit",
     "确认归还资源池": "Transfer to resource pool confirm",
-    "确认归还资源池主机数量": "Comfirm transfer {count} idle host(s) to resource pool?",
+    "确认归还资源池主机数量": "Confirm transfer {count} idle host(s) to resource pool?",
     "已选主机": "Host Count",
     "N台主机": "{count}",
     "变更确认": "Confirm Info",
@@ -1130,7 +1131,14 @@
     "新建业务字段": "New Business Field",
     "所属服务分类": "Service category",
     "关键字": "keywords",
+    "模块相同提示": "Selected modules are same with hosts source modules",
     "从模板新建": "Create from template",
     "直接新建": "Create directly",
-    "新建模块": "Create Module"
+    "新建模块": "Create Module",
+    "已选实例": "Service Selected",
+    "N个": "{ count }",
+    "仅移除服务实例，主机无变更": "Only remove service instances, no host change",
+    "模型中需包含枚举字段才可以作为维度统计": "Models need to include enumerated fields for dimensional statistics",
+    "无": "none",
+    "国际化配置翻译，不可修改": "Translate by internationalization, uneditable"
 }

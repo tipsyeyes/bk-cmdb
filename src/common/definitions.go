@@ -12,7 +12,9 @@
 
 package common
 
-import "math"
+import (
+	"math"
+)
 
 const (
 	// HTTPCreate create method
@@ -33,7 +35,7 @@ const (
 	// BKNoLimit no limit definition
 	BKNoLimit = 999999999
 	// max limit of a page
-	BKMaxPageSize  = 1000
+	BKMaxPageSize = 1000
 
 	// 一次最大操作记录数
 	BKMaxRecordsAtOnce = 2000
@@ -735,10 +737,12 @@ const (
 	FieldTypeStrictCharRegexp string = `^[a-zA-Z]\w*$`
 
 	//FieldTypeSingleCharRegexp the single char regex expression
-	FieldTypeSingleCharRegexp string = `^([\w\p{Han}]|[，。？！～、：＃；％＊——……＆·＄（）‘’“”\[\]『』〔〕｛｝【】￥￡♀‖〖〗《》「」:,;\."'\/\\\+\-\s#@\(\)])+$`
+	//FieldTypeSingleCharRegexp string = `^([\w\p{Han}]|[，。？！={}|?<>~～、：＃；％＊——……＆·＄（）‘’“”\[\]『』〔〕｛｝【】￥￡♀‖〖〗《》「」:,;\."'\/\\\+\-\s#@\(\)])+$`
+	FieldTypeSingleCharRegexp string = `\S`
 
-	//FieldTypeLongCharRegexp the single char regex expression
-	FieldTypeLongCharRegexp string = `^([\w\p{Han}]|[，。？！～、：＃；％＊——……＆·＄（）‘’“”\[\]『』〔〕｛｝【】￥￡♀‖〖〗《》「」:,;\."'\/\\\+\-\s#@\(\)])+$`
+	//FieldTypeLongCharRegexp the long char regex expression\
+	//FieldTypeLongCharRegexp string = `^([\w\p{Han}]|[，。？！={}|?<>~～、：＃；％＊——……＆·＄（）‘’“”\[\]『』〔〕｛｝【】￥￡♀‖〖〗《》「」:,;\."'\/\\\+\-\s#@\(\)])+$`
+	FieldTypeLongCharRegexp string = `\S`
 )
 
 const (
@@ -869,7 +873,8 @@ const (
 	//BKHTTPOwnerID = "HTTP_BLUEKING_OWNERID"
 	BKHTTPCookieLanugageKey = "blueking_language"
 	//BKSessionLanugageKey = "language"
-	BKHTTPSupplierID = "bk_supplier_id"
+	BKHTTPSupplierID     = "bk_supplier_id"
+	BKHTTPRequestAppCode = "Bk-App-Code"
 
 	// BKHTTPCCRequestID cc request id cc_request_id
 	BKHTTPCCRequestID = "Cc_Request_Id"
@@ -1081,6 +1086,8 @@ const (
 	AttributeIDMaxLength          = 20
 	AttributeNameMaxLength        = 20
 	AttributeUnitMaxLength        = 20
+	AttributeOptionValueMaxLength = 128
+	AttributeOptionArrayMaxLength = 200
 )
 
 const (

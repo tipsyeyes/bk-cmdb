@@ -110,8 +110,8 @@ func (o *OperationServer) newOperationService(web *restful.WebService) {
 	utility.AddHandler(rest.Action{Verb: http.MethodPost, Path: "/create/operation/chart", Handler: o.CreateOperationChart})
 	utility.AddHandler(rest.Action{Verb: http.MethodDelete, Path: "/delete/operation/chart/{id}", Handler: o.DeleteOperationChart})
 	utility.AddHandler(rest.Action{Verb: http.MethodPost, Path: "/update/operation/chart", Handler: o.UpdateOperationChart})
-	utility.AddHandler(rest.Action{Verb: http.MethodGet, Path: "/search/operation/chart", Handler: o.SearchOperationChart})
-	utility.AddHandler(rest.Action{Verb: http.MethodPost, Path: "/search/operation/chart/data", Handler: o.SearchChartData})
+	utility.AddHandler(rest.Action{Verb: http.MethodGet, Path: "/findmany/operation/chart", Handler: o.SearchOperationChart})
+	utility.AddHandler(rest.Action{Verb: http.MethodPost, Path: "/find/operation/chart/data", Handler: o.SearchChartData})
 	utility.AddHandler(rest.Action{Verb: http.MethodPost, Path: "/update/operation/chart/position", Handler: o.UpdateChartPosition})
 
 	utility.AddToRestfulWebService(web)
@@ -164,23 +164,23 @@ func (o *OperationServer) Healthz(req *restful.Request, resp *restful.Response) 
 func (o *OperationServer) OnOperationConfigUpdate(previous, current cc.ProcessConfig) {
 	var err error
 
-	cfg := mongo.ParseConfigFromKV("mongodb", current.ConfigMap)
-	o.Config = &options.Config{
-		Mongo: cfg,
-	}
+	o.Config = &options.Config{}
 	o.Config.ConfigMap = current.ConfigMap
-
-	o.Config.Auth, err = authcenter.ParseConfigFromKV("auth", current.ConfigMap)
-	if err != nil {
-		blog.Warnf("parse auth center config failed: %v", err)
-		return
-	}
-
 	o.Config.Timer, err = o.ParseTimerConfigFromKV("timer", current.ConfigMap)
 	if err != nil {
 		blog.Errorf("parse timer config failed, err: %v", err)
 		return
 	}
+
+	cfg := mongo.ParseConfigFromKV("mongodb", current.ConfigMap)
+	o.Config.Mongo = cfg
+
+	o.Config.Auth, err = authcenter.ParseConfigFromKV("auth", current.ConfigMap)
+	if err != nil {
+		blog.Errorf("parse auth center config failed: %v", err)
+		return
+	}
+
 }
 
 func (o *OperationServer) ParseTimerConfigFromKV(prefix string, configMap map[string]string) (string, error) {
@@ -190,13 +190,13 @@ func (o *OperationServer) ParseTimerConfigFromKV(prefix string, configMap map[st
 	specStr, ok := configMap[prefix+".spec"]
 	if !ok {
 		blog.Errorf("parse timer config failed, missing 'spec' configuration for timer, set timer-spec default value: 00:30")
-		return defaultSpec, goErr.New("missing 'spec' configuration for timer")
+		return defaultSpec, nil
 	}
 
 	spec, err := parseTimerConfig(specStr)
 	if err != nil || spec == "" {
 		blog.Errorf("parse timer config failed, set timer-spec default value: 00:30, err: %v", err)
-		return defaultSpec, err
+		return defaultSpec, nil
 	}
 
 	return spec, nil

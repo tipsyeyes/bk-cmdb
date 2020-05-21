@@ -276,6 +276,12 @@ type ListProcessInstancesOption struct {
 	ServiceInstanceID int64     `json:"service_instance_id"`
 }
 
+type ListProcessInstancesWithHostOption struct {
+	BizID   int64    `json:"bk_biz_id"`
+	HostIDs []int64  `json:"bk_host_ids"`
+	Page    BasePage `json:"page"`
+}
+
 type RemoveTemplateBindingOnModuleOption struct {
 	Metadata *Metadata `json:"metadata"`
 	BizID    int64     `json:"bk_biz_id"`
@@ -552,8 +558,11 @@ func (pt *ProcessTemplate) NewProcess(bizID int64, supplierAccount string) *Proc
 
 	processInstance.BindIP = nil
 	if IsAsDefaultValue(property.BindIP.AsDefaultValue) {
-		processInstance.BindIP = new(string)
-		*processInstance.BindIP = property.BindIP.Value.IP()
+		bindIP := property.BindIP.Value.IP()
+		if len(bindIP) > 0 {
+			processInstance.BindIP = new(string)
+			*processInstance.BindIP = bindIP
+		}
 	}
 
 	processInstance.Priority = nil
@@ -845,7 +854,7 @@ func (pt *ProcessTemplate) ExtractChangeInfo(i *Process) (mapstr.MapStr, bool) {
 			process["auto_time_gap"] = *t.AutoTimeGapSeconds.Value
 			changed = true
 		} else if t.AutoTimeGapSeconds.Value == nil && i.AutoTimeGap != nil {
-			process["auto_time_gap"] = *t.AutoTimeGapSeconds.Value
+			process["auto_time_gap"] = nil
 			changed = true
 		} else if t.AutoTimeGapSeconds.Value != nil && i.AutoTimeGap != nil && *t.AutoTimeGapSeconds.Value != *i.AutoTimeGap {
 			process["auto_time_gap"] = *t.AutoTimeGapSeconds.Value
@@ -1406,7 +1415,6 @@ type ServiceInstance struct {
 	// it can be 0 when the service is not created with a service template.
 	ServiceTemplateID int64  `field:"service_template_id" json:"service_template_id" bson:"service_template_id"`
 	HostID            int64  `field:"bk_host_id" json:"bk_host_id" bson:"bk_host_id"`
-	InnerIP           string `field:"bk_host_innerip" json:"bk_host_innerip" bson:"bk_host_innerip"`
 
 	// the module that this service belongs to.
 	ModuleID int64 `field:"bk_module_id" json:"bk_module_id" bson:"bk_module_id"`
@@ -1460,6 +1468,19 @@ type ProcessInstanceRelation struct {
 
 func (pir *ProcessInstanceRelation) Validate() (field string, err error) {
 	return "", nil
+}
+
+type HostProcessRelation struct {
+	HostID    int64 `json:"bk_host_id" bson:"bk_host_id"`
+	ProcessID int64 `json:"bk_process_id" bson:"bk_process_id"`
+}
+
+type HostProcessInstance struct {
+	HostID    int64        `json:"bk_host_id"`
+	ProcessID int64        `json:"bk_process_id"`
+	BindIP    string       `json:"bind_ip"`
+	Port      string       `json:"port"`
+	Protocol  ProtocolType `json:"protocol"`
 }
 
 type ProcessInstance struct {

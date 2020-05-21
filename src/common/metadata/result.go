@@ -109,6 +109,12 @@ type UpdatedCount struct {
 	Count uint64 `json:"updated_count"`
 }
 
+// UpdateAttributeIndex created bk_property_index info struct
+type UpdateAttributeIndex struct {
+	Id    int64 `json:"id"`
+	Index int64 `json:"index"`
+}
+
 // DeletedCount created count struct
 type DeletedCount struct {
 	Count uint64 `json:"deleted_count"`
@@ -200,6 +206,12 @@ type QueryModelAttributeGroupDataResult struct {
 type QueryModelClassificationDataResult struct {
 	Count int64            `json:"count"`
 	Info  []Classification `json:"info"`
+}
+
+// SearchAssociationKindResult search association kind result definition
+type SearchAssociationKindResult struct {
+	Count uint64            `json:"count"`
+	Info  []AssociationKind `json:"info"`
 }
 
 // ReadModelAttrResult  read model attribute api http response return result struct

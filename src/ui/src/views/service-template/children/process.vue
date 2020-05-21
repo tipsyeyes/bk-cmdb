@@ -4,13 +4,13 @@
             v-bkloading="{ isLoading: loading }"
             :data="showList"
             :max-height="$APP.height - 300">
-            <bk-table-column v-for="column in table.header"
+            <bk-table-column v-for="column in header"
                 :key="column.id"
                 :prop="column.id"
                 :label="column.name">
                 <template slot-scope="{ row }">
                     <span v-if="column.id === 'bind_ip'">{{row[column.id] | ipText}}</span>
-                    <span v-else>{{row[column.id] || '--'}}</span>
+                    <span v-else>{{row[column.id] | formatter(column.property)}}</span>
                 </template>
             </bk-table-column>
             <bk-table-column :label="$t('操作')" prop="operation" v-if="$parent.isFormMode">
@@ -21,7 +21,7 @@
                             theme="primary"
                             :disabled="disabled"
                             :text="true"
-                            @click.stop="handleEdite(row['originData'])">
+                            @click.stop="handleEdit(row._original_)">
                             {{$t('编辑')}}
                         </bk-button>
                     </cmdb-auth>
@@ -30,7 +30,7 @@
                             theme="primary"
                             :disabled="disabled"
                             :text="true"
-                            @click.stop="handleDelete(row['originData'])">
+                            @click.stop="handleDelete(row._original_)">
                             {{$t('删除')}}
                         </bk-button>
                     </cmdb-auth>
@@ -74,41 +74,32 @@
             }
         },
         data () {
-            return {
-                table: {
-                    header: [
-                        {
-                            id: 'bk_func_name',
-                            name: this.$t('进程名称'),
-                            sortable: false
-                        }, {
-                            id: 'bk_process_name',
-                            name: this.$t('进程别名'),
-                            sortable: false
-                        }, {
-                            id: 'bind_ip',
-                            name: this.$t('监听IP'),
-                            sortable: false
-                        }, {
-                            id: 'port',
-                            name: this.$t('端口'),
-                            sortable: false
-                        }, {
-                            id: 'work_path',
-                            name: this.$t('启动路径'),
-                            sortable: false
-                        }, {
-                            id: 'user',
-                            name: this.$t('启动用户'),
-                            sortable: false
-                        }
-                    ]
-                }
-            }
+            return {}
         },
         computed: {
+            header () {
+                const display = [
+                    'bk_func_name',
+                    'bk_process_name',
+                    'bk_start_param_regex',
+                    'bind_ip',
+                    'port',
+                    'protocol',
+                    'work_path',
+                    'user'
+                ]
+                const header = display.map(id => {
+                    const property = this.properties.find(property => property.bk_property_id === id) || {}
+                    return {
+                        id: property.bk_property_id,
+                        name: this.$tools.getHeaderPropertyName(property),
+                        property
+                    }
+                })
+                return header
+            },
             showList () {
-                let list = this.list.map(template => {
+                const list = this.list.map(template => {
                     const result = {}
                     Object.keys(template).map(key => {
                         const type = typeof template[key]
@@ -118,15 +109,15 @@
                             result[key] = template[key]
                         }
                     })
-                    result['originData'] = template
+                    result._original_ = template
                     return result
                 })
-                list = this.$tools.flattenList(this.properties, list).sort((prev, next) => prev.process_id - next.process_id)
+                list.sort((prev, next) => prev.process_id - next.process_id)
                 return list
             }
         },
         methods: {
-            handleEdite (process) {
+            handleEdit (process) {
                 this.$emit('on-edit', process)
             },
             handleDelete (process) {

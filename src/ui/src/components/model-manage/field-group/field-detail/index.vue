@@ -28,11 +28,12 @@
                         name="fieldName"
                         :placeholder="$t('请输入字段名称')"
                         v-model.trim="fieldInfo['bk_property_name']"
-                        :disabled="isReadOnly"
+                        :disabled="isReadOnly || isSystemCreate"
                         v-validate="'required|enumName'">
                     </bk-input>
                     <p class="form-error">{{errors.first('fieldName')}}</p>
                 </div>
+                <i class="icon-cc-exclamation-tips" v-if="isSystemCreate" v-bk-tooltips="$t('国际化配置翻译，不可修改')"></i>
             </label>
             <div class="form-label">
                 <span class="label-text">
@@ -58,6 +59,7 @@
                     :type="fieldInfo['bk_property_type']"
                     :is-read-only="isReadOnly"
                     :is-main-line-model="isMainLineModel"
+                    :ispre="isEditField && field.ispre"
                     :editable.sync="fieldInfo['editable']"
                     :isrequired.sync="fieldInfo['isrequired']"
                 ></the-config>
@@ -85,16 +87,16 @@
                 <span class="label-text">{{$t('用户提示')}}</span>
                 <textarea style="width: 94%;" v-model.trim="fieldInfo['placeholder']" :disabled="isReadOnly"></textarea>
             </div>
-        </div>
-        <div class="btn-group" :class="{ 'sticky-layout': scrollbar }">
-            <bk-button theme="primary"
-                :loading="$loading(['updateObjectAttribute', 'createObjectAttribute'])"
-                @click="saveField">
-                {{isEditField ? $t('保存') : $t('提交')}}
-            </bk-button>
-            <bk-button theme="default" @click="cancel">
-                {{$t('取消')}}
-            </bk-button>
+            <div class="btn-group" :class="{ 'sticky-layout': scrollbar }">
+                <bk-button theme="primary"
+                    :loading="$loading(['updateObjectAttribute', 'createObjectAttribute'])"
+                    @click="saveField">
+                    {{isEditField ? $t('保存') : $t('提交')}}
+                </bk-button>
+                <bk-button theme="default" @click="cancel">
+                    {{$t('取消')}}
+                </bk-button>
+            </div>
         </div>
     </div>
 </template>
@@ -132,13 +134,13 @@
                 type: Boolean,
                 default: false
             },
-            propertyIndex: {
-                type: Number,
-                default: 0
-            },
             isMainLineModel: {
                 type: Boolean,
                 default: false
+            },
+            propertyIndex: {
+                type: Number,
+                default: 0
             }
         },
         data () {
@@ -219,6 +221,12 @@
                     }
                 }
                 return changedValues
+            },
+            isSystemCreate () {
+                if (this.isEditField) {
+                    return this.field.creator === 'cc_system'
+                }
+                return false
             }
         },
         watch: {
@@ -276,15 +284,23 @@
                 }
                 return true
             },
+            isNullOrUndefinedOrEmpty (value) {
+                return [null, '', undefined].includes(value)
+            },
             async saveField () {
                 if (!await this.validateValue()) {
                     return
                 }
                 let fieldId = null
+                if (this.fieldInfo.bk_property_type === 'int') {
+                    this.fieldInfo.option.min = this.isNullOrUndefinedOrEmpty(this.fieldInfo.option.min) ? '' : Number(this.fieldInfo.option.min)
+                    this.fieldInfo.option.max = this.isNullOrUndefinedOrEmpty(this.fieldInfo.option.max) ? '' : Number(this.fieldInfo.option.max)
+                }
                 if (this.isEditField) {
+                    const params = this.field.ispre ? this.getPreFieldUpdateParams() : this.fieldInfo
                     await this.updateObjectAttribute({
                         id: this.field.id,
-                        params: this.$injectMetadata(this.fieldInfo, {
+                        params: this.$injectMetadata(params, {
                             clone: true, inject: this.isInjectable
                         }),
                         config: {
@@ -299,7 +315,6 @@
                     const otherParams = {
                         creator: this.userName,
                         bk_property_group: this.group.bk_group_id || groupId,
-                        bk_property_index: this.propertyIndex || 0,
                         bk_obj_id: this.group.bk_obj_id,
                         bk_supplier_account: this.supplierAccount
                     }
@@ -319,6 +334,14 @@
                 }
                 this.$emit('save', fieldId)
             },
+            getPreFieldUpdateParams () {
+                const allowKey = ['option', 'unit', 'placeholder']
+                const params = {}
+                allowKey.forEach(key => {
+                    params[key] = this.fieldInfo[key]
+                })
+                return params
+            },
             cancel () {
                 this.$emit('cancel')
             }
@@ -331,52 +354,52 @@
         height: 100%;
         padding: 0;
         overflow: hidden;
-    }
-    .slider-main {
-        max-height: calc(100% - 52px);
-        @include scrollbar-y;
-        padding: 20px 20px 0;
-    }
-    .slider-content {
-        /deep/ textarea[disabled] {
-            background-color: #fafbfd!important;
-            cursor: not-allowed;
+        .slider-main {
+            max-height: calc(100% - 52px);
+            @include scrollbar-y;
+            padding: 20px 20px 0;
         }
-    }
-    .icon-info-circle {
-        font-size: 18px;
-        color: $cmdbBorderColor;
-        padding-left: 5px;
-    }
-    .field-detail {
-        width: 94%;
-        margin-bottom: 20px;
-        padding: 20px;
-        background: #f3f8ff;
-        .form-label:last-child {
-            margin: 0;
+        .slider-content {
+            /deep/ textarea[disabled] {
+                background-color: #fafbfd!important;
+                cursor: not-allowed;
+            }
         }
-        .label-text {
-            vertical-align: top;
+        .icon-info-circle {
+            font-size: 18px;
+            color: $cmdbBorderColor;
+            padding-left: 5px;
         }
-        .cmdb-form-checkbox {
-            width: 90px;
-            line-height: 22px;
-            vertical-align: middle;
+        .field-detail {
+            width: 94%;
+            margin-bottom: 20px;
+            padding: 20px;
+            background: #f3f8ff;
+            .form-label:last-child {
+                margin: 0;
+            }
+            .label-text {
+                vertical-align: top;
+            }
+            .cmdb-form-checkbox {
+                width: 90px;
+                line-height: 22px;
+                vertical-align: middle;
+            }
         }
-    }
-    .cmdb-form-item {
-        width: 94% !important;
-    }
-    .icon-cc-exclamation-tips {
-        font-size: 18px;
-        color: #979ba5;
-        margin-left: 10px;
-    }
-    .btn-group {
-        padding: 10px 20px;
-        &.sticky-layout {
-            border-top: 1px solid #dcdee5;
+        .cmdb-form-item {
+            width: 94% !important;
+        }
+        .icon-cc-exclamation-tips {
+            font-size: 18px;
+            color: #979ba5;
+            margin-left: 10px;
+        }
+        .btn-group {
+            padding: 10px 20px;
+            &.sticky-layout {
+                border-top: 1px solid #dcdee5;
+            }
         }
     }
 </style>

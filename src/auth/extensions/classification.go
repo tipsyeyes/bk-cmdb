@@ -44,24 +44,31 @@ func (am *AuthManager) CollectClassificationByBusinessIDs(ctx context.Context, h
 	if businessID == 0 {
 		cond.Merge(metadata.BizLabelNotExist)
 	}
-	query := &metadata.QueryCondition{
-		Condition: cond,
-		Limit:     metadata.SearchLimit{Limit: common.BKNoLimit},
-	}
-	result, err := am.clientSet.CoreService().Instance().ReadInstance(ctx, header, common.BKTableNameObjClassifiction, query)
-	if err != nil {
-		blog.Errorf("get module:%+v by businessID:%d failed, err: %+v, rid: %s", businessID, err, rid)
-		return nil, fmt.Errorf("get module by businessID:%d failed, err: %+v", businessID, err)
-	}
-
 	classifications := make([]metadata.Classification, 0)
-	for _, cls := range result.Data.Info {
-		classification := metadata.Classification{}
-		_, err = classification.Parse(cls)
-		if err != nil {
-			return nil, fmt.Errorf("get classication by object failed, err: %+v", err)
+	count := -1
+	for offset := 0; count == -1 || offset < count; offset += common.BKMaxRecordsAtOnce {
+		query := &metadata.QueryCondition{
+			Condition: cond,
+			Limit: metadata.SearchLimit{
+				Offset: int64(offset),
+				Limit:  common.BKMaxRecordsAtOnce,
+			},
 		}
-		classifications = append(classifications, classification)
+		result, err := am.clientSet.CoreService().Instance().ReadInstance(ctx, header, common.BKTableNameObjClassifiction, query)
+		if err != nil {
+			blog.Errorf("get module:%+v by businessID:%d failed, err: %+v, rid: %s", businessID, err, rid)
+			return nil, fmt.Errorf("get module by businessID:%d failed, err: %+v", businessID, err)
+		}
+
+		for _, cls := range result.Data.Info {
+			classification := metadata.Classification{}
+			_, err = classification.Parse(cls)
+			if err != nil {
+				return nil, fmt.Errorf("get classication by object failed, err: %+v", err)
+			}
+			classifications = append(classifications, classification)
+		}
+		count = result.Data.Count
 	}
 	return classifications, nil
 }
@@ -185,7 +192,7 @@ func (am *AuthManager) MakeResourcesByClassifications(header http.Header, action
 // }
 
 func (am *AuthManager) UpdateRegisteredClassification(ctx context.Context, header http.Header, classifications ...metadata.Classification) error {
-	if am.Enabled() == false {
+	if !am.Enabled() {
 		return nil
 	}
 
@@ -212,7 +219,7 @@ func (am *AuthManager) UpdateRegisteredClassification(ctx context.Context, heade
 }
 
 func (am *AuthManager) UpdateRegisteredClassificationByID(ctx context.Context, header http.Header, classificationIDs ...string) error {
-	if am.Enabled() == false {
+	if !am.Enabled() {
 		return nil
 	}
 
@@ -228,7 +235,7 @@ func (am *AuthManager) UpdateRegisteredClassificationByID(ctx context.Context, h
 }
 
 func (am *AuthManager) UpdateRegisteredClassificationByRawID(ctx context.Context, header http.Header, ids ...int64) error {
-	if am.Enabled() == false {
+	if !am.Enabled() {
 		return nil
 	}
 
@@ -244,7 +251,7 @@ func (am *AuthManager) UpdateRegisteredClassificationByRawID(ctx context.Context
 }
 
 func (am *AuthManager) RegisterClassification(ctx context.Context, header http.Header, classifications ...metadata.Classification) error {
-	if am.Enabled() == false {
+	if !am.Enabled() {
 		return nil
 	}
 
@@ -265,7 +272,7 @@ func (am *AuthManager) RegisterClassification(ctx context.Context, header http.H
 }
 
 func (am *AuthManager) DeregisterClassification(ctx context.Context, header http.Header, classifications ...metadata.Classification) error {
-	if am.Enabled() == false {
+	if !am.Enabled() {
 		return nil
 	}
 

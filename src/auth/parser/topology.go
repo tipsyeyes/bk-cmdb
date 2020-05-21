@@ -25,6 +25,7 @@ import (
 	"configcenter/src/common/blog"
 	"configcenter/src/common/mapstr"
 	"configcenter/src/common/metadata"
+
 	"github.com/tidwall/gjson"
 )
 
@@ -118,7 +119,7 @@ func (ps *parseStream) business() *parseStream {
 			{
 				Basic: meta.Basic{
 					Type:   meta.Business,
-					Action: meta.SkipAction,
+					Action: meta.Create,
 				},
 			},
 		}
@@ -225,7 +226,7 @@ func (ps *parseStream) business() *parseStream {
 			{
 				Basic: meta.Basic{
 					Type:   meta.Business,
-					Action: meta.FindMany,
+					Action: meta.SkipAction,
 				},
 				// we don't know if one or more business is to find, so we assume it's a find many
 				// business operation.
@@ -1784,6 +1785,13 @@ func (ps *parseStream) objectAttribute() *parseStream {
 			return ps
 		}
 
+		objectID := attribute[0].ObjectID
+		model, err := ps.getOneModel(mapstr.MapStr{common.BKObjIDField: objectID})
+		if err != nil {
+			ps.err = err
+			return ps
+		}
+
 		ps.Attribute.Resources = []meta.ResourceAttribute{
 			{
 				BusinessID: bizID,
@@ -1792,6 +1800,7 @@ func (ps *parseStream) objectAttribute() *parseStream {
 					Action:     meta.Delete,
 					InstanceID: attrID,
 				},
+				Layers: []meta.Item{{Type: meta.Model, InstanceID: model.ID}},
 			},
 		}
 		return ps
@@ -1825,6 +1834,13 @@ func (ps *parseStream) objectAttribute() *parseStream {
 			return ps
 		}
 
+		objectID := attribute[0].ObjectID
+		model, err := ps.getOneModel(mapstr.MapStr{common.BKObjIDField: objectID})
+		if err != nil {
+			ps.err = err
+			return ps
+		}
+
 		ps.Attribute.Resources = []meta.ResourceAttribute{
 			{
 				BusinessID: bizID,
@@ -1833,6 +1849,7 @@ func (ps *parseStream) objectAttribute() *parseStream {
 					Action:     meta.Update,
 					InstanceID: attrID,
 				},
+				Layers: []meta.Item{{Type: meta.Model, InstanceID: model.ID}},
 			},
 		}
 		return ps

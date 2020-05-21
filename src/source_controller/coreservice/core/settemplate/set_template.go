@@ -109,6 +109,7 @@ func (p *setTemplateOperation) CreateSetTemplate(ctx core.ContextParams, bizID i
 		common.BKFieldName:  setTemplate.Name,
 		common.BKAppIDField: setTemplate.BizID,
 	}
+	nameFilter = util.SetModOwner(nameFilter, ctx.SupplierAccount)
 	sameNameCount, err := p.dbProxy.Table(common.BKTableNameSetTemplate).Find(nameFilter).Count(ctx.Context)
 	if err != nil {
 		blog.Errorf("create set template failed, filter same name records failed, filter: %+v, err: %+v, rid: %s", nameFilter, err, ctx.ReqID)
@@ -161,9 +162,9 @@ func (p *setTemplateOperation) UpdateSetTemplate(ctx core.ContextParams, setTemp
 	}
 
 	filter := map[string]interface{}{
-		common.BKFieldID:      setTemplateID,
-		common.BKOwnerIDField: ctx.SupplierAccount,
+		common.BKFieldID: setTemplateID,
 	}
+	filter = util.SetModOwner(filter, ctx.SupplierAccount)
 	if err := p.dbProxy.Table(common.BKTableNameSetTemplate).Find(filter).One(ctx.Context, &setTemplate); err != nil {
 		if p.dbProxy.IsNotFoundError(err) {
 			blog.Errorf("UpdateSetTemplate failed, set template not found, id: %d, rid: %s", setTemplateID, ctx.ReqID)
@@ -217,7 +218,7 @@ func (p *setTemplateOperation) UpdateSetTemplate(ctx core.ContextParams, setTemp
 		}
 		addRelations := make([]metadata.SetServiceTemplateRelation, 0)
 		for _, serviceTemplateID := range serviceTemplateIDs {
-			if _, exist := existIDMap[serviceTemplateID]; exist == false {
+			if _, exist := existIDMap[serviceTemplateID]; !exist {
 				addRelations = append(addRelations, metadata.SetServiceTemplateRelation{
 					BizID:             setTemplate.BizID,
 					SetTemplateID:     setTemplate.ID,
@@ -240,10 +241,11 @@ func (p *setTemplateOperation) UpdateSetTemplate(ctx core.ContextParams, setTemp
 		}
 		removeIDs := make([]int64, 0)
 		for _, item := range relations {
-			if _, exist := targetIDMap[item.ServiceTemplateID]; exist == false {
+			if _, exist := targetIDMap[item.ServiceTemplateID]; !exist {
 				removeIDs = append(removeIDs, item.ServiceTemplateID)
 			}
 		}
+		// TODO add reference check
 		if len(removeIDs) > 0 {
 			removeFilter := map[string]interface{}{
 				common.BKSetTemplateIDField: setTemplate.ID,
@@ -319,10 +321,10 @@ func (p *setTemplateOperation) DeleteSetTemplate(ctx core.ContextParams, bizID i
 func (p *setTemplateOperation) GetSetTemplate(ctx core.ContextParams, bizID int64, setTemplateID int64) (metadata.SetTemplate, errors.CCErrorCoder) {
 	setTemplate := metadata.SetTemplate{}
 	filter := map[string]interface{}{
-		common.BKFieldID:         setTemplateID,
-		common.BKAppIDField:      bizID,
-		common.BkSupplierAccount: ctx.SupplierAccount,
+		common.BKFieldID:    setTemplateID,
+		common.BKAppIDField: bizID,
 	}
+	filter = util.SetQueryOwner(filter, ctx.SupplierAccount)
 	if err := p.dbProxy.Table(common.BKTableNameSetTemplate).Find(filter).One(ctx.Context, &setTemplate); err != nil {
 		if p.dbProxy.IsNotFoundError(err) {
 			blog.Errorf("GetSetTemplate failed, db select failed, not found, filter: %+v, err: %+v, rid: %s", filter, err, ctx.ReqID)
@@ -341,9 +343,9 @@ func (p *setTemplateOperation) ListSetTemplate(ctx core.ContextParams, bizID int
 	}
 
 	filter := map[string]interface{}{
-		common.BKAppIDField:      bizID,
-		common.BkSupplierAccount: ctx.SupplierAccount,
+		common.BKAppIDField: bizID,
 	}
+	filter = util.SetQueryOwner(filter, ctx.SupplierAccount)
 	if option.SetTemplateIDs != nil {
 		filter[common.BKFieldID] = map[string]interface{}{
 			common.BKDBIN: option.SetTemplateIDs,
@@ -360,7 +362,7 @@ func (p *setTemplateOperation) ListSetTemplate(ctx core.ContextParams, bizID int
 	if len(option.Page.Sort) > 0 {
 		query = query.Sort(option.Page.Sort)
 	}
-	if option.Page.Limit > 0 {
+	if option.Page.Limit > 0 && option.Page.Limit != common.BKNoLimit {
 		query = query.Limit(uint64(option.Page.Limit))
 	}
 	if option.Page.Start > 0 {
@@ -381,8 +383,8 @@ func (p *setTemplateOperation) ListSetServiceTemplateRelations(ctx core.ContextP
 	filter := map[string]interface{}{
 		common.BKAppIDField:         bizID,
 		common.BKSetTemplateIDField: setTemplateID,
-		common.BkSupplierAccount:    ctx.SupplierAccount,
 	}
+	filter = util.SetQueryOwner(filter, ctx.SupplierAccount)
 
 	setServiceTemplateRelations := make([]metadata.SetServiceTemplateRelation, 0)
 	if err := p.dbProxy.Table(common.BKTableNameSetServiceTemplateRelation).Find(filter).All(ctx.Context, &setServiceTemplateRelations); err != nil {

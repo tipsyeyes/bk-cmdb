@@ -35,14 +35,14 @@ func (s *coreService) SearchInstCount(params core.ContextParams, pathParams, que
 	return count, nil
 }
 
-func (s *coreService) SearchChartDataCommon(params core.ContextParams, pathParams, queryParams ParamsGetter, data mapstr.MapStr) (interface{}, error) {
+func (s *coreService) SearchChartData(params core.ContextParams, pathParams, queryParams ParamsGetter, data mapstr.MapStr) (interface{}, error) {
 	condition := metadata.ChartConfig{}
 	if err := data.MarshalJSONInto(&condition); err != nil {
 		blog.Errorf("search chart data fail, marshal chart config fail, err: %v, rid: %v", err, params.ReqID)
 		return nil, err
 	}
 
-	result, err := s.core.StatisticOperation().SearchChartDataCommon(params, condition)
+	result, err := s.core.StatisticOperation().SearchChartData(params, condition)
 	if err != nil {
 		return nil, err
 	}
@@ -221,6 +221,7 @@ func (s *coreService) TimerFreshData(params core.ContextParams, pathParams, quer
 	err = s.core.StatisticOperation().TimerFreshData(params)
 	if err != nil {
 		blog.Errorf("TimerFreshData fail, err: %v, rid: %v", err, params.ReqID)
+		return false, err
 	}
 
 	return true, nil

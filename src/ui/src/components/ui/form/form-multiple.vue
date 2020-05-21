@@ -20,7 +20,7 @@
                                     </bk-checkbox>
                                     <label class="property-name-text"
                                         :for="`property-name-${property['bk_property_id']}`"
-                                        :class="{ required: property['isrequired'] && editable[property['bk_property_id']] }">
+                                        :class="{ required: property['isrequired'] && editable[property.bk_property_id] }">
                                         {{property['bk_property_name']}}
                                     </label>
                                     <i class="property-name-tooltips icon icon-cc-tips"
@@ -36,6 +36,7 @@
                                         :disabled="!editable[property['bk_property_id']]"
                                         :options="property.option || []"
                                         :data-vv-name="property['bk_property_id']"
+                                        :auto-select="false"
                                         :placeholder="getPlaceholder(property)"
                                         v-validate="getValidateRules(property)"
                                         v-model.trim="values[property['bk_property_id']]">
@@ -163,7 +164,7 @@
                 this.scrollbar = $layout.scrollHeight !== $layout.offsetHeight
             },
             initValues () {
-                this.values = this.$tools.getInstFormValues(this.properties, {})
+                this.values = this.$tools.getInstFormValues(this.properties, {}, false)
                 this.refrenceValues = this.$tools.clone(this.values)
             },
             initEditableStatus () {
@@ -190,7 +191,7 @@
                 return this.$t(placeholderTxt, { name: property.bk_property_name })
             },
             getValidateRules (property) {
-                if (!this.editable[property['bk_property_id']]) {
+                if (!this.editable[property.bk_property_id]) {
                     return {}
                 }
                 return this.$tools.getValidateRules(property)
@@ -202,7 +203,7 @@
                         multipleValues[propertyId] = this.values[propertyId]
                     }
                 }
-                return multipleValues
+                return this.$tools.formatValues(multipleValues, this.properties)
             },
             handleSave () {
                 this.$validator.validateAll().then(result => {
