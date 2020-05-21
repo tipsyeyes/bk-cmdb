@@ -74,7 +74,7 @@ func (o *operation) WithObjID(objID string) *operation {
 }
 
 func (o *operation) WithInstIDx(id map[string]interface{}) *operation {
-	o.op[common.BKObjIDField] = id
+	o.op[common.BKInstIDField] = id
 	return o
 }
 

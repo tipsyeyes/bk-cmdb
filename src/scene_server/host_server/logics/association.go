@@ -24,6 +24,8 @@ func (lgc *Logics) SearchInstAssociation(ctx context.Context, input *metadata.Qu
 	return rsp.Data.Info, nil
 }
 
+// add by elias 05-21
+// 获取指定主机所有存在的实例关联关系
 func (lgc *Logics) GetAllHostAssociation(ctx context.Context, iHostIDArr []int64) ([]metadata.InstAsst, error) {
 	cond := mapstr.MapStr{}
 	multiOrOper := make([]map[string]interface{}, 0)

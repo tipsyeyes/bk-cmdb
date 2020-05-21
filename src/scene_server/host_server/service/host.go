@@ -14,6 +14,7 @@ package service
 
 import (
 	"encoding/json"
+	"fmt"
 	"net/http"
 	"strconv"
 	"strings"
@@ -81,6 +82,18 @@ func (s *Service) DeleteHostBatchFromResourcePool(req *restful.Request, resp *re
 			return
 		}
 		resp.WriteEntity(perm)
+		return
+	}
+
+	// add by elias 05/21
+	// 判断是否存在关联关系，提示用户
+	hostInstAssts, err := srvData.lgc.GetAllHostAssociation(srvData.ctx, iHostIDArr)
+	if err != nil {
+		_ = resp.WriteError(http.StatusInternalServerError, &meta.RespError{Msg: err})
+		return
+	} else if len(hostInstAssts) > 0 {
+		// exist inst asst
+		_ = resp.WriteError(http.StatusInternalServerError, &meta.RespError{Msg: srvData.ccErr.Errorf(common.CCErrDeleteHostValidAsstFail, fmt.Sprintf("%s-%s", hostInstAssts[0].ObjectID, hostInstAssts[0].AsstObjectID))})
 		return
 	}
 

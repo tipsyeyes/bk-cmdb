@@ -585,7 +585,7 @@ const (
 	CCErrAuditSaveLogFailed      = 1109001
 	CCErrAuditTakeSnapshotFailed = 1109001
 
-	// host server
+	// host server 1110XXX
 	CCErrHostGetFail              = 1110001
 	CCErrHostUpdateFail           = 1110002
 	CCErrHostUpdateFieldFail      = 1110003
@@ -658,6 +658,7 @@ const (
 	CCErrHostSetNotBelongBusinessErr                          = 1110060
 	CCErrHostModuleNotBelongBusinessErr                       = 1110061
 	CCErrHostModuleNotBelongSetErr                            = 1110062
+	CCErrDeleteHostValidAsstFail                           	  = 1110063
 
 	// web 1111XXX
 	CCErrWebFileNoFound                 = 1111001
