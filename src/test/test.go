@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"net/http"
 	"strings"
+	"testing"
 	"time"
 
 	"configdatabase/src/apimachinery"
@@ -41,6 +42,12 @@ func init() {
 	//flag.StringVar(&tConfig.MongoURI, "mongo-addr", "mongodb://127.0.0.1:27017/cmdb", "mongodb URI")
 	flag.StringVar(&tConfig.MongoURI, "mongo-addr", "mongodb://192.168.23.161:27017/cmdb", "mongodb URI")flag.StringVar(&reportUrl, "report-url", "http://127.0.0.1:8080/", "html report base url")
 	flag.StringVar(&reportDir, "report-dir", "report", "report directory")
+
+	// add by tes 04/24
+	// go test: flag provied but not defined: -test.timeout
+	// 提示提供的 flag未定义，原因是 go test会带一些默认的参数，此处 flag.Parse()时（应该是init的执行顺序问题），此处先将 test flag定义加上，有点fuck
+	testing.Init()
+
 	flag.Parse()
 
 	run.Concurrent = tConfig.Concurrent
