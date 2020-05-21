@@ -142,6 +142,11 @@ const (
 	// used only for host search
 	BKDBMULTIPLELike = "$multilike"
 
+	// add by tes
+	// used only for host search
+	BKDBSEARCH = "$search"
+	BKDBLIKEX = "$regexx"
+
 	// BKDBIN the db operator
 	BKDBIN = "$in"
 
