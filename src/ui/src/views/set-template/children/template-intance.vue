@@ -47,12 +47,10 @@
                 @page-change="handlePageChange"
                 @page-limit-change="handleSizeChange"
                 @selection-change="handleSelectionChange">
-                <bk-table-column type="selection" width="50" :selectable="handleSelectable"></bk-table-column>
-                <bk-table-column :label="$t('集群名称')" prop="bk_set_name"></bk-table-column>
-                <bk-table-column :label="$t('拓扑路径')" prop="topo_path">
-                    <template slot-scope="{ row }">
-                        <span>{{getTopoPath(row)}}</span>
-                    </template>
+                <bk-table-column type="selection" width="50" :selectable="handleSelectable" align="center"></bk-table-column>
+                <bk-table-column :label="$t('集群名称')" prop="bk_set_name" show-overflow-tooltip></bk-table-column>
+                <bk-table-column :label="$t('拓扑路径')" prop="topo_path" show-overflow-tooltip>
+                    <template slot-scope="{ row }">{{getTopoPath(row)}}</template>
                 </bk-table-column>
                 <bk-table-column :label="$t('主机数量')" prop="host_count"></bk-table-column>
                 <bk-table-column :label="$t('状态')" prop="status">
@@ -81,7 +79,7 @@
                         <span v-else>--</span>
                     </template>
                 </bk-table-column>
-                <bk-table-column :label="$t('上次同步时间')" prop="last_time" sortable="custom">
+                <bk-table-column :label="$t('上次同步时间')" prop="last_time" sortable="custom" show-overflow-tooltip>
                     <template slot-scope="{ row }">
                         <span>{{row.last_time ? $tools.formatTime(row.last_time, 'YYYY-MM-DD HH:mm:ss') : '--'}}</span>
                     </template>
@@ -251,16 +249,7 @@
         },
         methods: {
             getTopoPath (row) {
-                const topoPath = this.$tools.clone(row.topo_path)
-                if (topoPath.length) {
-                    const setIndex = topoPath.findIndex(path => path.ObjectID === 'set')
-                    if (setIndex > -1) {
-                        topoPath.splice(setIndex, 1)
-                    }
-                    const sortPath = topoPath.sort((prev, next) => prev.bk_inst_id - next.bk_inst_id)
-                    return sortPath.map(path => path.bk_inst_name).join(' / ')
-                }
-                return '--'
+                return [...row.topo_path].reverse().map(path => path.bk_inst_name).join(' / ') || '--'
             },
             async getData () {
                 const data = await this.getSetInstancesWithStatus('getSetInstanceData')

@@ -1,11 +1,6 @@
 <template>
     <div class="category-wrapper">
-        <feature-tips
-            :feature-name="'category'"
-            :show-tips="showFeatureTips"
-            :desc="$t('服务分类功能提示')"
-            @close-tips="showFeatureTips = false">
-        </feature-tips>
+        <cmdb-tips class="mb10" tips-key="categoryTips">{{$t('服务分类功能提示')}}</cmdb-tips>
         <div class="category-list">
             <div class="category-item bgc-white" v-for="(mainCategory, index) in list" :key="index">
                 <div class="category-title" :style="{ 'background-color': mainCategory['editStatus'] ? '#f0f1f5' : '' }">
@@ -25,7 +20,7 @@
                     </div>
                     <template v-else>
                         <div class="category-name">
-                            <span>{{mainCategory['name']}}</span>
+                            <span class="category-name-text" :title="mainCategory.name">{{mainCategory.name}}</span>
                             <cmdb-auth v-if="!mainCategory['is_built_in']"
                                 :auth="$authResources({ type: $OPERATION.U_SERVICE_CATEGORY })">
                                 <bk-button slot-scope="{ disabled }"
@@ -128,7 +123,7 @@
                                     </cmdb-auth>
                                     <i class="icon-cc-tips-close" v-else
                                         style="color: #dcdee5; cursor: not-allowed; outline: none;"
-                                        v-bk-tooltips.bottom="tooltips">
+                                        v-bk-tooltips.top="tooltips">
                                     </i>
                                 </div>
                             </div>
@@ -166,24 +161,23 @@
 </template>
 
 <script>
-    import { mapGetters, mapActions } from 'vuex'
-    import featureTips from '@/components/feature-tips/index'
+    import { mapActions } from 'vuex'
     import categoryInput from './children/category-input'
     export default {
         components: {
-            featureTips,
             categoryInput
         },
         data () {
             return {
                 tooltips: {
-                    content: this.$t('二级分类删除提示')
+                    content: this.$t('二级分类删除提示'),
+                    onShow: this.handleCategoryTipsToggle,
+                    onHide: this.handleCategoryTipsToggle
                 },
                 deleteBtnTips: {
                     content: this.$t('请先清空二级分类'),
                     placements: ['right']
                 },
-                showFeatureTips: false,
                 showAddMianCategory: false,
                 showAddChildCategory: false,
                 editMainStatus: null,
@@ -195,11 +189,7 @@
                 list: []
             }
         },
-        computed: {
-            ...mapGetters(['featureTipsParams'])
-        },
         created () {
-            this.showFeatureTips = this.featureTipsParams['category']
             this.getCategoryList()
         },
         methods: {
@@ -252,6 +242,10 @@
                         this.getCategoryList()
                     }
                 })
+            },
+            handleCategoryTipsToggle (tipsInstance) {
+                const willShow = !tipsInstance.state.isVisible
+                tipsInstance.reference.parentElement.classList[willShow ? 'add' : 'remove']('tips-active')
             },
             async handleAddCategory (name, bk_root_id = 0) {
                 if (!await this.$validator.validateAll()) {
@@ -376,7 +370,7 @@
 
 <style lang="scss" scoped>
     .category-wrapper {
-        padding: 0 20px;
+        padding: 15px 20px 0;
         .category-list {
             display: flex;
             flex-flow: row wrap;
@@ -460,9 +454,14 @@
                 }
             }
             .category-name {
-                @include ellipsis;
+                display: flex;
                 flex: 1;
+                width: 100%;
                 padding-right: 20px;
+                align-items: center;
+                .category-name-text {
+                    @include ellipsis;
+                }
                 .icon-cc-edit-shape {
                     font-size: 14px;
                     display: none;
@@ -502,10 +501,7 @@
         .child-category {
             height: 280px;
             padding: 0 10px 10px 38px;
-            overflow: hidden;
-            &:hover {
-                @include scrollbar-y;
-            }
+            @include scrollbar-y;
             .child-item {
                 @include space-between;
                 position: relative;
@@ -518,7 +514,6 @@
                 }
                 &:hover:not(.is-built-in) {
                     .child-title {
-                        padding-right: 10px;
                         background-color: #fafbfd;
                         color: #3a84ff;
                     }
@@ -526,7 +521,7 @@
                         display: none;
                     }
                     .child-edit {
-                        display: block;
+                        opacity: 1;
                     }
                 }
                 &:first-child {
@@ -567,7 +562,10 @@
                     padding-right: 18px;
                 }
                 .child-edit {
-                    display: none;
+                    opacity: 0;
+                    &.tips-active {
+                        opacity: 1;
+                    }
                 }
                 .edit-box {
                     width: 100%;

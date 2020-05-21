@@ -42,7 +42,7 @@ func Run(ctx context.Context, cancel context.CancelFunc, op *options.ServerOptio
 	}
 
 	procSvr := new(service.ProcServer)
-	procSvr.EsbConfigChn = make(chan esbutil.EsbConfig, 0)
+	procSvr.EsbConfigChn = make(chan esbutil.EsbConfig)
 
 	input := &backbone.BackboneParameter{
 		ConfigUpdate: procSvr.OnProcessConfigUpdate,
@@ -63,17 +63,9 @@ func Run(ctx context.Context, cancel context.CancelFunc, op *options.ServerOptio
 			break
 		}
 	}
-	if false == configReady {
+	if !configReady {
 		return fmt.Errorf("configuration item not found")
 	}
-
-	// transaction client
-	txn, err := procSvr.Config.Mongo.GetTransactionClient(engine)
-	if err != nil {
-		blog.Errorf("new transaction client failed, err: %+v", err)
-		return fmt.Errorf("new transaction client failed, err: %+v", err)
-	}
-	procSvr.TransactionClient = txn
 
 	authConf, err := authcenter.ParseConfigFromKV("auth", procSvr.ConfigMap)
 	if err != nil {

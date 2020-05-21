@@ -3,7 +3,7 @@
         <div class="config-body">
             <div :class="['choose-field', { 'not-choose': !checkedPropertyIdList.length }]">
                 <div class="choose-hd">
-                    <span class="label">{{$t('自动应用字段：')}}</span>
+                    <span class="label">{{$t('自动应用字段')}}</span>
                     <cmdb-auth :auth="$authResources({ type: $OPERATION.U_HOST_APPLY })">
                         <bk-button
                             icon="plus"
@@ -47,10 +47,10 @@
         <leave-confirm
             :id="leaveConfirmConfig.id"
             :active="leaveConfirmConfig.active"
-            title="是否放弃？"
-            content="启用步骤未完成，是否放弃当前配置"
-            ok-text="留在当前页"
-            cancel-text="确认放弃"
+            :title="$t('是否放弃')"
+            :content="$t('启用步骤未完成，是否放弃当前配置')"
+            :ok-text="$t('留在当前页')"
+            :cancel-text="$t('确认放弃')"
         >
         </leave-confirm>
     </div>
@@ -175,7 +175,10 @@
                 this.leaveConfirmConfig.active = false
                 this.$nextTick(function () {
                     this.$router.push({
-                        name: MENU_BUSINESS_HOST_APPLY_CONFIRM
+                        name: MENU_BUSINESS_HOST_APPLY_CONFIRM,
+                        query: {
+                            mid: this.$route.query.mid
+                        }
                     })
                 })
             },
@@ -212,13 +215,6 @@
             flex: auto;
         }
     }
-    .config-title {
-        height: 32px;
-        line-height: 32px;
-        font-size: 14px;
-        color: #313238;
-        font-weight: 700;
-    }
 
     .choose-field {
         padding: 16px 2px;
@@ -246,6 +242,16 @@
         &.not-choose {
             .choose-ft {
                 margin-left: 111px;
+            }
+        }
+    }
+
+    [bk-language="en"] {
+        .choose-field {
+            &.not-choose {
+                .choose-ft {
+                    margin-left: 95px;
+                }
             }
         }
     }

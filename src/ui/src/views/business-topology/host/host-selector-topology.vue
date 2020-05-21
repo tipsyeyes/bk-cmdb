@@ -15,6 +15,8 @@
                 :style="{
                     'min-width': `calc(100% + ${deepestExpandedLevel * 60}px)`
                 }"
+                :filter-method="filterMethod"
+                :before-check="beforeCheck"
                 @node-click="handleNodeClick"
                 @check-change="handleCheckedChange"
                 @expand-change="handleExpandChange">
@@ -40,7 +42,7 @@
             clearable
             left-icon="icon-search"
             :placeholder="$t('筛选')"
-            v-model="filter">
+            v-model.trim="filter">
         </bk-input>
     </div>
 </template>
@@ -52,6 +54,7 @@
         data () {
             return {
                 filter: '',
+                filterMethod: this.defaultFilterMethod,
                 expandedNodes: [],
                 handleFilter: () => ({}),
                 hostMap: {},
@@ -71,6 +74,9 @@
             deepestExpandedLevel () {
                 const maxLevel = Math.max.apply(null, [0, ...this.expandedNodes.map(node => node.level)])
                 return Math.max(4, maxLevel) - 4
+            },
+            limitDisplay () {
+                return !!this.$parent.displayNodes.length
             }
         },
         watch: {
@@ -83,14 +89,33 @@
         },
         created () {
             this.handleFilter = debounce(() => {
-                this.$refs.tree.filter(this.filter)
+                this.$refs.tree.filter(this.limitDisplay ? (this.filter || Symbol('any')) : this.filter)
+                this.recaculateLine()
             }, 300)
+            this.filterMethod = this.limitDisplay ? this.displayNodesFilterMethod : this.defaultFilterMethod
             this.initTopology()
         },
         activated () {
             this.filter = ''
         },
         methods: {
+            defaultFilterMethod (keyword, node) {
+                return String(node.name).toLowerCase().indexOf(keyword) > -1
+            },
+            displayNodesFilterMethod (keyword, node) {
+                const displayNodes = this.$parent.displayNodes
+                if (this.filter) {
+                    return node.data.bk_obj_id === 'host' && node.name.indexOf(keyword) > -1
+                }
+                return displayNodes.includes(node.id) || node.data.bk_obj_id === 'host'
+            },
+            recaculateLine () {
+                if (this.limitDisplay) {
+                    const tree = this.$refs.tree
+                    const displayNodes = this.$parent.displayNodes
+                    tree.needsCalculateNodes.push(...displayNodes.map(id => tree.getNodeById(id)))
+                }
+            },
             syncState (current, previous) {
                 const unselectHost = previous.filter(prev => {
                     const exist = current.some(cur => cur.host.bk_host_id === prev.host.bk_host_id)
@@ -102,7 +127,7 @@
             syncCheckedState (list, checked) {
                 const hosts = list.map(item => item.host.bk_host_id)
                 const nodes = this.$refs.tree.nodes.filter(node => hosts.includes(node.data.bk_host_id))
-                this.$refs.tree.setChecked(nodes.map(node => node.id), { checked })
+                this.$refs.tree.setChecked(nodes.map(node => node.id), { checked, beforeCheck: false })
             },
             async initTopology () {
                 try {
@@ -129,10 +154,15 @@
                         }))
                     }
                     children.unshift(idlePool)
-                    const defaultNodeId = this.getNodeId(topology[0])
                     this.$refs.tree.setData(topology)
-                    this.$refs.tree.setExpanded(defaultNodeId)
                     this.syncState(this.$parent.selected, [])
+                    if (this.limitDisplay) {
+                        this.$refs.tree.filter(Symbol('ignore'))
+                        this.$refs.tree.setExpanded(this.$parent.displayNodes)
+                    } else {
+                        const defaultNodeId = this.getNodeId(topology[0])
+                        this.$refs.tree.setExpanded(defaultNodeId)
+                    }
                 } catch (e) {
                     console.error(e)
                 }
@@ -157,7 +187,13 @@
                 return `${data.bk_obj_id}-${data.bk_inst_id}`
             },
             shouldShowCheckbox (data) {
-                return data.bk_obj_id === 'host'
+                if (data.bk_obj_id === 'host') {
+                    return true
+                }
+                if (data.bk_obj_id === 'module' && data.host_count > 0) {
+                    return true
+                }
+                return false
             },
             async loadHost (node) {
                 try {
@@ -179,7 +215,7 @@
                         data.forEach(nodeData => {
                             const isSelected = this.$parent.selected.some(item => item.host.bk_host_id === nodeData.bk_host_id)
                             if (isSelected) {
-                                this.$refs.tree.setChecked(this.getNodeId(nodeData))
+                                this.$refs.tree.setChecked(this.getNodeId(nodeData), { beforeCheck: false })
                             }
                         })
                     }, 0)
@@ -223,7 +259,7 @@
             },
             handleNodeClick (node) {
                 if (node.data.bk_obj_id === 'host') {
-                    this.$refs.tree.setChecked(node.id, { checked: !node.checked, emitEvent: true })
+                    this.$refs.tree.setChecked(node.id, { checked: !node.checked, emitEvent: true, beforeCheck: false })
                 }
             },
             async handleCheckedChange (checked, selectedNode) {
@@ -261,6 +297,14 @@
                     return count > 999 ? '999+' : count
                 }
                 return 0
+            },
+            async beforeCheck (node) {
+                if (node.lazy) {
+                    const { data } = await this.loadHost(node)
+                    this.$refs.tree.addNode(data, node.id)
+                    return true
+                }
+                return true
             }
         }
     }

@@ -3,6 +3,7 @@
         <div class="info-basic">
             <i :class="['info-icon', model.bk_obj_icon]"></i>
             <span class="info-ip">{{hostIp}}</span>
+            <span class="info-area">{{cloudArea}}</span>
         </div>
         <div class="info-topology clearfix">
             <div class="topology-label fl">{{$t('业务拓扑')}}：</div>
@@ -67,6 +68,11 @@
                     return ''
                 }
             },
+            cloudArea () {
+                return (this.host.bk_cloud_id || []).map(cloud => {
+                    return `${this.$t('云区域')}：${cloud.bk_inst_name} (ID：${cloud.bk_inst_id})`
+                }).join('\n')
+            },
             topology () {
                 const modules = this.info.module || []
                 return this.topoNodesPath.map(item => {
@@ -75,7 +81,7 @@
                     return {
                         id: instId,
                         path: item.topo_path.reverse().map(node => node.bk_inst_name).join(' / '),
-                        inInternal: module && module.default !== 0
+                        isInternal: module && module.default !== 0
                     }
                 })
             },
@@ -102,8 +108,9 @@
             async getModulePathInfo () {
                 try {
                     const modules = this.info.module || []
+                    const biz = this.info.biz || []
                     const result = await this.$store.dispatch('objectMainLineModule/getTopoPath', {
-                        bizId: this.$store.getters['objectBiz/bizId'],
+                        bizId: biz[0].bk_biz_id,
                         params: {
                             topo_nodes: modules.map(module => ({ bk_obj_id: 'module', bk_inst_id: module.bk_module_id }))
                         }
@@ -127,7 +134,8 @@
                 this.$router.push({
                     name: MENU_BUSINESS_TRANSFER_HOST,
                     params: {
-                        type: 'remove'
+                        type: 'remove',
+                        module: moduleId
                     },
                     query: {
                         sourceModel: 'module',
@@ -145,7 +153,6 @@
     .info {
         padding: 11px 24px 2px;
         background:rgba(235, 244, 255, .6);
-        border-top: 1px solid #dcdee5;
         border-bottom: 1px solid #dcdee5;
     }
     .info-basic {
@@ -169,7 +176,21 @@
             vertical-align: middle;
             line-height: 38px;
             font-size: 16px;
+            font-weight: bold;
             color: #333948;
+        }
+        .info-area {
+             display: inline-block;
+            vertical-align: middle;
+            height: 18px;
+            margin-left: 10px;
+            padding: 0 5px;
+            line-height: 16px;
+            font-size: 12px;
+            color: #979BA5;
+            border: 1px solid #C4C6CC;
+            border-radius: 2px;
+            background-color: #fff;
         }
     }
     .info-topology {
@@ -189,7 +210,8 @@
             .bk-icon {
                 display: inline-block;
                 vertical-align: -1px;
-                font-size: 12px;
+                font-size: 20px;
+                margin-left: -4px;
                 transition: transform .2s linear;
                 &.is-all-show {
                     transform: rotate(-180deg);

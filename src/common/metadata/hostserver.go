@@ -83,6 +83,12 @@ type HostsModuleRelation struct {
 	IsIncrement   bool    `json:"is_increment"`
 }
 
+type HostModuleConfig struct {
+	ApplicationID int64   `json:"bk_biz_id" bson:"bk_biz_id"`
+	HostID        []int64 `json:"bk_host_id" bson:"bk_host_id"`
+	ModuleID      []int64 `json:"bk_module_id" bson:"bk_module_id"`
+}
+
 type RemoveHostsFromModuleOption struct {
 	ApplicationID int64 `json:"bk_biz_id"`
 	HostID        int64 `json:"bk_host_id"`
@@ -113,6 +119,7 @@ type HostModuleFind struct {
 	ModuleIDS []int64   `json:"bk_module_ids"`
 	Metadata  *Metadata `json:"metadata"`
 	AppID     int64     `json:"bk_biz_id"`
+	Fields    []string  `json:"fields"`
 	Page      BasePage  `json:"page"`
 }
 
@@ -121,11 +128,12 @@ type ListHostsParameter struct {
 	SetCond            []ConditionItem           `json:"set_cond"`
 	ModuleIDs          []int64                   `json:"bk_module_ids"`
 	HostPropertyFilter *querybuilder.QueryFilter `json:"host_property_filter"`
+	Fields             []string                  `json:"fields"`
 	Page               BasePage                  `json:"page"`
 }
 
 func (option ListHostsParameter) Validate() (string, error) {
-	if key, err := option.Page.Validate(); err != nil {
+	if key, err := option.Page.Validate(false); err != nil {
 		return fmt.Sprintf("page.%s", key), err
 	}
 
@@ -133,8 +141,8 @@ func (option ListHostsParameter) Validate() (string, error) {
 		if key, err := option.HostPropertyFilter.Validate(); err != nil {
 			return fmt.Sprintf("host_property_filter.%s", key), err
 		}
-		if option.HostPropertyFilter.GetDeep() > querybuilder.HostSearchMaxDeep {
-			return "host_property_filter.rules", fmt.Errorf("exceed max query condition deepth: %d", querybuilder.HostSearchMaxDeep)
+		if option.HostPropertyFilter.GetDeep() > querybuilder.MaxDeep {
+			return "host_property_filter.rules", fmt.Errorf("exceed max query condition deepth: %d", querybuilder.MaxDeep)
 		}
 	}
 
@@ -143,11 +151,12 @@ func (option ListHostsParameter) Validate() (string, error) {
 
 type ListHostsWithNoBizParameter struct {
 	HostPropertyFilter *querybuilder.QueryFilter `json:"host_property_filter"`
+	Fields             []string                  `json:"fields"`
 	Page               BasePage                  `json:"page"`
 }
 
 func (option ListHostsWithNoBizParameter) Validate() (string, error) {
-	if key, err := option.Page.Validate(); err != nil {
+	if key, err := option.Page.Validate(false); err != nil {
 		return fmt.Sprintf("page.%s", key), err
 	}
 
@@ -155,8 +164,8 @@ func (option ListHostsWithNoBizParameter) Validate() (string, error) {
 		if key, err := option.HostPropertyFilter.Validate(); err != nil {
 			return fmt.Sprintf("host_property_filter.%s", key), err
 		}
-		if option.HostPropertyFilter.GetDeep() > querybuilder.HostSearchMaxDeep {
-			return "host_property_filter.rules", fmt.Errorf("exceed max query condition deepth: %d", querybuilder.HostSearchMaxDeep)
+		if option.HostPropertyFilter.GetDeep() > querybuilder.MaxDeep {
+			return "host_property_filter.rules", fmt.Errorf("exceed max query condition deepth: %d", querybuilder.MaxDeep)
 		}
 	}
 
@@ -177,11 +186,15 @@ type ListHosts struct {
 	SetIDs             []int64                   `json:"bk_set_ids"`
 	ModuleIDs          []int64                   `json:"bk_module_ids"`
 	HostPropertyFilter *querybuilder.QueryFilter `json:"host_property_filter"`
+	Fields             []string                  `json:"fields"`
 	Page               BasePage                  `json:"page"`
 }
 
-func (option ListHosts) Validate() (string, error) {
-	if key, err := option.Page.Validate(); err != nil {
+// Validate whether ListHosts is valid
+// errKey: invalid key
+// er: detail reason why errKey in invalid
+func (option ListHosts) Validate() (errKey string, err error) {
+	if key, err := option.Page.Validate(false); err != nil {
 		return fmt.Sprintf("page.%s", key), err
 	}
 
@@ -189,8 +202,8 @@ func (option ListHosts) Validate() (string, error) {
 		if key, err := option.HostPropertyFilter.Validate(); err != nil {
 			return fmt.Sprintf("host_property_filter.%s", key), err
 		}
-		if option.HostPropertyFilter.GetDeep() > querybuilder.HostSearchMaxDeep {
-			return "host_property_filter.rules", fmt.Errorf("exceed max query condition deepth: %d", querybuilder.HostSearchMaxDeep)
+		if option.HostPropertyFilter.GetDeep() > querybuilder.MaxDeep {
+			return "host_property_filter.rules", fmt.Errorf("exceed max query condition deepth: %d", querybuilder.MaxDeep)
 		}
 	}
 

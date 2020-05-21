@@ -41,6 +41,7 @@ type Object interface {
 	SetRecordID(id int64)
 	GetMainlineParentObject() (Object, error)
 	GetMainlineChildObject() (Object, error)
+	GetSetObject() (Object, error)
 
 	GetParentObject() ([]ObjectAssoPair, error)
 	GetChildObject() ([]ObjectAssoPair, error)
@@ -213,6 +214,26 @@ func (o *object) GetMainlineParentObject() (Object, error) {
 	return nil, io.EOF
 }
 
+func (o *object) GetSetObject() (Object, error) {
+	cond := condition.CreateCondition()
+	cond.Field(common.BKObjIDField).Eq(common.BKInnerObjIDSet)
+	rspRst, err := o.search(cond)
+	if nil != err {
+		blog.Errorf("[model-obj] failed to search the object(%s)'s child, error info is %s, rid: %s", common.BKInnerObjIDSet, err.Error(), o.params.ReqID)
+		return nil, err
+	}
+
+	objItems := CreateObject(o.params, o.clientSet, rspRst)
+	if len(objItems) > 1 {
+		blog.Errorf("[model-obj] get multiple(%d) children for object(%s), rid: %s", len(objItems), common.BKInnerObjIDSet, o.params.ReqID)
+	}
+	for _, item := range objItems {
+		// only one child in the main-line
+		return item, nil
+	}
+	return nil, io.EOF
+}
+
 func (o *object) GetMainlineChildObject() (Object, error) {
 
 	cond := condition.CreateCondition()
@@ -286,7 +307,6 @@ func (o *object) searchAssoObjects(isNeedChild bool, cond condition.Condition) (
 func (o *object) GetParentObject() ([]ObjectAssoPair, error) {
 
 	cond := condition.CreateCondition()
-	cond.Field(meta.AssociationFieldSupplierAccount).Eq(o.params.SupplierAccount)
 	cond.Field(meta.AssociationFieldAssociationObjectID).Eq(o.obj.ObjectID)
 
 	return o.searchAssoObjects(false, cond)
@@ -294,7 +314,6 @@ func (o *object) GetParentObject() ([]ObjectAssoPair, error) {
 
 func (o *object) GetChildObject() ([]ObjectAssoPair, error) {
 	cond := condition.CreateCondition()
-	cond.Field(meta.AssociationFieldSupplierAccount).Eq(o.params.SupplierAccount)
 	cond.Field(meta.AssociationFieldObjectID).Eq(o.obj.ObjectID)
 
 	return o.searchAssoObjects(true, cond)
@@ -614,7 +633,6 @@ func (o *object) GetNonInnerAttributes() ([]AttributeInterface, error) {
 
 	cond := condition.CreateCondition()
 	cond.Field(meta.AttributeFieldObjectID).Eq(o.obj.ObjectID)
-	cond.Field(meta.AttributeFieldSupplierAccount).Eq(o.params.SupplierAccount)
 	cond.Field(meta.AttributeFieldIsSystem).NotEq(true)
 	cond.Field(meta.AttributeFieldIsAPI).NotEq(true)
 	return o.searchAttributes(cond)
@@ -624,7 +642,6 @@ func (o *object) GetAttributes() ([]AttributeInterface, error) {
 
 	cond := condition.CreateCondition()
 	cond.Field(meta.AttributeFieldObjectID).Eq(o.obj.ObjectID)
-	cond.Field(meta.AttributeFieldSupplierAccount).Eq(o.params.SupplierAccount)
 	return o.searchAttributes(cond)
 }
 
@@ -632,7 +649,6 @@ func (o *object) GetGroups() ([]GroupInterface, error) {
 
 	cond := condition.CreateCondition()
 	cond.Field(meta.GroupFieldObjectID).Eq(o.obj.ObjectID)
-	cond.Field(meta.GroupFieldSupplierAccount).Eq(o.params.SupplierAccount)
 
 	rsp, err := o.clientSet.CoreService().Model().ReadAttributeGroup(context.Background(), o.params.Header, o.obj.ObjectID, metadata.QueryCondition{Condition: cond.ToMapStr()})
 	if nil != err {

@@ -1,5 +1,5 @@
 <template>
-    <div class="node-info" style="height: 100%;"
+    <div class="node-info"
         v-bkloading="{
             isLoading: $loading([
                 'getModelProperties',
@@ -11,54 +11,59 @@
             ])
         }"
     >
-        <div class="template-info mb10 clearfix" v-if="( isSetNode || isModuleNode) && type === 'details'">
-            <template v-if="isModuleNode">
-                <div class="info-item fl" :title="`${$t('服务模板')} : ${templateInfo.serviceTemplateName}`">
-                    <span class="name fl">{{$t('服务模板')}}</span>
-                    <div class="value fl">
-                        <div class="template-value" v-if="withTemplate" @click="goServiceTemplate">
-                            <span class="text link">{{templateInfo.serviceTemplateName}}</span>
-                            <i class="icon-cc-share"></i>
-                        </div>
-                        <span class="text" v-else>{{templateInfo.serviceTemplateName}}</span>
-                    </div>
-                </div>
-                <div class="info-item fl" :title="`${$t('服务分类')} : ${templateInfo.serviceCategory || '--'}`">
-                    <span class="name fl">{{$t('服务分类')}}</span>
-                    <div class="value fl">
-                        <span class="text">{{templateInfo.serviceCategory || '--'}}</span>
-                    </div>
-                </div>
-            </template>
-            <template v-else-if="isSetNode">
-                <div class="info-item fl" :title="`${$t('集群模板')} : ${templateInfo.setTemplateName}`">
-                    <span class="name fl">{{$t('集群模板')}}</span>
-                    <div class="value fl">
-                        <template v-if="withSetTemplate">
-                            <div class="template-value set-template fl" @click="goSetTemplate">
-                                <span class="text link">{{templateInfo.setTemplateName}}</span>
-                                <i class="icon-cc-share"></i>
-                            </div>
-                            <cmdb-auth :auth="$authResources({ type: $OPERATION.U_TOPO })">
-                                <bk-button slot-scope="{ disabled }"
-                                    :class="['sync-set-btn', 'ml5', { 'has-change': hasChange }]"
-                                    :disabled="!hasChange || disabled"
-                                    @click="handleSyncSetTemplate">
-                                    {{$t('同步集群')}}
-                                </bk-button>
-                            </cmdb-auth>
-                        </template>
-                        <span class="text" v-else>{{templateInfo.setTemplateName}}</span>
-                    </div>
-                </div>
-            </template>
-        </div>
         <cmdb-details class="topology-details"
             v-if="type === 'details'"
+            :class="{ pt10: !isSetNode && !isModuleNode }"
             :properties="properties"
             :property-groups="propertyGroups"
-            :inst="flattenedInstance"
-            :show-options="modelId !== 'biz' && !isBlueking">
+            :inst="instance"
+            :show-options="modelId !== 'biz' && editable">
+            <!-- 改为v-show, 因为 v-if时，直接查看集群节点信息，第一次slot外层未打上scope标志，导致css不生效  -->
+            <!-- 可能是vue bug 原因未知  -->
+            <div class="template-info mb10 clearfix"
+                v-show="isSetNode || isModuleNode"
+                slot="prepend">
+                <template v-if="isModuleNode">
+                    <div class="info-item fl" :title="`${$t('服务模板')} : ${templateInfo.serviceTemplateName}`">
+                        <span class="name fl">{{$t('服务模板')}}</span>
+                        <div class="value fl">
+                            <div class="template-value" v-if="withTemplate" @click="goServiceTemplate">
+                                <span class="text link">{{templateInfo.serviceTemplateName}}</span>
+                                <i class="icon-cc-share"></i>
+                            </div>
+                            <span class="text" v-else>{{templateInfo.serviceTemplateName}}</span>
+                        </div>
+                    </div>
+                    <div class="info-item fl" :title="`${$t('服务分类')} : ${templateInfo.serviceCategory || '--'}`">
+                        <span class="name fl">{{$t('服务分类')}}</span>
+                        <div class="value fl">
+                            <span class="text">{{templateInfo.serviceCategory || '--'}}</span>
+                        </div>
+                    </div>
+                </template>
+                <template v-else-if="isSetNode">
+                    <div class="info-item fl" :title="`${$t('集群模板')} : ${templateInfo.setTemplateName}`">
+                        <span class="name fl">{{$t('集群模板')}}</span>
+                        <div class="value fl">
+                            <template v-if="withSetTemplate">
+                                <div class="template-value set-template fl" @click="goSetTemplate">
+                                    <span class="text link">{{templateInfo.setTemplateName}}</span>
+                                    <i class="icon-cc-share"></i>
+                                </div>
+                                <cmdb-auth :auth="$authResources({ type: $OPERATION.U_TOPO })">
+                                    <bk-button slot-scope="{ disabled }"
+                                        :class="['sync-set-btn', 'ml5', { 'has-change': hasChange }]"
+                                        :disabled="!hasChange || disabled"
+                                        @click="handleSyncSetTemplate">
+                                        {{$t('同步集群')}}
+                                    </bk-button>
+                                </cmdb-auth>
+                            </template>
+                            <span class="text" v-else>{{templateInfo.setTemplateName}}</span>
+                        </div>
+                    </div>
+                </template>
+            </div>
             <template slot="details-options">
                 <cmdb-auth :auth="$authResources({ type: $OPERATION.U_TOPO })">
                     <template slot-scope="{ disabled }">
@@ -74,12 +79,12 @@
                     <template slot-scope="{ disabled }">
                         <span class="inline-block-middle" v-if="moduleFromSetTemplate"
                             v-bk-tooltips="$t('由集群模板创建的模块无法删除')">
-                            <bk-button class="btn-delete" disabled>
+                            <bk-button class="btn-delete" hover-theme="danger" disabled>
                                 {{$t('删除节点')}}
                             </bk-button>
                         </span>
                         <bk-button class="btn-delete" v-else
-                            theme="default"
+                            hover-theme="danger"
                             :disabled="disabled"
                             @click="handleDelete">
                             {{$t('删除节点')}}
@@ -89,24 +94,6 @@
             </template>
         </cmdb-details>
         <template v-else-if="type === 'update'">
-            <div class="service-category" v-if="!withTemplate && isModuleNode">
-                <span class="title">{{$t('服务分类')}}</span>
-                <div class="selector-item mt10 clearfix">
-                    <cmdb-selector class="category-selector fl"
-                        :list="firstCategories"
-                        v-model="first"
-                        @on-selected="handleChangeFirstCategory">
-                    </cmdb-selector>
-                    <cmdb-selector class="category-selector fl"
-                        :list="secondCategories"
-                        name="secondCategory"
-                        v-validate="'required'"
-                        v-model="second"
-                        @on-selected="handleChangeCategory">
-                    </cmdb-selector>
-                    <span class="second-category-errors" v-if="errors.has('secondCategory')">{{errors.first('secondCategory')}}</span>
-                </div>
-            </div>
             <cmdb-form class="topology-form"
                 ref="form"
                 :properties="properties"
@@ -116,6 +103,24 @@
                 :type="type"
                 @on-submit="handleSubmit"
                 @on-cancel="handleCancel">
+                <div class="service-category" v-if="!withTemplate && isModuleNode" slot="prepend">
+                    <span class="title">{{$t('服务分类')}}</span>
+                    <div class="selector-item mt10 clearfix">
+                        <cmdb-selector class="category-selector fl"
+                            :list="firstCategories"
+                            v-model="first"
+                            @on-selected="handleChangeFirstCategory">
+                        </cmdb-selector>
+                        <cmdb-selector class="category-selector fl"
+                            :list="secondCategories"
+                            name="secondCategory"
+                            v-validate="'required'"
+                            v-model="second"
+                            @on-selected="handleChangeCategory">
+                        </cmdb-selector>
+                        <span class="second-category-errors" v-if="errors.has('secondCategory')">{{errors.first('secondCategory')}}</span>
+                    </div>
+                </div>
             </cmdb-form>
         </template>
     </div>
@@ -193,11 +198,12 @@
             withSetTemplate () {
                 return this.isSetNode && !!this.instance.set_template_id
             },
-            flattenedInstance () {
-                return this.$tools.flattenItem(this.properties, this.instance)
-            },
             moduleFromSetTemplate () {
                 return this.isModuleNode && !!this.selectedNode.parent.data.set_template_id
+            },
+            editable () {
+                const editable = this.$store.state.businessHost.blueKingEditable
+                return this.isBlueking ? this.isBlueking && editable : true
             }
         },
         watch: {
@@ -221,7 +227,7 @@
                 immediate: true,
                 handler (active) {
                     if (active) {
-                        this.refresh()
+                        this.refresh && this.refresh()
                     }
                 }
             }
@@ -627,11 +633,12 @@
                             requestId: 'diffTemplateAndInstances'
                         }
                     })
-                    const diff = data[0] ? data[0].module_diffs : []
+                    const diff = data.difference ? (data.difference[0] || {}).module_diffs : []
                     const len = diff.filter(_module => _module.diff_type !== 'unchanged').length
                     this.hasChange = !!len
                 } catch (e) {
                     console.error(e)
+                    this.hasChange = false
                 }
             },
             handleSyncSetTemplate () {
@@ -653,6 +660,10 @@
                     params: {
                         templateId: this.instance.service_template_id,
                         moduleId: this.selectedNode.data.bk_inst_id
+                    },
+                    query: {
+                        node: this.selectedNode.id,
+                        tab: 'nodeInfo'
                     }
                 })
             },
@@ -663,6 +674,10 @@
                         mode: 'view',
                         templateId: this.instance.set_template_id,
                         moduleId: this.selectedNode.data.bk_inst_id
+                    },
+                    query: {
+                        node: this.selectedNode.id,
+                        tab: 'nodeInfo'
                     }
                 })
             },
@@ -719,10 +734,15 @@
 </script>
 
 <style lang="scss" scoped>
+    .node-info {
+        height: 100%;
+        margin: 0 -20px;
+    }
     .template-info {
         font-size: 14px;
         color: #63656e;
         padding: 20px 0 20px 36px;
+        margin: 0 20px;
         border-bottom: 1px solid #F0F1F5;
         .info-item {
             width: 50%;
@@ -764,14 +784,19 @@
             }
         }
     }
-    .topology-details {
-        padding: 0 !important;
+    .topology-details.details-layout {
+        padding: 0;
         /deep/ {
+            .property-group {
+                padding-left: 36px;
+            }
             .property-list {
-                margin-left: 36px;
+                padding-left: 20px;
             }
             .details-options {
-                padding: 28px 18px 0 36px;
+                width: 100%;
+                margin: 0;
+                padding-left: 56px;
             }
         }
     }
@@ -795,6 +820,7 @@
     .service-category {
         font-size: 12px;
         padding: 20px 0 24px 36px;
+        margin: 0 20px;
         border-bottom: 1px solid #dcdee5;
         .selector-item {
             position: relative;
@@ -823,7 +849,7 @@
     .topology-form {
         /deep/ {
             .form-groups {
-                padding: 0;
+                padding: 0 20px;
             }
             .property-list {
                 margin-left: 36px;
@@ -842,11 +868,6 @@
     }
     .btn-delete{
         min-width: 76px;
-        &:not(.is-disabled):hover {
-            color: #ffffff;
-            border-color: #ff5656;
-            background-color: #ff5656;
-        }
     }
     .sync-set-btn {
         position: relative;

@@ -200,7 +200,11 @@ func (node *TopoInstanceNode) TraversalFindModule(targetID int64) []*TopoInstanc
 	return node.TraversalFindNode(common.BKInnerObjIDModule, targetID)
 }
 
+// common.BKInnerObjIDObject used for matching custom level node
 func (node *TopoInstanceNode) TraversalFindNode(objectType string, targetID int64) []*TopoInstanceNode {
+	if objectType == common.BKInnerObjIDObject && !common.IsInnerModel(node.ObjectID) && node.InstanceID == targetID {
+		return []*TopoInstanceNode{node}
+	}
 	if node.ObjectID == objectType && node.InstanceID == targetID {
 		return []*TopoInstanceNode{node}
 	}
@@ -464,6 +468,16 @@ type MultipleProcessInstanceRelation struct {
 type MultipleProcessInstanceRelationResult struct {
 	BaseResp `json:",inline"`
 	Data     MultipleProcessInstanceRelation `json:"data"`
+}
+
+type MultipleHostProcessRelation struct {
+	Count uint64                 `json:"count"`
+	Info  []HostProcessRelation `json:"info"`
+}
+
+type MultipleHostProcessRelationResult struct {
+	BaseResp `json:",inline"`
+	Data     MultipleHostProcessRelation `json:"data"`
 }
 
 type BusinessDefaultSetModuleInfo struct {

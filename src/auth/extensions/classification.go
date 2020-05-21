@@ -14,6 +14,7 @@ package extensions
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"net/http"
 	"strconv"
@@ -44,24 +45,31 @@ func (am *AuthManager) CollectClassificationByBusinessIDs(ctx context.Context, h
 	if businessID == 0 {
 		cond.Merge(metadata.BizLabelNotExist)
 	}
-	query := &metadata.QueryCondition{
-		Condition: cond,
-		Limit:     metadata.SearchLimit{Limit: common.BKNoLimit},
-	}
-	result, err := am.clientSet.CoreService().Instance().ReadInstance(ctx, header, common.BKTableNameObjClassifiction, query)
-	if err != nil {
-		blog.Errorf("get module:%+v by businessID:%d failed, err: %+v, rid: %s", businessID, err, rid)
-		return nil, fmt.Errorf("get module by businessID:%d failed, err: %+v", businessID, err)
-	}
-
 	classifications := make([]metadata.Classification, 0)
-	for _, cls := range result.Data.Info {
-		classification := metadata.Classification{}
-		_, err = classification.Parse(cls)
-		if err != nil {
-			return nil, fmt.Errorf("get classication by object failed, err: %+v", err)
+	count := -1
+	for offset := 0; count == -1 || offset < count; offset += common.BKMaxRecordsAtOnce {
+		query := &metadata.QueryCondition{
+			Condition: cond,
+			Limit: metadata.SearchLimit{
+				Offset: int64(offset),
+				Limit:  common.BKMaxRecordsAtOnce,
+			},
 		}
-		classifications = append(classifications, classification)
+		result, err := am.clientSet.CoreService().Instance().ReadInstance(ctx, header, common.BKTableNameObjClassifiction, query)
+		if err != nil {
+			blog.Errorf("get module:%+v by businessID:%d failed, err: %+v, rid: %s", businessID, err, rid)
+			return nil, fmt.Errorf("get module by businessID:%d failed, err: %+v", businessID, err)
+		}
+
+		for _, cls := range result.Data.Info {
+			classification := metadata.Classification{}
+			_, err = classification.Parse(cls)
+			if err != nil {
+				return nil, fmt.Errorf("get classication by object failed, err: %+v", err)
+			}
+			classifications = append(classifications, classification)
+		}
+		count = result.Data.Count
 	}
 	return classifications, nil
 }
@@ -72,10 +80,10 @@ func (am *AuthManager) collectClassificationsByClassificationIDs(ctx context.Con
 	// unique ids so that we can be aware of invalid id if query result length not equal ids's length
 	classificationIDs = util.StrArrayUnique(classificationIDs)
 
-	cond := metadata.QueryCondition{
+	cond := &metadata.QueryCondition{
 		Condition: condition.CreateCondition().Field(common.BKClassificationIDField).In(classificationIDs).ToMapStr(),
 	}
-	result, err := am.clientSet.CoreService().Instance().ReadInstance(ctx, header, common.BKTableNameObjClassifiction, &cond)
+	result, err := am.clientSet.CoreService().Model().ReadModelClassification(ctx, header, cond)
 	if err != nil {
 		blog.V(3).Infof("get classification by id failed, err: %+v, rid: %s", err, rid)
 		return nil, fmt.Errorf("get classification by id failed, err: %+v", err)
@@ -83,9 +91,15 @@ func (am *AuthManager) collectClassificationsByClassificationIDs(ctx context.Con
 	classifications := make([]metadata.Classification, 0)
 	for _, cls := range result.Data.Info {
 		classification := metadata.Classification{}
-		_, err = classification.Parse(cls)
+		data, err := json.Marshal(cls)
 		if err != nil {
-			return nil, fmt.Errorf("get classication by object failed, err: %+v", err)
+			blog.ErrorJSON("collectClassificationsByClassificationIDs %s failed, parse attribute %s failed, err: %s, rid: %s", classificationIDs, cls, err, rid)
+			return nil, fmt.Errorf("collectClassificationsByClassificationIDs marshel json %+v failed, err: %+v", cls, err)
+		}
+		err = json.Unmarshal(data, &classification)
+		if err != nil {
+			blog.Errorf("collectClassificationsByClassificationIDs %+v failed, parse attribute %s failed, err: %s, rid: %s", classificationIDs, string(data), err, rid)
+			return nil, fmt.Errorf("collectClassificationsByClassificationIDs unmarshel json %s failed, err: %+v", string(data), err)
 		}
 		classifications = append(classifications, classification)
 	}
@@ -98,10 +112,10 @@ func (am *AuthManager) collectClassificationsByRawIDs(ctx context.Context, heade
 	// unique ids so that we can be aware of invalid id if query result length not equal ids's length
 	ids = util.IntArrayUnique(ids)
 
-	cond := metadata.QueryCondition{
+	cond := &metadata.QueryCondition{
 		Condition: condition.CreateCondition().Field(common.BKFieldID).In(ids).ToMapStr(),
 	}
-	result, err := am.clientSet.CoreService().Instance().ReadInstance(ctx, header, common.BKTableNameObjClassifiction, &cond)
+	result, err := am.clientSet.CoreService().Model().ReadModelClassification(ctx, header, cond)
 	if err != nil {
 		blog.V(3).Infof("get classification by id failed, err: %+v, rid: %s", err, rid)
 		return nil, fmt.Errorf("get classification by id failed, err: %+v", err)
@@ -109,10 +123,15 @@ func (am *AuthManager) collectClassificationsByRawIDs(ctx context.Context, heade
 	classifications := make([]metadata.Classification, 0)
 	for _, cls := range result.Data.Info {
 		classification := metadata.Classification{}
-		_, err = classification.Parse(cls)
+		data, err := json.Marshal(cls)
 		if err != nil {
-			blog.Errorf("collectClassificationsByRawIDs %+v failed, parse classification %+v failed, err: %+v, rid: %s", ids, cls, err, rid)
-			return nil, fmt.Errorf("parse classification from db data failed, err: %+v", err)
+			blog.ErrorJSON("collectClassificationsByRawIDs %s failed, parse attribute %s failed, err: %s, rid: %s", ids, cls, err, rid)
+			return nil, fmt.Errorf("collectClassificationsByRawIDs marshel json %+v failed, err: %+v", cls, err)
+		}
+		err = json.Unmarshal(data, &classification)
+		if err != nil {
+			blog.Errorf("collectClassificationsByRawIDs %+v failed, parse attribute %s failed, err: %s, rid: %s", ids, string(data), err, rid)
+			return nil, fmt.Errorf("collectClassificationsByRawIDs unmarshel json %s failed, err: %+v", string(data), err)
 		}
 		classifications = append(classifications, classification)
 	}
@@ -185,7 +204,7 @@ func (am *AuthManager) MakeResourcesByClassifications(header http.Header, action
 // }
 
 func (am *AuthManager) UpdateRegisteredClassification(ctx context.Context, header http.Header, classifications ...metadata.Classification) error {
-	if am.Enabled() == false {
+	if !am.Enabled() {
 		return nil
 	}
 
@@ -212,7 +231,7 @@ func (am *AuthManager) UpdateRegisteredClassification(ctx context.Context, heade
 }
 
 func (am *AuthManager) UpdateRegisteredClassificationByID(ctx context.Context, header http.Header, classificationIDs ...string) error {
-	if am.Enabled() == false {
+	if !am.Enabled() {
 		return nil
 	}
 
@@ -228,7 +247,7 @@ func (am *AuthManager) UpdateRegisteredClassificationByID(ctx context.Context, h
 }
 
 func (am *AuthManager) UpdateRegisteredClassificationByRawID(ctx context.Context, header http.Header, ids ...int64) error {
-	if am.Enabled() == false {
+	if !am.Enabled() {
 		return nil
 	}
 
@@ -244,7 +263,7 @@ func (am *AuthManager) UpdateRegisteredClassificationByRawID(ctx context.Context
 }
 
 func (am *AuthManager) RegisterClassification(ctx context.Context, header http.Header, classifications ...metadata.Classification) error {
-	if am.Enabled() == false {
+	if !am.Enabled() {
 		return nil
 	}
 
@@ -265,7 +284,7 @@ func (am *AuthManager) RegisterClassification(ctx context.Context, header http.H
 }
 
 func (am *AuthManager) DeregisterClassification(ctx context.Context, header http.Header, classifications ...metadata.Classification) error {
-	if am.Enabled() == false {
+	if !am.Enabled() {
 		return nil
 	}
 

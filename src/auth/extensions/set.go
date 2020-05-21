@@ -32,28 +32,35 @@ import (
 func (am *AuthManager) CollectSetByBusinessID(ctx context.Context, header http.Header, businessID int64) ([]SetSimplify, error) {
 	rid := util.ExtractRequestIDFromContext(ctx)
 
-	cond := condition.CreateCondition()
-	cond.Field(common.BKAppIDField).Eq(businessID)
-	query := &metadata.QueryCondition{
-		Condition: cond.ToMapStr(),
-		Limit:     metadata.SearchLimit{Limit: common.BKNoLimit},
-	}
-	instances, err := am.clientSet.CoreService().Instance().ReadInstance(ctx, header, common.BKInnerObjIDSet, query)
-	if err != nil {
-		blog.Errorf("get set:%+v by businessID:%d failed, err: %+v, rid: %s", businessID, err, rid)
-		return nil, fmt.Errorf("get set by businessID:%d failed, err: %+v", businessID, err)
-	}
-
-	// extract sets
+	cond := map[string]interface{}{common.BKAppIDField: businessID}
 	sets := make([]SetSimplify, 0)
-	for _, instance := range instances.Data.Info {
-		setSimplify := SetSimplify{}
-		_, err := setSimplify.Parse(instance)
-		if err != nil {
-			blog.Errorf("parse set %+v simplify information failed, err: %+v, rid: %s", setSimplify, err, rid)
-			return nil, fmt.Errorf("parse set %+v simplify information failed, err: %+v", setSimplify, err)
+	count := -1
+	for offset := 0; count == -1 || offset < count; offset += common.BKMaxRecordsAtOnce {
+		query := &metadata.QueryCondition{
+			Condition: cond,
+			Fields:    []string{common.BKAppIDField, common.BKSetIDField, common.BKSetNameField},
+			Limit: metadata.SearchLimit{
+				Offset: int64(offset),
+				Limit:  common.BKMaxRecordsAtOnce,
+			},
 		}
-		sets = append(sets, setSimplify)
+		instances, err := am.clientSet.CoreService().Instance().ReadInstance(ctx, header, common.BKInnerObjIDSet, query)
+		if err != nil {
+			blog.Errorf("get set:%+v by businessID:%d failed, err: %+v, rid: %s", businessID, err, rid)
+			return nil, fmt.Errorf("get set by businessID:%d failed, err: %+v", businessID, err)
+		}
+
+		// extract sets
+		for _, instance := range instances.Data.Info {
+			setSimplify := SetSimplify{}
+			_, err := setSimplify.Parse(instance)
+			if err != nil {
+				blog.Errorf("parse set %+v simplify information failed, err: %+v, rid: %s", setSimplify, err, rid)
+				return nil, fmt.Errorf("parse set %+v simplify information failed, err: %+v", setSimplify, err)
+			}
+			sets = append(sets, setSimplify)
+		}
+		count = instances.Data.Count
 	}
 
 	blog.V(4).Infof("list sets by business:%d result: %+v, rid: %s", businessID, sets, rid)
@@ -116,14 +123,14 @@ func (am *AuthManager) MakeResourcesBySet(header http.Header, action meta.Action
 }
 
 func (am *AuthManager) AuthorizeBySetID(ctx context.Context, header http.Header, action meta.Action, ids ...int64) error {
-	if am.Enabled() == false {
+	if !am.Enabled() {
 		return nil
 	}
 
 	if len(ids) == 0 {
 		return nil
 	}
-	if am.RegisterSetEnabled == false {
+	if !am.RegisterSetEnabled {
 		return nil
 	}
 
@@ -137,7 +144,7 @@ func (am *AuthManager) AuthorizeBySetID(ctx context.Context, header http.Header,
 func (am *AuthManager) AuthorizeBySet(ctx context.Context, header http.Header, action meta.Action, sets ...SetSimplify) error {
 	rid := util.ExtractRequestIDFromContext(ctx)
 
-	if am.Enabled() == false {
+	if !am.Enabled() {
 		return nil
 	}
 
@@ -145,7 +152,7 @@ func (am *AuthManager) AuthorizeBySet(ctx context.Context, header http.Header, a
 		blog.V(4).Infof("skip authorization for reading, sets: %+v, rid: %s", sets, rid)
 		return nil
 	}
-	if am.RegisterSetEnabled == false {
+	if !am.RegisterSetEnabled {
 		return nil
 	}
 
@@ -162,14 +169,14 @@ func (am *AuthManager) AuthorizeBySet(ctx context.Context, header http.Header, a
 }
 
 func (am *AuthManager) UpdateRegisteredSet(ctx context.Context, header http.Header, sets ...SetSimplify) error {
-	if am.Enabled() == false {
+	if !am.Enabled() {
 		return nil
 	}
 
 	if len(sets) == 0 {
 		return nil
 	}
-	if am.RegisterSetEnabled == false {
+	if !am.RegisterSetEnabled {
 		return nil
 	}
 
@@ -192,14 +199,14 @@ func (am *AuthManager) UpdateRegisteredSet(ctx context.Context, header http.Head
 }
 
 func (am *AuthManager) UpdateRegisteredSetByID(ctx context.Context, header http.Header, setIDs ...int64) error {
-	if am.Enabled() == false {
+	if !am.Enabled() {
 		return nil
 	}
 
 	if len(setIDs) == 0 {
 		return nil
 	}
-	if am.RegisterSetEnabled == false {
+	if !am.RegisterSetEnabled {
 		return nil
 	}
 
@@ -211,14 +218,14 @@ func (am *AuthManager) UpdateRegisteredSetByID(ctx context.Context, header http.
 }
 
 func (am *AuthManager) DeregisterSetByID(ctx context.Context, header http.Header, ids ...int64) error {
-	if am.Enabled() == false {
+	if !am.Enabled() {
 		return nil
 	}
 
 	if len(ids) == 0 {
 		return nil
 	}
-	if am.RegisterSetEnabled == false {
+	if !am.RegisterSetEnabled {
 		return nil
 	}
 
@@ -230,14 +237,14 @@ func (am *AuthManager) DeregisterSetByID(ctx context.Context, header http.Header
 }
 
 func (am *AuthManager) RegisterSet(ctx context.Context, header http.Header, sets ...SetSimplify) error {
-	if am.Enabled() == false {
+	if !am.Enabled() {
 		return nil
 	}
 
 	if len(sets) == 0 {
 		return nil
 	}
-	if am.RegisterSetEnabled == false {
+	if !am.RegisterSetEnabled {
 		return nil
 	}
 
@@ -254,14 +261,14 @@ func (am *AuthManager) RegisterSet(ctx context.Context, header http.Header, sets
 }
 
 func (am *AuthManager) RegisterSetByID(ctx context.Context, header http.Header, setIDs ...int64) error {
-	if am.Enabled() == false {
+	if !am.Enabled() {
 		return nil
 	}
 
 	if len(setIDs) == 0 {
 		return nil
 	}
-	if am.RegisterSetEnabled == false {
+	if !am.RegisterSetEnabled {
 		return nil
 	}
 
@@ -273,14 +280,14 @@ func (am *AuthManager) RegisterSetByID(ctx context.Context, header http.Header, 
 }
 
 func (am *AuthManager) DeregisterSet(ctx context.Context, header http.Header, sets ...SetSimplify) error {
-	if am.Enabled() == false {
+	if !am.Enabled() {
 		return nil
 	}
 
 	if len(sets) == 0 {
 		return nil
 	}
-	if am.RegisterSetEnabled == false {
+	if !am.RegisterSetEnabled {
 		return nil
 	}
 

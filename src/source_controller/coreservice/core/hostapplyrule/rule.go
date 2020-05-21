@@ -28,12 +28,18 @@ import (
 )
 
 type hostApplyRule struct {
-	dbProxy dal.RDB
+	dbProxy    dal.RDB
+	dependence HostApplyDependence
 }
 
-func New(dbProxy dal.RDB) core.HostApplyRuleOperation {
+type HostApplyDependence interface {
+	UpdateModelInstance(ctx core.ContextParams, objID string, inputParam metadata.UpdateOption) (*metadata.UpdatedCount, error)
+}
+
+func New(dbProxy dal.RDB, dependence HostApplyDependence) core.HostApplyRuleOperation {
 	rule := &hostApplyRule{
-		dbProxy: dbProxy,
+		dbProxy:    dbProxy,
+		dependence: dependence,
 	}
 	return rule
 }
@@ -166,17 +172,21 @@ func (p *hostApplyRule) CreateHostApplyRule(ctx core.ContextParams, bizID int64,
 }
 
 func (p *hostApplyRule) UpdateHostApplyRule(ctx core.ContextParams, bizID int64, ruleID int64, option metadata.UpdateHostApplyRuleOption) (metadata.HostApplyRule, errors.CCErrorCoder) {
-	rule, err := p.GetHostApplyRule(ctx, bizID, ruleID)
-	if err != nil {
-		blog.Errorf("UpdateHostApplyRule failed, rule not found, bizID: %d, id: %d, rid: %s", bizID, ruleID, ctx.ReqID)
+	rule, ccErr := p.GetHostApplyRule(ctx, bizID, ruleID)
+	if ccErr != nil {
+		blog.Errorf("UpdateHostApplyRule failed, GetHostApplyRule failed, bizID: %d, id: %d, err: %s, rid: %s", bizID, ruleID, ccErr.Error(), ctx.ReqID)
 		return rule, ctx.Error.CCError(common.CCErrCommNotFound)
 	}
 
-	attribute, err := p.getHostAttribute(ctx, bizID, rule.AttributeID)
+	attribute, ccErr := p.getHostAttribute(ctx, bizID, rule.AttributeID)
+	if ccErr != nil {
+		blog.Errorf("UpdateHostApplyRule failed, getHostAttribute failed, bizID: %d, attributeID: %d, err: %s, rid: %s", bizID, rule.AttributeID, ccErr.Error(), ctx.ReqID)
+		return rule, ccErr
+	}
 	rawError := attribute.Validate(ctx.Context, option.PropertyValue, common.BKPropertyValueField)
 	if rawError.ErrCode != 0 {
 		ccErr := rawError.ToCCError(ctx.Error)
-		blog.Errorf("UpdateHostApplyRule failed, validate host attribute value failed,  attribute: %+v, value: %+v, err: %+v, rid: %s", attribute, option.PropertyValue, ccErr, ctx.ReqID)
+		blog.Errorf("UpdateHostApplyRule failed, validate host attribute value failed, attribute: %+v, value: %+v, err: %+v, rid: %s", attribute, option.PropertyValue, ccErr, ctx.ReqID)
 		return rule, ccErr
 	}
 
@@ -195,16 +205,19 @@ func (p *hostApplyRule) UpdateHostApplyRule(ctx core.ContextParams, bizID int64,
 	return rule, nil
 }
 
+// DeleteHostApplyRule delete host apply rule by condition, bizID maybe 0
 func (p *hostApplyRule) DeleteHostApplyRule(ctx core.ContextParams, bizID int64, ruleIDs ...int64) errors.CCErrorCoder {
 	if len(ruleIDs) == 0 {
 		return ctx.Error.CCErrorf(common.CCErrCommParamsInvalid, "host_apply_rule_ids")
 	}
 	filter := map[string]interface{}{
 		common.BKOwnerIDField: ctx.SupplierAccount,
-		common.BKAppIDField:   bizID,
 		common.BKFieldID: map[string]interface{}{
 			common.BKDBIN: ruleIDs,
 		},
+	}
+	if bizID != 0 {
+		filter[common.BKAppIDField] = bizID
 	}
 	if err := p.dbProxy.Table(common.BKTableNameHostApplyRule).Delete(ctx.Context, filter); err != nil {
 		blog.Errorf("DeleteHostApplyRule failed, db remove failed, filter: %+v, err: %+v, rid: %s", filter, err, ctx.ReqID)
@@ -251,6 +264,7 @@ func (p *hostApplyRule) GetHostApplyRuleByAttributeID(ctx core.ContextParams, bi
 	return rule, nil
 }
 
+// ListHostApplyRule by condition, bizID maybe 0
 func (p *hostApplyRule) ListHostApplyRule(ctx core.ContextParams, bizID int64, option metadata.ListHostApplyRuleOption) (metadata.MultipleHostApplyRuleResult, errors.CCErrorCoder) {
 	result := metadata.MultipleHostApplyRuleResult{}
 	if option.Page.Limit > common.BKMaxPageSize && option.Page.Limit != common.BKNoLimit {
@@ -259,11 +273,18 @@ func (p *hostApplyRule) ListHostApplyRule(ctx core.ContextParams, bizID int64, o
 
 	filter := map[string]interface{}{
 		common.BkSupplierAccount: ctx.SupplierAccount,
-		common.BKAppIDField:      bizID,
+	}
+	if bizID != 0 {
+		filter[common.BKAppIDField] = bizID
 	}
 	if option.ModuleIDs != nil {
 		filter[common.BKModuleIDField] = map[string]interface{}{
 			common.BKDBIN: option.ModuleIDs,
+		}
+	}
+	if len(option.AttributeIDs) != 0 {
+		filter[common.BKAttributeIDField] = map[string]interface{}{
+			common.BKDBIN: option.AttributeIDs,
 		}
 	}
 	query := p.dbProxy.Table(common.BKTableNameHostApplyRule).Find(filter)
@@ -364,16 +385,16 @@ func (p *hostApplyRule) SearchRuleRelatedModules(ctx core.ContextParams, bizID i
 
 	for _, rule := range rules {
 		attribute, exist := attributeMap[rule.AttributeID]
-		if exist == false {
+		if !exist {
 			continue
 		}
 		if matchRule(ctx, rule, attribute, option) {
 			module, exist := moduleMap[rule.ModuleID]
-			if exist == false {
+			if !exist {
 				continue
 			}
 			// avoid repeat
-			if _, exist := resultModuleMap[module.ModuleID]; exist == true {
+			if _, exist := resultModuleMap[module.ModuleID]; exist {
 				continue
 			}
 			resultModules = append(resultModules, module)
@@ -391,11 +412,13 @@ func matchModule(ctx context.Context, module metadata.Module, option metadata.Se
 			return false
 		}
 		strValue, ok := r.Value.(string)
-		if ok == false {
+		if !ok {
 			return false
 		}
-		if util.CaseInsensitiveContains(module.ModuleName, strValue) {
-			return true
+		if r.Operator == querybuilder.OperatorContains {
+			if util.CaseInsensitiveContains(module.ModuleName, strValue) {
+				return true
+			}
 		}
 		return false
 	})
@@ -414,12 +437,17 @@ func matchRule(ctx context.Context, rule metadata.HostApplyRule, attribute metad
 		if r.Field != strconv.FormatInt(attribute.ID, 10) {
 			return false
 		}
+		if r.Operator == querybuilder.OperatorExist {
+			return true
+		}
 		strValue, ok := r.Value.(string)
-		if ok == false {
+		if !ok {
 			return false
 		}
-		if util.CaseInsensitiveContains(prettyValue, strValue) {
-			return true
+		if r.Operator == querybuilder.OperatorContains {
+			if util.CaseInsensitiveContains(prettyValue, strValue) {
+				return true
+			}
 		}
 		return false
 	})

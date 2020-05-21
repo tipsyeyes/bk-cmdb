@@ -169,10 +169,10 @@ func (s *Service) DeleteModule(params types.ContextParams, pathParams, queryPara
 		return nil, params.Err.Errorf(common.CCErrCommParamsNeedInt, "module id")
 	}
 
-	// 不允许直接删除内置模块
-	if err := s.CheckIsBuiltInModule(params, moduleID); err != nil {
-		blog.Errorf("[api-module]DeleteModule failed, CheckIsBuiltInModule failed, err: %s, rid: %s", err.Error(), params.ReqID)
-		return nil, err
+	// auth: deregister module to iam
+	if err := s.AuthManager.DeregisterModuleByID(params.Context, params.Header, moduleID); err != nil {
+		blog.Errorf("delete module failed, deregister module failed, err: %+v, rid: %s", err, params.ReqID)
+		return nil, params.Err.Error(common.CCErrCommUnRegistResourceToIAMFailed)
 	}
 
 	err = s.Core.ModuleOperation().DeleteModule(params, obj, bizID, []int64{setID}, []int64{moduleID})
@@ -180,7 +180,6 @@ func (s *Service) DeleteModule(params types.ContextParams, pathParams, queryPara
 		blog.Errorf("delete module failed, delete operation failed, err: %+v, rid: %s", err, params.ReqID)
 		return nil, err
 	}
-
 	return nil, nil
 }
 
@@ -249,6 +248,7 @@ func (s *Service) ListModulesByServiceTemplateID(params types.ContextParams, pat
 	requestBody := struct {
 		Page    *metadata.BasePage `field:"page" json:"page" mapstructure:"page"`
 		Keyword string             `field:"keyword" json:"keyword" mapstructure:"keyword"`
+		Modules []int64            `field:"bk_module_ids" json:"bk_module_ids" mapstructure:"bk_module_ids"`
 	}{}
 	if err := mapstruct.Decode2Struct(data, &requestBody); err != nil {
 		blog.Errorf("ListModulesByServiceTemplateID failed, parse request body failed, err: %s, rid: %s", err.Error(), params.ReqID)
@@ -256,7 +256,7 @@ func (s *Service) ListModulesByServiceTemplateID(params types.ContextParams, pat
 	}
 
 	start := int64(0)
-	limit := int64(common.BKDefaultLimit)
+	limit := int64(common.BKNoLimit)
 	sortArr := make([]metadata.SearchSort, 0)
 	if requestBody.Page != nil {
 		limit = int64(requestBody.Page.Limit)
@@ -267,6 +267,11 @@ func (s *Service) ListModulesByServiceTemplateID(params types.ContextParams, pat
 		common.BKServiceTemplateIDField: serviceTemplateID,
 		common.BKAppIDField:             bizID,
 	}
+
+	if requestBody.Modules != nil {
+		filter[common.BKModuleIDField] = mapstr.MapStr{common.BKDBIN: requestBody.Modules}
+	}
+
 	if len(requestBody.Keyword) != 0 {
 		filter[common.BKModuleNameField] = map[string]interface{}{
 			common.BKDBLIKE: requestBody.Keyword,
@@ -393,8 +398,10 @@ func (s *Service) SearchRuleRelatedTopoNodes(params types.ContextParams, pathPar
 				return false
 			}
 			// case-insensitive contains
-			if util.CaseInsensitiveContains(node.InstanceName, valueStr) {
-				return true
+			if r.Operator == querybuilder.OperatorContains {
+				if util.CaseInsensitiveContains(node.InstanceName, valueStr) {
+					return true
+				}
 			}
 			return false
 		})

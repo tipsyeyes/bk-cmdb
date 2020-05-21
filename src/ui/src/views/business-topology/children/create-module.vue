@@ -1,6 +1,6 @@
 <template>
     <div class="node-create-layout">
-        <h2 class="node-create-title">{{$t('新增模块')}}</h2>
+        <h2 class="node-create-title">{{$t('新建模块')}}</h2>
         <div class="node-create-path" :title="topoPath">{{$t('添加节点已选择')}}：{{topoPath}}</div>
         <div class="node-create-form"
             :style="{
@@ -14,7 +14,7 @@
                         name="createType"
                         v-model="withTemplate"
                         :value="1">
-                    <label for="formTemplate">{{$t('从模板创建')}}</label>
+                    <label for="formTemplate">{{$t('从模板新建')}}</label>
                 </div>
                 <div class="create-type fl ml50">
                     <input class="type-radio"
@@ -23,7 +23,7 @@
                         name="createType"
                         v-model="withTemplate"
                         :value="0">
-                    <label for="createDirectly">{{$t('直接创建')}}</label>
+                    <label for="createDirectly">{{$t('直接新建')}}</label>
                 </div>
             </div>
             <div class="form-item" v-if="withTemplate">
@@ -32,7 +32,7 @@
                     :clearable="false"
                     :searchable="templateList.length > 7"
                     v-model="template"
-                    v-validate.disabled="'required'"
+                    v-validate="'required'"
                     data-vv-name="template"
                     key="template">
                     <bk-option v-for="(option, index) in templateList"
@@ -70,15 +70,16 @@
                 <label>{{$t('所属服务分类')}}<font color="red">*</font></label>
                 <cmdb-selector class="service-class fl"
                     v-model="firstClass"
-                    v-validate.disabled="'required'"
+                    v-validate="'required'"
                     data-vv-name="firstClass"
                     key="firstClass"
                     :auto-select="false"
-                    :list="firstClassList">
+                    :list="firstClassList"
+                    @on-selected="updateCategory">
                 </cmdb-selector>
                 <cmdb-selector class="service-class fr"
                     v-model="secondClass"
-                    v-validate.disabled="'required'"
+                    v-validate="'required'"
                     data-vv-name="secondClass"
                     key="secondClass"
                     :list="secondClassList">
@@ -153,10 +154,11 @@
         watch: {
             withTemplate (withTemplate) {
                 if (withTemplate) {
-                    this.firstClass = ''
-                    this.secondClass = ''
+                    this.updateCategory()
+                    this.template = this.templateList.length ? this.templateList[0].id : ''
                 } else {
                     this.template = ''
+                    this.updateCategory(1)
                     this.getServiceCategories()
                 }
             },
@@ -224,6 +226,15 @@
                     category.secondCategory = data.filter(item => item.category.bk_parent_id === category.id).map(item => item.category)
                 })
                 return categories
+            },
+            updateCategory (firstClass) {
+                if (firstClass) {
+                    this.firstClass = firstClass
+                    this.secondClass = this.secondClassList.length ? this.secondClassList[0].id : ''
+                } else {
+                    this.firstClass = ''
+                    this.secondClass = ''
+                }
             },
             handleSave () {
                 this.$validator.validateAll().then(isValid => {

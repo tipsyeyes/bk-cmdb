@@ -15,7 +15,6 @@
         <bk-table-column
             v-if="multiple"
             :label="$t('已配置的模块')"
-            :render-header="(h, data) => renderColumnHeader(h, data, '主机属于多个模块，但主机的属性值仅能有唯一值')"
             class-name="table-cell-module-path"
         >
             <template slot-scope="{ row }">
@@ -33,7 +32,7 @@
                     :class="['show-more', { expanded: showMore.expanded[row.id] }]"
                     @click="handleToggleExpanded(row.id)"
                 >
-                    {{showMore.expanded[row.id] ? '收起' : '展开更多'}}<i class="bk-cc-icon icon-cc-arrow-down"></i>
+                    {{showMore.expanded[row.id] ? $t('收起') : $t('展开更多')}}<i class="bk-cc-icon icon-cc-arrow-down"></i>
                 </div>
             </template>
         </bk-table-column>
@@ -75,17 +74,17 @@
             v-if="!readonly"
             width="180"
             :label="$t('操作')"
-            :render-header="multiple ? (h, data) => renderColumnHeader(h, data, '删除操作不影响原有配置') : null"
+            :render-header="multiple ? (h, data) => renderColumnHeader(h, data, $t('删除操作不影响原有配置')) : null"
         >
             <template slot-scope="{ row }">
-                <bk-button theme="primary" text @click="handlePropertyRowDel(row)">删除</bk-button>
+                <bk-button theme="primary" text @click="handlePropertyRowDel(row)">{{$t('删除')}}</bk-button>
             </template>
         </bk-table-column>
     </bk-table>
 </template>
 <script>
     import { mapGetters, mapState } from 'vuex'
-    import propertyFormElement from './property-form-element'
+    import propertyFormElement from '@/components/host-apply/property-form-element'
     export default {
         components: {
             propertyFormElement
@@ -167,12 +166,11 @@
                             // 初始化值
                             if (this.multiple) {
                                 property.__extra__.ruleList = this.ruleList.filter(item => item.bk_attribute_id === property.id)
-                                // 默认值设定为空串
-                                property.__extra__.value = ''
+                                property.__extra__.value = this.getPropertyDefaultValue(property)
                             } else {
                                 const rule = this.ruleList.find(item => item.bk_attribute_id === property.id) || {}
                                 property.__extra__.ruleId = rule.id
-                                property.__extra__.value = rule.bk_property_value || ''
+                                property.__extra__.value = rule.hasOwnProperty('bk_property_value') ? rule.bk_property_value : this.getPropertyDefaultValue(property)
                             }
                             this.modulePropertyList.push(property)
                         }
@@ -200,6 +198,13 @@
             },
             getRuleValue (attrId, moduleId) {
                 return (this.ruleList.find(rule => rule.bk_attribute_id === attrId && rule.bk_module_id === moduleId) || {}).bk_property_value || ''
+            },
+            getPropertyDefaultValue (property) {
+                let value = ''
+                if (property.bk_property_type === 'bool') {
+                    value = false
+                }
+                return value
             },
             reset () {
                 if (!this.hasRuleDraft) {
@@ -242,6 +247,8 @@
     .path-item,
     .value-item {
         padding: 1px 0;
+        height: 20px;
+        line-height: 20px;
         @include ellipsis;
     }
     .show-more {

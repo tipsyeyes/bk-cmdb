@@ -72,7 +72,7 @@ func (s *Service) initBusiness() {
 	s.addAction(http.MethodPut, "/app/status/{flag}/{owner_id}/{app_id}", s.UpdateBusinessStatus, nil)
 	s.addAction(http.MethodPost, "/app/search/{owner_id}", s.SearchBusiness, nil)
 	s.addAction(http.MethodGet, "/app/{app_id}/basic_info", s.GetBusinessBasicInfo, nil)
-	s.addAction(http.MethodPost, "/app/default/{owner_id}/search", s.SearchArchivedBusiness, nil)
+	s.addAction(http.MethodPost, "/app/default/{owner_id}/search", s.SearchOwnerResourcePoolBusiness, nil)
 	s.addAction(http.MethodPost, "/app/default/{owner_id}", s.CreateDefaultBusiness, nil)
 	s.addAction(http.MethodGet, "/topo/internal/{owner_id}/{app_id}", s.GetInternalModule, nil)
 	s.addAction(http.MethodGet, "/topo/internal/{owner_id}/{app_id}/with_statistics", s.GetInternalModuleWithStatistics, nil)
@@ -122,6 +122,7 @@ func (s *Service) initObjectAttribute() {
 	s.addAction(http.MethodPost, "/objectattr/search", s.SearchObjectAttribute, nil)
 	s.addAction(http.MethodPut, "/objectattr/{id}", s.UpdateObjectAttribute, nil)
 	s.addAction(http.MethodDelete, "/objectattr/{id}", s.DeleteObjectAttribute, nil)
+	s.addAction(http.MethodPost, "/update/objectattr/index/{bk_obj_id}/{id}", s.UpdateObjectAttributeIndex, nil)
 }
 
 func (s *Service) initObjectClassification() {
@@ -154,7 +155,6 @@ func (s *Service) initObject() {
 	s.addAction(http.MethodPost, "/object", s.CreateObject, nil)
 	s.addAction(http.MethodPost, "/objects", s.SearchObject, nil)
 	s.addAction(http.MethodPost, "/objects/topo", s.SearchObjectTopo, nil)
-	s.addAction(http.MethodPost, "/objects/topo/bk_biz_id/{bk_biz_id}/host_apply_rule_related", s.SearchRuleRelatedTopoNodes, nil)
 	s.addAction(http.MethodPut, "/object/{id}", s.UpdateObject, nil)
 	s.addAction(http.MethodDelete, "/object/{id}", s.DeleteObject, nil)
 	s.addAction(http.MethodGet, "/object/statistics", s.GetModelStatistics, nil)

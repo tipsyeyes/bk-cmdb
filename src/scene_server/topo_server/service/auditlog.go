@@ -37,7 +37,7 @@ func (s *Service) AuditQuery(params types.ContextParams, pathParams, queryParams
 
 	queryCondition := query.Condition
 	if nil == queryCondition {
-		query.Condition = common.KvMap{common.BKOwnerIDField: params.SupplierAccount}
+		query.Condition = common.KvMap{}
 	} else {
 		cond := queryCondition.(map[string]interface{})
 		times, ok := cond[common.BKOpTimeField].([]interface{})
@@ -53,7 +53,6 @@ func (s *Service) AuditQuery(params types.ContextParams, pathParams, queryParams
 				CCTimeTypeParseFlag: "1",
 			}
 		}
-		cond[common.BKOwnerIDField] = params.SupplierAccount
 		query.Condition = cond
 	}
 	if 0 == query.Limit {
@@ -71,18 +70,16 @@ func (s *Service) AuditQuery(params types.ContextParams, pathParams, queryParams
 		businessID = id
 	}
 
-	// switch between tow different control mechanism
+    // switch between two different control mechanism
+    // TODO use global authorization for now, need more specific auth control
 	if s.AuthManager.RegisterAuditCategoryEnabled == false {
 		if err := s.AuthManager.AuthorizeAuditRead(params.Context, params.Header, 0); err != nil {
-			blog.Infof("AuditQuery check authorize on global failed, we'll try to check authorize on business, err: %+v, rid: %s", err, params.ReqID)
-			if err := s.AuthManager.AuthorizeAuditRead(params.Context, params.Header, businessID); err != nil {
-				blog.Errorf("AuditQuery failed, authorize failed, AuthorizeAuditRead failed, err: %+v, rid: %s", err, params.ReqID)
-				resp, err := s.AuthManager.GenAuthorizeAuditReadNoPermissionsResponse(params.Context, params.Header, businessID)
-				if err != nil {
-					return nil, fmt.Errorf("try authorize failed, err: %v", err)
-				}
-				return resp, auth.NoAuthorizeError
+			blog.Errorf("AuditQuery failed, authorize failed, AuthorizeAuditRead failed, err: %+v, rid: %s", err, params.ReqID)
+			resp, err := s.AuthManager.GenAuthorizeAuditReadNoPermissionsResponse(params.Context, params.Header, 0)
+			if err != nil {
+				return nil, fmt.Errorf("try authorize failed, err: %v", err)
 			}
+			return resp, auth.NoAuthorizeError
 		}
 	} else {
 		var hasAuthorize bool
@@ -145,7 +142,6 @@ func (s *Service) InstanceAuditQuery(params types.ContextParams, pathParams, que
 			CCTimeTypeParseFlag: "1",
 		}
 	}
-	cond[common.BKOwnerIDField] = params.SupplierAccount
 	cond[common.BKOpTargetField] = objectID
 	query.Condition = cond
 	if 0 == query.Limit {

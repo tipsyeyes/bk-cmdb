@@ -60,7 +60,7 @@ func (ps *ProcServer) createServiceInstances(ctx *rest.Contexts, input metadata.
 	hostIDs := make([]int64, 0)
 	hostIDHit := make(map[int64]bool)
 	for _, instance := range input.Instances {
-		if util.InArray(instance.HostID, hostIDs) == false {
+		if !util.InArray(instance.HostID, hostIDs) {
 			hostIDs = append(hostIDs, instance.HostID)
 			hostIDHit[instance.HostID] = false
 		}
@@ -80,29 +80,6 @@ func (ps *ProcServer) createServiceInstances(ctx *rest.Contexts, input metadata.
 		blog.Errorf("createServiceInstances failed, module %d not belongs to biz %d, rid: %s", input.ModuleID, bizID, rid)
 		return nil, ctx.Kit.CCError.CCErrorf(common.CCErrCoreServiceHasModuleNotBelongBusiness, module.ModuleID, bizID)
 	}
-
-	header := ctx.Kit.Header
-	tx, e := ps.TransactionClient.Start(context.Background())
-	if e != nil {
-		blog.Errorf("createServiceInstances failed, start transaction failed, err: %+v, rid: %s", e, rid)
-		return nil, ctx.Kit.CCError.CCError(common.CCErrCommStartTransactionFailed)
-	}
-	header = tx.TxnInfo().IntoHeader(header)
-	ctx.Kit.Header = header
-
-	defer func() {
-		if err != nil {
-			if txErr := tx.Abort(ctx.Kit.Ctx); txErr != nil {
-				blog.Errorf("createServiceInstances failed, abort translation failed, err: %v, rid: %s", txErr, rid)
-				return
-			}
-		} else {
-			if txErr := tx.Commit(ctx.Kit.Ctx); txErr != nil {
-				blog.Errorf("createServiceInstances failed, commit transaction failed, err: %v, rid: %s", txErr, rid)
-				return
-			}
-		}
-	}()
 
 	serviceInstanceIDs := make([]int64, 0)
 	for _, inst := range input.Instances {
@@ -157,7 +134,7 @@ func (ps *ProcServer) createServiceInstances(ctx *rest.Contexts, input metadata.
 				for _, item := range inst.Processes {
 					templateID := item.ProcessTemplateID
 					processID, exist := templateID2ProcessID[templateID]
-					if exist == false {
+					if !exist {
 						continue
 					}
 					processData := item.ProcessData
@@ -212,14 +189,14 @@ func (ps *ProcServer) SearchServiceInstancesInModuleWeb(ctx *rest.Contexts) {
 		Selectors:  input.Selectors,
 		HostIDs:    input.HostIDs,
 	}
-	instances, err := ps.CoreAPI.CoreService().Process().ListServiceInstance(ctx.Kit.Ctx, ctx.Kit.Header, option)
+	serviceInstanceResult, err := ps.CoreAPI.CoreService().Process().ListServiceInstance(ctx.Kit.Ctx, ctx.Kit.Header, option)
 	if err != nil {
 		ctx.RespWithError(err, common.CCErrProcGetServiceInstancesFailed, "get service instance in module: %d failed, err: %v", input.ModuleID, err)
 		return
 	}
 
 	serviceInstanceIDs := make([]int64, 0)
-	for _, instance := range instances.Info {
+	for _, instance := range serviceInstanceResult.Info {
 		serviceInstanceIDs = append(serviceInstanceIDs, instance.ID)
 	}
 	listRelationOption := &metadata.ListProcessInstanceRelationOption{
@@ -238,7 +215,7 @@ func (ps *ProcServer) SearchServiceInstancesInModuleWeb(ctx *rest.Contexts) {
 	// service_instance_id -> process count
 	processCountMap := make(map[int64]int)
 	for _, relation := range relations.Info {
-		if _, ok := processCountMap[relation.ServiceInstanceID]; ok == false {
+		if _, ok := processCountMap[relation.ServiceInstanceID]; !ok {
 			processCountMap[relation.ServiceInstanceID] = 0
 		}
 		processCountMap[relation.ServiceInstanceID] += 1
@@ -246,18 +223,22 @@ func (ps *ProcServer) SearchServiceInstancesInModuleWeb(ctx *rest.Contexts) {
 
 	// insert `process_count` field
 	serviceInstanceDetails := make([]map[string]interface{}, 0)
-	for _, instance := range instances.Info {
+	for _, instance := range serviceInstanceResult.Info {
 		item, err := mapstr.Struct2Map(instance)
 		if err != nil {
+			blog.ErrorJSON("SearchServiceInstancesInModuleWeb failed, Struct2Map failed, serviceInstance: %s, err: %s, rid: %s", instance, err.Error(), ctx.Kit.Rid)
+			ccErr := ctx.Kit.CCError.CCError(common.CCErrCommParseDBFailed)
+			ctx.RespAutoError(ccErr)
+			return
 		}
 		item["process_count"] = 0
-		if count, ok := processCountMap[instance.ID]; ok == true {
+		if count, ok := processCountMap[instance.ID]; ok {
 			item["process_count"] = count
 		}
 		serviceInstanceDetails = append(serviceInstanceDetails, item)
 	}
 	result := metadata.MultipleMap{
-		Count: instances.Count,
+		Count: serviceInstanceResult.Count,
 		Info:  serviceInstanceDetails,
 	}
 	ctx.RespEntity(result)
@@ -475,7 +456,6 @@ func (ps *ProcServer) DiffServiceInstanceWithTemplate(ctx *rest.Contexts) {
 	}
 
 	ctx.RespEntity(result)
-	return
 }
 
 func (ps *ProcServer) diffServiceInstanceWithTemplate(ctx *rest.Contexts, diffOption metadata.DiffOneModuleWithTemplateOption) (*metadata.ModuleDiffWithTemplateDetail, errors.CCErrorCoder) {
@@ -641,7 +621,7 @@ func (ps *ProcServer) diffServiceInstanceWithTemplate(ctx *rest.Contexts, diffOp
 
 		// check whether a new process template has been added.
 		for templateID, processTemplate := range pTemplateMap {
-			if _, exist := processTemplateReferenced[templateID]; exist == true {
+			if _, exist := processTemplateReferenced[templateID]; exist {
 				continue
 			}
 			// the process template does not exist in all the service instances,
@@ -831,23 +811,15 @@ func (ps *ProcServer) SyncServiceInstanceByTemplate(ctx *rest.Contexts) {
 		return
 	}
 
-	for _, moduleID := range syncOption.ModuleIDs {
-		option := metadata.SyncModuleServiceInstanceByTemplateOption{
-			Metadata: syncOption.Metadata,
-			BizID:    syncOption.BizID,
-			ModuleID: moduleID,
-		}
-		err := ps.syncServiceInstanceByTemplate(ctx, option)
-		if err != nil {
-			ctx.RespAutoError(err)
-			return
-		}
+	err := ps.syncServiceInstanceByTemplate(ctx, syncOption)
+	if err != nil {
+		ctx.RespAutoError(err)
+		return
 	}
 	ctx.RespEntity(make(map[string]interface{}))
-	return
 }
 
-func (ps *ProcServer) syncServiceInstanceByTemplate(ctx *rest.Contexts, syncOption metadata.SyncModuleServiceInstanceByTemplateOption) errors.CCErrorCoder {
+func (ps *ProcServer) syncServiceInstanceByTemplate(ctx *rest.Contexts, syncOption metadata.SyncServiceInstanceByTemplateOption) errors.CCErrorCoder {
 	rid := ctx.Kit.Rid
 
 	bizID := syncOption.BizID
@@ -859,20 +831,18 @@ func (ps *ProcServer) syncServiceInstanceByTemplate(ctx *rest.Contexts, syncOpti
 			return ctx.Kit.CCError.CCErrorf(common.CCErrCommParamsInvalid, common.MetadataField)
 		}
 	}
-	syncOption.BizID = bizID
 
-	module, err := ps.getModule(ctx, syncOption.ModuleID)
+	modules, err := ps.getModules(ctx, syncOption.ModuleIDs)
 	if err != nil {
-		blog.Errorf("syncServiceInstanceByTemplate failed, getModule failed, moduleID: %d, err: %s, rid: %s", syncOption.ModuleID, err.Error(), rid)
+		blog.Errorf("syncServiceInstanceByTemplate failed, getModule failed, moduleIDs: %+v, err: %s, rid: %s", syncOption.ModuleIDs, err.Error(), rid)
 		return err
 	}
 
 	// step 0:
 	// find service instances
 	serviceInstanceOption := &metadata.ListServiceInstanceOption{
-		BusinessID:        bizID,
-		ModuleIDs:         []int64{syncOption.ModuleID},
-		ServiceTemplateID: module.ServiceTemplateID,
+		BusinessID: bizID,
+		ModuleIDs:  syncOption.ModuleIDs,
 		Page: metadata.BasePage{
 			Limit: common.BKNoLimit,
 		},
@@ -882,6 +852,10 @@ func (ps *ProcServer) syncServiceInstanceByTemplate(ctx *rest.Contexts, syncOpti
 		blog.ErrorJSON("syncServiceInstanceByTemplate failed, ListServiceInstance failed, option: %s, err: %s, rid: %s", serviceInstanceOption, err.Error(), rid)
 		return err
 	}
+	if serviceInstanceResult.Count == 0 {
+		blog.V(3).Infof("syncServiceInstanceByTemplate success, no service instance found, option: %+v, rid: %s", serviceInstanceOption, rid)
+		return nil
+	}
 	serviceInstanceIDs := make([]int64, 0)
 	for _, serviceInstance := range serviceInstanceResult.Info {
 		serviceInstanceIDs = append(serviceInstanceIDs, serviceInstance.ID)
@@ -889,9 +863,15 @@ func (ps *ProcServer) syncServiceInstanceByTemplate(ctx *rest.Contexts, syncOpti
 
 	// step 1:
 	// find all the process template according to the service template id
+	serviceTemplateIDs := make([]int64, 0)
+	serviceTemplateModuleMap := make(map[int64][]*metadata.ModuleInst)
+	for _, module := range modules {
+		serviceTemplateIDs = append(serviceTemplateIDs, module.ServiceTemplateID)
+		serviceTemplateModuleMap[module.ServiceTemplateID] = append(serviceTemplateModuleMap[module.ServiceTemplateID], module)
+	}
 	processTemplateFilter := &metadata.ListProcessTemplatesOption{
 		BusinessID:         bizID,
-		ServiceTemplateIDs: []int64{module.ServiceTemplateID},
+		ServiceTemplateIDs: serviceTemplateIDs,
 	}
 	processTemplate, err := ps.CoreAPI.CoreService().Process().ListProcessTemplates(ctx.Kit.Ctx, ctx.Kit.Header, processTemplateFilter)
 	if err != nil {
@@ -939,10 +919,15 @@ func (ps *ProcServer) syncServiceInstanceByTemplate(ctx *rest.Contexts, syncOpti
 	serviceInstanceWithTemplateMap := make(map[int64]map[int64]bool)
 	// {ServiceInstanceID: HostID}
 	serviceInstance2HostMap := make(map[int64]int64)
+	// {ServiceInstanceID: isNameChanged}
+	serviceInstanceNameChangedMap := make(map[int64]bool)
+	// {ServiceInstanceID: ServiceTemplateID}
+	serviceInstanceTemplateMap := make(map[int64]int64)
 	for _, serviceInstance := range serviceInstanceResult.Info {
 		serviceInstance2ProcessMap[serviceInstance.ID] = make([]*metadata.Process, 0)
 		serviceInstanceWithTemplateMap[serviceInstance.ID] = make(map[int64]bool)
 		serviceInstance2HostMap[serviceInstance.ID] = serviceInstance.HostID
+		serviceInstanceTemplateMap[serviceInstance.ID] = serviceInstance.ServiceTemplateID
 	}
 	processInstanceWithTemplateMap := make(map[int64]int64)
 	for _, r := range relations.Info {
@@ -950,7 +935,7 @@ func (ps *ProcServer) syncServiceInstanceByTemplate(ctx *rest.Contexts, syncOpti
 		if !exist {
 			// something is wrong, but can this process instance,
 			// but we can find it in the process instance relation.
-			blog.Warnf("force sync service instance according to service template: %d, but can not find the process instance: %d, rid: %s", module.ServiceTemplateID, r.ProcessID, rid)
+			blog.Warnf("force sync process instance according to process template: %d, but can not find the process instance: %d, rid: %s", r.ProcessTemplateID, r.ProcessID, rid)
 			continue
 		}
 		serviceInstance2ProcessMap[r.ServiceInstanceID] = append(serviceInstance2ProcessMap[r.ServiceInstanceID], p)
@@ -960,38 +945,46 @@ func (ps *ProcServer) syncServiceInstanceByTemplate(ctx *rest.Contexts, syncOpti
 
 	// step 5:
 	// compare the difference between process instance and process template from one service instance to another.
-	for _, processes := range serviceInstance2ProcessMap {
+	removedProcessIDs := make([]int64, 0)
+	for serviceInstanceID, processes := range serviceInstance2ProcessMap {
 		for _, process := range processes {
 			processTemplateID := processInstanceWithTemplateMap[process.ProcessID]
 			template, exist := processTemplateMap[processTemplateID]
-			if exist == false {
+			if !exist || template.ServiceTemplateID != serviceInstanceTemplateMap[serviceInstanceID] {
 				// this process template has already removed form the service template,
 				// which means this process instance need to be removed from this service instance
-				if err := ps.Logic.DeleteProcessInstance(ctx.Kit, process.ProcessID); err != nil {
-					blog.Errorf("syncServiceInstanceByTemplate failed, DeleteProcessInstance failed, processID: %d, err: %s, rid: %s", process.ProcessID, err.Error(), rid)
-					return err
-				}
-
-				// remove process instance relation now.
-				deleteOption := metadata.DeleteProcessInstanceRelationOption{}
-				deleteOption.ProcessIDs = []int64{process.ProcessID}
-				if err := ps.CoreAPI.CoreService().Process().DeleteProcessInstanceRelation(ctx.Kit.Ctx, ctx.Kit.Header, deleteOption); err != nil {
-					blog.ErrorJSON("syncServiceInstanceByTemplate failed, DeleteProcessInstanceRelation failed, option: %s, err: %s, rid: %s", deleteOption, err.Error(), rid)
-					return err
-				}
+				removedProcessIDs = append(removedProcessIDs, process.ProcessID)
+				serviceInstanceNameChangedMap[serviceInstanceID] = true
 				continue
 			}
 
 			// this process's bounded is still exist, need to check whether this process instance
 			// need to be updated or not.
-			proc, changed := template.ExtractChangeInfo(process)
+			proc, changed, isNamePortChanged := template.ExtractChangeInfo(process)
 			if !changed {
 				continue
+			}
+			if !serviceInstanceNameChangedMap[serviceInstanceID] {
+				serviceInstanceNameChangedMap[serviceInstanceID] = isNamePortChanged
 			}
 			if err := ps.Logic.UpdateProcessInstance(ctx.Kit, process.ProcessID, proc); err != nil {
 				blog.Errorf("syncServiceInstanceByTemplate failed, UpdateProcessInstance failed, processID:%d, err: %s, rid:%s", process.ProcessID, err.Error(), rid)
 				return err
 			}
+		}
+	}
+	// remove processes whose template has been removed
+	if len(removedProcessIDs) != 0 {
+		if err := ps.Logic.DeleteProcessInstanceBatch(ctx.Kit, removedProcessIDs); err != nil {
+			blog.Errorf("syncServiceInstanceByTemplate failed, DeleteProcessInstance failed, processID: %d, err: %s, rid: %s", removedProcessIDs, err.Error(), rid)
+			return err
+		}
+		// remove process instance relation now.
+		deleteOption := metadata.DeleteProcessInstanceRelationOption{}
+		deleteOption.ProcessIDs = removedProcessIDs
+		if err := ps.CoreAPI.CoreService().Process().DeleteProcessInstanceRelation(ctx.Kit.Ctx, ctx.Kit.Header, deleteOption); err != nil {
+			blog.ErrorJSON("syncServiceInstanceByTemplate failed, DeleteProcessInstanceRelation failed, option: %s, err: %s, rid: %s", deleteOption, err.Error(), rid)
+			return err
 		}
 	}
 
@@ -1000,7 +993,10 @@ func (ps *ProcServer) syncServiceInstanceByTemplate(ctx *rest.Contexts, syncOpti
 	// if true, then create a new process instance for every service instance with process template's default value.
 	for processTemplateID, processTemplate := range processTemplateMap {
 		for svcID, templates := range serviceInstanceWithTemplateMap {
-			if _, exist := templates[processTemplateID]; exist == true {
+			if processTemplate.ServiceTemplateID != serviceInstanceTemplateMap[svcID] {
+				continue
+			}
+			if _, exist := templates[processTemplateID]; exist {
 				continue
 			}
 
@@ -1020,55 +1016,80 @@ func (ps *ProcServer) syncServiceInstanceByTemplate(ctx *rest.Contexts, syncOpti
 
 			relation := &metadata.ProcessInstanceRelation{
 				BizID:             bizID,
-				ProcessID:         int64(newProcessID),
+				ProcessID:         newProcessID,
 				ServiceInstanceID: svcID,
 				ProcessTemplateID: processTemplateID,
 				HostID:            serviceInstance2HostMap[svcID],
 			}
 
 			// create service instance relation, so that the process instance created upper can be related to this service instance.
-			_, e = ps.CoreAPI.CoreService().Process().CreateProcessInstanceRelation(ctx.Kit.Ctx, ctx.Kit.Header, relation)
-			if e != nil {
+			_, err = ps.CoreAPI.CoreService().Process().CreateProcessInstanceRelation(ctx.Kit.Ctx, ctx.Kit.Header, relation)
+			if err != nil {
 				blog.ErrorJSON("syncServiceInstanceByTemplate failed, CreateProcessInstanceRelation failed, relation: %s, err: %s, rid: %s", relation, err.Error(), rid)
 				return err
 			}
 		}
 	}
 
-	// reconstruct service instance's name as it's dependence(first process's + first process's port) changed
+	// reconstruct service instance's name as it's dependence(first process's name + first process's port) changed
 	for _, svcInstanceID := range serviceInstanceIDs {
+		if !serviceInstanceNameChangedMap[svcInstanceID] {
+			continue
+		}
 		if err := ps.CoreAPI.CoreService().Process().ReconstructServiceInstanceName(ctx.Kit.Ctx, ctx.Kit.Header, svcInstanceID); err != nil {
 			blog.ErrorJSON("syncServiceInstanceByTemplate failed, ReconstructServiceInstanceName failed, instanceID:%d, err:%s, rid:%s", svcInstanceID, err.Error(), rid)
 			return err
 		}
 	}
 
-	// get service template
-	serviceTemplate, err := ps.CoreAPI.CoreService().Process().GetServiceTemplate(ctx.Kit.Ctx, ctx.Kit.Header, module.ServiceTemplateID)
+	// get service templates
+	serviceTemplates, err := ps.CoreAPI.CoreService().Process().ListServiceTemplates(ctx.Kit.Ctx, ctx.Kit.Header, &metadata.ListServiceTemplateOption{
+		BusinessID:         bizID,
+		ServiceTemplateIDs: serviceTemplateIDs,
+		Page: metadata.BasePage{
+			Limit: common.BKNoLimit,
+		},
+	})
 	if err != nil {
-		blog.Errorf("syncServiceInstanceByTemplate failed, GetServiceTemplate failed, serviceTemplateID:%d, err:%s, rid:%s", module.ServiceTemplateID, err.Error(), rid)
+		blog.Errorf("syncServiceInstanceByTemplate failed, ListServiceTemplates failed, serviceTemplateIDs: %+v, err: %s, rid: %s", serviceTemplateIDs, err.Error(), rid)
 		return err
 	}
 
 	// step 7:
 	// update module service category and name field
-	moduleUpdateOption := &metadata.UpdateOption{
-		Data: map[string]interface{}{
-			common.BKServiceCategoryIDField: serviceTemplate.ServiceCategoryID,
-			common.BKModuleNameField:        serviceTemplate.Name,
-		},
-		Condition: map[string]interface{}{
-			common.BKModuleIDField: module.ModuleID,
-		},
-	}
-	resp, e := ps.CoreAPI.CoreService().Instance().UpdateInstance(ctx.Kit.Ctx, ctx.Kit.Header, common.BKInnerObjIDModule, moduleUpdateOption)
-	if e != nil {
-		blog.ErrorJSON("syncServiceInstanceByTemplate failed, UpdateInstance failed, option: %s, err: %s, rid:%s", moduleUpdateOption, err.Error(), rid)
-		return ctx.Kit.CCError.CCError(common.CCErrCommHTTPDoRequestFailed)
-	}
-	if resp.Result == false || resp.Code != 0 {
-		blog.ErrorJSON("syncServiceInstanceByTemplate failed, UpdateInstance failed, option: %s, result: %s, rid: %s", moduleUpdateOption, resp, rid)
-		return errors.New(resp.Code, resp.ErrMsg)
+	for _, serviceTemplate := range serviceTemplates.Info {
+		updateModules := make([]int64, 0)
+		for _, module := range serviceTemplateModuleMap[serviceTemplate.ID] {
+			if module == nil {
+				continue
+			}
+			if serviceTemplate.ServiceCategoryID != module.ServiceCategoryID || serviceTemplate.Name != module.ModuleName {
+				updateModules = append(updateModules, module.ModuleID)
+			}
+		}
+		if len(updateModules) == 0 {
+			continue
+		}
+		moduleUpdateOption := &metadata.UpdateOption{
+			Data: map[string]interface{}{
+				common.BKServiceCategoryIDField: serviceTemplate.ServiceCategoryID,
+				common.BKModuleNameField:        serviceTemplate.Name,
+			},
+			Condition: map[string]interface{}{
+				common.BKModuleIDField: map[string]interface{}{
+					common.BKDBIN: updateModules,
+				},
+			},
+		}
+		resp, e := ps.CoreAPI.CoreService().Instance().UpdateInstance(ctx.Kit.Ctx, ctx.Kit.Header, common.BKInnerObjIDModule, moduleUpdateOption)
+		if e != nil {
+			blog.ErrorJSON("syncServiceInstanceByTemplate failed, UpdateInstance failed, option: %s, err: %s, rid:%s", moduleUpdateOption, e.Error(), rid)
+			return ctx.Kit.CCError.CCError(common.CCErrCommHTTPDoRequestFailed)
+		}
+		if ccErr := resp.CCError(); ccErr != nil {
+			blog.ErrorJSON("syncServiceInstanceByTemplate failed, UpdateInstance failed, option: %s, result: %s, rid: %s", moduleUpdateOption, resp, rid)
+			return ccErr
+		}
 	}
 	return nil
 }
@@ -1248,7 +1269,7 @@ func (ps *ProcServer) ServiceInstanceLabelsAggregation(ctx *rest.Contexts) {
 	aggregationData := make(map[string][]string)
 	for _, inst := range instanceRst.Info {
 		for key, value := range inst.Labels {
-			if _, exist := aggregationData[key]; exist == false {
+			if _, exist := aggregationData[key]; !exist {
 				aggregationData[key] = make([]string, 0)
 			}
 			aggregationData[key] = append(aggregationData[key], value)
@@ -1300,15 +1321,15 @@ func (ps *ProcServer) DeleteServiceInstancePreview(ctx *rest.Contexts) {
 	hostModules := make(map[int64][]int64)
 	for _, instance := range listToDeleteResult.Info {
 		hostIDs = append(hostIDs, instance.HostID)
-		if _, exist := hostModules[instance.HostID]; exist == false {
+		if _, exist := hostModules[instance.HostID]; !exist {
 			hostModules[instance.HostID] = make([]int64, 0)
 		}
-		if util.InArray(instance.ModuleID, hostModules[instance.HostID]) == false {
+		if !util.InArray(instance.ModuleID, hostModules[instance.HostID]) {
 			hostModules[instance.HostID] = append(hostModules[instance.HostID], instance.ModuleID)
 		}
 	}
 
-	// step3. get related hosts expired service instances(current minus to be deleted ones)
+	// step3. get related hosts expired service instances(current minus deleted items)
 	listOption = &metadata.ListServiceInstanceOption{
 		BusinessID: bizID,
 		HostIDs:    hostIDs,
@@ -1324,43 +1345,92 @@ func (ps *ProcServer) DeleteServiceInstancePreview(ctx *rest.Contexts) {
 	expiredHostModule := make(map[int64][]int64)
 	for _, instance := range listCurrentResult.Info {
 		// skip to be delete serviceInstance
-		if util.InArray(instance.ID, input.ServiceInstanceIDs) == true {
+		if util.InArray(instance.ID, input.ServiceInstanceIDs) {
 			continue
 		}
 
-		if _, exist := expiredHostModule[instance.HostID]; exist == false {
+		if _, exist := expiredHostModule[instance.HostID]; !exist {
 			expiredHostModule[instance.HostID] = make([]int64, 0)
 		}
 		expiredHostModule[instance.HostID] = append(expiredHostModule[instance.HostID], instance.ModuleID)
 	}
+
+	// get idle module
+	idleModule, err := ps.getDefaultModule(ctx, bizID, common.DefaultResModuleFlag)
+	if err != nil {
+		blog.Errorf("generate delete preview failed, getDefaultModule failed, bizID: %d, err: %+v, rid: %s", bizID, err, ctx.Kit.Rid)
+		ctx.RespWithError(err, common.CCErrGetModule, "generate delete preview failed, get idle module failed, bizID: %d", bizID)
+		return
+	}
+	idleModuleID := idleModule.ModuleID
 
 	preview := metadata.ServiceInstanceDeletePreview{
 		ToMoveModuleHosts: make([]metadata.RemoveFromModuleHost, 0),
 	}
 
 	// check host remove from modules
+	finalHostModules := make([]metadata.Host2Modules, 0)
 	for hostID, moduleIDs := range hostModules {
 		hostPreview := metadata.RemoveFromModuleHost{
-			HostID:  hostID,
-			Modules: make([]int64, 0),
+			HostID:            hostID,
+			RemoveFromModules: make([]int64, 0),
 		}
 		expiredModules, exist := expiredHostModule[hostID]
-		if exist == false {
+		if !exist {
 			// host will be move to idle module
 			hostPreview.MoveToIdle = true
-			hostPreview.Modules = moduleIDs
+			hostPreview.RemoveFromModules = moduleIDs
+			hostPreview.FinalModules = []int64{idleModuleID}
 			preview.ToMoveModuleHosts = append(preview.ToMoveModuleHosts, hostPreview)
+			finalHostModules = append(finalHostModules, metadata.Host2Modules{
+				HostID:    hostID,
+				ModuleIDs: hostPreview.FinalModules,
+			})
 			continue
 		}
 		for _, moduleID := range moduleIDs {
-			if util.InArray(moduleID, expiredModules) == false {
+			if !util.InArray(moduleID, expiredModules) {
 				// host will be remove from module:expiredModules[hostID]
-				hostPreview.Modules = append(hostPreview.Modules, moduleID)
+				hostPreview.RemoveFromModules = append(hostPreview.RemoveFromModules, moduleID)
+			} else {
+				hostPreview.FinalModules = append(hostPreview.FinalModules, moduleID)
 			}
 		}
-		if len(hostPreview.Modules) > 0 {
+		if len(hostPreview.RemoveFromModules) > 0 {
 			preview.ToMoveModuleHosts = append(preview.ToMoveModuleHosts, hostPreview)
 		}
+		finalHostModules = append(finalHostModules, metadata.Host2Modules{
+			HostID:    hostID,
+			ModuleIDs: hostPreview.FinalModules,
+		})
 	}
+
+	finalModules := make([]int64, 0)
+	for _, item := range finalHostModules {
+		finalModules = append(finalModules, item.ModuleIDs...)
+	}
+	listRuleOption := metadata.ListHostApplyRuleOption{
+		ModuleIDs: finalModules,
+		Page: metadata.BasePage{
+			Limit: common.BKNoLimit,
+		},
+	}
+	ruleResult, err := ps.CoreAPI.CoreService().HostApplyRule().ListHostApplyRule(ctx.Kit.Ctx, ctx.Kit.Header, bizID, listRuleOption)
+	if err != nil {
+		blog.Errorf("generate delete preview failed, ListHostApplyRule failed, option: %+v, err: %+v, rid: %s", listRuleOption, err, ctx.Kit.Rid)
+		ctx.RespWithError(err, common.CCErrCommHTTPDoRequestFailed, "generate delete preview failed, ListHostApplyRule failed, option: %+v", listRuleOption)
+		return
+	}
+	hostApplyPlanOption := metadata.HostApplyPlanOption{
+		HostModules: finalHostModules,
+		Rules:       ruleResult.Info,
+	}
+	applyPlan, err := ps.CoreAPI.CoreService().HostApplyRule().GenerateApplyPlan(ctx.Kit.Ctx, ctx.Kit.Header, bizID, hostApplyPlanOption)
+	if err != nil {
+		blog.Errorf("generate delete preview failed, GenerateApplyPlan failed, option: %+v, err: %+v, rid: %s", hostApplyPlanOption, err, ctx.Kit.Rid)
+		ctx.RespWithError(err, common.CCErrGetModule, "generate delete preview failed, GenerateApplyPlan failed, option: %+v", hostApplyPlanOption)
+		return
+	}
+	preview.HostApplyPlan = applyPlan
 	ctx.RespEntity(preview)
 }

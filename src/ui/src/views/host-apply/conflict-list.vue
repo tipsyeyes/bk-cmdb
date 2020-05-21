@@ -33,7 +33,7 @@
 
 <script>
     import { mapGetters, mapActions } from 'vuex'
-    import propertyConfirmTable from './children/property-confirm-table'
+    import propertyConfirmTable from '@/components/host-apply/property-confirm-table'
     import applyStatusModal from './children/apply-status'
     import {
         MENU_BUSINESS_HOST_AND_SERVICE,
@@ -101,15 +101,7 @@
                 }
             },
             setBreadcrumbs () {
-                this.$store.commit('setTitle', this.$t('策略失效列表'))
-                this.$store.commit('setBreadcrumbs', [{
-                    label: this.$t('主机属性自动应用'),
-                    route: {
-                        name: MENU_BUSINESS_HOST_APPLY
-                    }
-                }, {
-                    label: this.$t('策略失效列表')
-                }])
+                this.$store.commit('setTitle', this.$t('策略失效主机'))
             },
             goBack () {
                 this.$router.push({
@@ -155,7 +147,7 @@
                 } else {
                     this.$bkInfo({
                         title: this.$t('确认应用'),
-                        subTitle: this.$t('您还有无法自动应用的主机属性需确认，是要保留主机原有属性值不做修改吗？'),
+                        subTitle: this.$t('您还有无法自动应用的主机属性需确认'),
                         confirmFn: () => {
                             this.postApply()
                         }
@@ -167,12 +159,16 @@
             },
             handleViewHost () {
                 this.$router.push({
-                    name: MENU_BUSINESS_HOST_AND_SERVICE
+                    name: MENU_BUSINESS_HOST_AND_SERVICE,
+                    query: {
+                        node: `module-${this.moduleIds[0]}`
+                    }
                 })
             },
             handleViewFailed () {
                 this.$router.push({
-                    name: MENU_BUSINESS_HOST_APPLY_FAILED
+                    name: MENU_BUSINESS_HOST_APPLY_FAILED,
+                    query: this.$route.query
                 })
             }
         }
@@ -181,7 +177,7 @@
 
 <style lang="scss" scoped>
     .conflict-list {
-        padding: 0 20px;
+        padding: 15px 20px 0;
     }
 
     .bottom-actionbar {

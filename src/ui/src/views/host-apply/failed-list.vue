@@ -1,7 +1,7 @@
 <template>
     <div class="failed-list">
         <div class="caption">
-            <div class="title">请确认以下主机应用信息：</div>
+            <div class="title">{{$t('请确认以下主机应用信息')}}</div>
         </div>
         <bk-table
             :data="table.list"
@@ -12,15 +12,15 @@
             @page-limit-change="handleSizeChange"
             @row-click="handleRowClick"
         >
-            <bk-table-column :label="$t('内网IP')" prop="host.bk_host_innerip" class-name="is-highlight"></bk-table-column>
-            <bk-table-column :label="$t('云区域')">
-                <div slot-scope="{ row }">
+            <bk-table-column :label="$t('内网IP')" prop="host.bk_host_innerip" class-name="is-highlight" show-overflow-tooltip></bk-table-column>
+            <bk-table-column :label="$t('云区域')" show-overflow-tooltip>
+                <template slot-scope="{ row }">
                     {{getCloudName(row.host.bk_cloud_id)}}
-                </div>
+                </template>
             </bk-table-column>
-            <bk-table-column :label="$t('固资编号')" prop="host.bk_asset_id"></bk-table-column>
-            <bk-table-column :label="$t('主机名称')" prop="host.bk_host_name"></bk-table-column>
-            <bk-table-column :label="$t('所属拓扑')" :formatter="getTopopath"></bk-table-column>
+            <bk-table-column :label="$t('固资编号')" prop="host.bk_asset_id" show-overflow-tooltip></bk-table-column>
+            <bk-table-column :label="$t('主机名称')" prop="host.bk_host_name" show-overflow-tooltip></bk-table-column>
+            <bk-table-column :label="$t('所属拓扑')" :formatter="getTopopath" show-overflow-tooltip></bk-table-column>
             <bk-table-column :label="$t('失败原因')">
                 <div class="fail-reason" slot-scope="{}">
                     网络中断
@@ -39,8 +39,8 @@
                         {{$t('重试')}}
                     </bk-button>
                 </cmdb-auth>
-                <bk-button theme="default" @click="handleCopyIp">复制IP</bk-button>
-                <bk-button theme="default" @click="handleCancel">取消</bk-button>
+                <bk-button theme="default" @click="handleCopyIp">{{$t('复制IP')}}</bk-button>
+                <bk-button theme="default" @click="handleCancel">{{$t('取消')}}</bk-button>
             </div>
         </div>
         <apply-status-modal
@@ -104,7 +104,7 @@
                     width: 514,
                     isShow: false,
                     content: '',
-                    title: this.$t('拓扑显示设置')
+                    title: ''
                 }
             }
         },
@@ -114,6 +114,17 @@
             ...mapState('hosts', ['propertyList']),
             hostIds () {
                 return this.propertyConfig.bk_host_ids || []
+            },
+            isBatch () {
+                return this.$route.query.batch === 1
+            },
+            moduleId () {
+                const mid = this.$route.query.mid
+                let moduleId
+                if (mid) {
+                    moduleId = Number(mid)
+                }
+                return moduleId
             }
         },
         created () {
@@ -138,14 +149,6 @@
             },
             setBreadcrumbs () {
                 this.$store.commit('setTitle', this.$t('失败列表'))
-                this.$store.commit('setBreadcrumbs', [{
-                    label: this.$t('主机属性自动应用'),
-                    route: {
-                        name: MENU_BUSINESS_HOST_APPLY
-                    }
-                }, {
-                    label: this.$t('失败列表')
-                }])
             },
             async getHostList () {
                 try {
@@ -242,13 +245,13 @@
                 this.handleShowDetails(row)
             },
             async handleShowDetails (row) {
-                this.slider.title = `属性详情【${row.bk_host_innerip}】`
+                this.slider.title = `${this.$t('属性详情')}【${row.bk_host_innerip}】`
                 this.slider.content = 'detail'
                 const properties = this.propertyList
                 const inst = row
                 try {
                     const propertyGroups = await this.getPropertyGroups()
-                    this.details.inst = this.$tools.flattenItem(properties, inst)
+                    this.details.inst = inst
                     this.details.properties = properties
                     this.details.propertyGroups = propertyGroups
                     this.slider.isShow = true
@@ -270,13 +273,19 @@
                 this.goBack()
             },
             handleViewHost () {
+                const query = {}
+                if (!this.isBatch && this.moduleId) {
+                    query.node = `module-${this.moduleId}`
+                }
                 this.$router.push({
-                    name: MENU_BUSINESS_HOST_AND_SERVICE
+                    name: MENU_BUSINESS_HOST_AND_SERVICE,
+                    query
                 })
             },
             handleViewFailed () {
                 this.$router.push({
-                    name: MENU_BUSINESS_HOST_APPLY_FAILED
+                    name: MENU_BUSINESS_HOST_APPLY_FAILED,
+                    query: this.$route.query
                 })
             },
             handleCopyIp () {
@@ -293,7 +302,7 @@
 
 <style lang="scss" scoped>
     .failed-list {
-        padding: 0 20px;
+        padding: 15px 20px 0;
 
         .caption {
             display: flex;

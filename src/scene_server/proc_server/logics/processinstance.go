@@ -88,8 +88,7 @@ func (lgc *Logic) UpdateProcessInstance(kit *rest.Kit, procID int64, info mapstr
 	option := metadata.UpdateOption{
 		Data: info,
 		Condition: map[string]interface{}{
-			common.BKProcessIDField:  procID,
-			common.BkSupplierAccount: kit.SupplierAccount,
+			common.BKProcessIDField: procID,
 		},
 	}
 
@@ -128,7 +127,7 @@ func (lgc *Logic) DeleteProcessInstance(kit *rest.Kit, procID int64) errors.CCEr
 	return nil
 }
 
-func (lgc *Logic) DeleteProcessInstanceBatch(kit *rest.Kit, procIDs []int64) error {
+func (lgc *Logic) DeleteProcessInstanceBatch(kit *rest.Kit, procIDs []int64) errors.CCErrorCoder {
 	if procIDs == nil {
 		return nil
 	}
@@ -141,12 +140,12 @@ func (lgc *Logic) DeleteProcessInstanceBatch(kit *rest.Kit, procIDs []int64) err
 	}
 	result, err := lgc.CoreAPI.CoreService().Instance().DeleteInstance(kit.Ctx, kit.Header, common.BKInnerObjIDProc, &option)
 	if err != nil {
-		return err
+		return kit.CCError.CCError(common.CCErrCommHTTPDoRequestFailed)
 	}
 
 	if !result.Result {
 		blog.Errorf("rid: %s, delete process instance: %d failed, err: %s", kit.Rid, procIDs, result.ErrMsg)
-		return kit.CCError.Error(result.Code)
+		return result.CCError()
 	}
 
 	return nil
@@ -466,6 +465,20 @@ func (lgc *Logic) DiffWithProcessTemplate(t *metadata.ProcessProperty, i *metada
 				PropertyName:          attrMap["bk_start_param_regex"].PropertyName,
 				PropertyValue:         i.StartParamRegex,
 				TemplatePropertyValue: t.StartParamRegex,
+			})
+		}
+	}
+
+	if metadata.IsAsDefaultValue(t.PortEnable.AsDefaultValue) {
+		if (t.PortEnable.Value == nil && i.PortEnable != nil) ||
+			(t.PortEnable.Value != nil && i.PortEnable == nil) ||
+			(t.PortEnable.Value != nil && i.PortEnable != nil && *t.PortEnable.Value != *i.PortEnable) {
+			changes = append(changes, metadata.ProcessChangedAttribute{
+				ID:                    attrMap[common.BKProcPortEnable].ID,
+				PropertyID:            common.BKProcPortEnable,
+				PropertyName:          attrMap[common.BKProcPortEnable].PropertyName,
+				PropertyValue:         i.PortEnable,
+				TemplatePropertyValue: t.PortEnable,
 			})
 		}
 	}

@@ -35,29 +35,36 @@ import (
 // CollectAllBusiness get all business
 func (am *AuthManager) CollectAllBusiness(ctx context.Context, header http.Header) ([]BusinessSimplify, error) {
 	rid := util.ExtractRequestIDFromContext(ctx)
-
-	cond := metadata.QueryCondition{}
-	result, err := am.clientSet.CoreService().Instance().ReadInstance(ctx, header, common.BKInnerObjIDApp, &cond)
-	if err != nil {
-		blog.Errorf("list business failed, err: %v, rid: %s", err, rid)
-		return nil, err
-	}
-
-	// step1 get business from logics service
+	// step1 get business from core service
 	businessList := make([]BusinessSimplify, 0)
-	for _, business := range result.Data.Info {
-		businessSimplify := BusinessSimplify{}
-		_, err := businessSimplify.Parse(business)
+	count := -1
+	for offset := 0; count == -1 || offset < count; offset += common.BKMaxRecordsAtOnce {
+		cond := metadata.QueryCondition{
+			Limit: metadata.SearchLimit{
+				Offset: int64(offset),
+				Limit:  common.BKMaxRecordsAtOnce,
+			},
+			Condition: map[string]interface{}{
+				common.BKDefaultField: 0,
+			},
+		}
+		result, err := am.clientSet.CoreService().Instance().ReadInstance(ctx, header, common.BKInnerObjIDApp, &cond)
 		if err != nil {
-			blog.Errorf("parse businesses %+v simplify information failed, err: %+v, rid: %s", business, err, rid)
-			continue
+			blog.Errorf("list business failed, err: %v, rid: %s", err, rid)
+			return nil, err
 		}
-		if businessSimplify.IsDefault > 0 {
-			continue
+		for _, business := range result.Data.Info {
+			businessSimplify := BusinessSimplify{}
+			_, err := businessSimplify.Parse(business)
+			if err != nil {
+				blog.Errorf("parse businesses %+v simplify information failed, err: %+v, rid: %s", business, err, rid)
+				continue
+			}
+			businessList = append(businessList, businessSimplify)
 		}
-
-		businessList = append(businessList, businessSimplify)
+		count = result.Data.Count
 	}
+
 	return businessList, nil
 }
 
@@ -118,7 +125,7 @@ func (am *AuthManager) extractBusinessIDFromBusinesses(businesses ...BusinessSim
 }
 
 func (am *AuthManager) AuthorizeByBusiness(ctx context.Context, header http.Header, action meta.Action, businesses ...BusinessSimplify) error {
-	if am.Enabled() == false {
+	if !am.Enabled() {
 		return nil
 	}
 
@@ -135,7 +142,7 @@ func (am *AuthManager) AuthorizeByBusiness(ctx context.Context, header http.Head
 }
 
 func (am *AuthManager) AuthorizeByBusinessID(ctx context.Context, header http.Header, action meta.Action, businessIDs ...int64) error {
-	if am.Enabled() == false {
+	if !am.Enabled() {
 		return nil
 	}
 
@@ -172,14 +179,14 @@ func (am *AuthManager) GenBusinessAuditNoPermissionResp(ctx context.Context, hea
 		return nil, errors.New("get business detail failed")
 	}
 	p.ScopeName = businesses[0].BKAppNameField
-    p.ResourceType = p.Resources[0][0].ResourceType
-    p.ResourceTypeName = p.Resources[0][0].ResourceTypeName
+	p.ResourceType = p.Resources[0][0].ResourceType
+	p.ResourceTypeName = p.Resources[0][0].ResourceTypeName
 	resp := metadata.NewNoPermissionResp([]metadata.Permission{p})
 	return &resp, nil
 }
 
 func (am *AuthManager) UpdateRegisteredBusiness(ctx context.Context, header http.Header, businesses ...BusinessSimplify) error {
-	if am.Enabled() == false {
+	if !am.Enabled() {
 		return nil
 	}
 
@@ -200,7 +207,7 @@ func (am *AuthManager) UpdateRegisteredBusiness(ctx context.Context, header http
 }
 
 func (am *AuthManager) UpdateRegisteredBusinessByID(ctx context.Context, header http.Header, ids ...int64) error {
-	if am.Enabled() == false {
+	if !am.Enabled() {
 		return nil
 	}
 
@@ -216,7 +223,7 @@ func (am *AuthManager) UpdateRegisteredBusinessByID(ctx context.Context, header 
 }
 
 func (am *AuthManager) UpdateRegisteredBusinessByRawID(ctx context.Context, header http.Header, ids ...int64) error {
-	if am.Enabled() == false {
+	if !am.Enabled() {
 		return nil
 	}
 
@@ -232,7 +239,7 @@ func (am *AuthManager) UpdateRegisteredBusinessByRawID(ctx context.Context, head
 }
 
 func (am *AuthManager) DeregisterBusinessByRawID(ctx context.Context, header http.Header, ids ...int64) error {
-	if am.Enabled() == false {
+	if !am.Enabled() {
 		return nil
 	}
 
@@ -248,7 +255,7 @@ func (am *AuthManager) DeregisterBusinessByRawID(ctx context.Context, header htt
 }
 
 func (am *AuthManager) RegisterBusinesses(ctx context.Context, header http.Header, businesses ...BusinessSimplify) error {
-	if am.Enabled() == false {
+	if !am.Enabled() {
 		return nil
 	}
 
@@ -263,7 +270,7 @@ func (am *AuthManager) RegisterBusinesses(ctx context.Context, header http.Heade
 }
 
 func (am *AuthManager) RegisterBusinessesByID(ctx context.Context, header http.Header, businessIDs ...int64) error {
-	if am.Enabled() == false {
+	if !am.Enabled() {
 		return nil
 	}
 
@@ -279,7 +286,7 @@ func (am *AuthManager) RegisterBusinessesByID(ctx context.Context, header http.H
 }
 
 func (am *AuthManager) DeregisterBusinesses(ctx context.Context, header http.Header, businesses ...BusinessSimplify) error {
-	if am.Enabled() == false {
+	if !am.Enabled() {
 		return nil
 	}
 
@@ -294,7 +301,7 @@ func (am *AuthManager) DeregisterBusinesses(ctx context.Context, header http.Hea
 }
 
 func (am *AuthManager) DeregisterBusinessesByID(ctx context.Context, header http.Header, businessIDs ...int64) error {
-	if am.Enabled() == false {
+	if !am.Enabled() {
 		return nil
 	}
 
@@ -317,7 +324,7 @@ func (am *AuthManager) GenBusinessNoPermissionResp(ctx context.Context, header h
 	p.ScopeTypeName = authcenter.ScopeTypeIDSystemName
 	p.ActionID = string(authcenter.Get)
 	p.ActionName = authcenter.ActionIDNameMap[authcenter.Get]
-    p.ResourceType = string(authcenter.SysBusinessInstance)
+	p.ResourceType = string(authcenter.SysBusinessInstance)
 	p.ResourceTypeName = authcenter.ResourceTypeIDMap[authcenter.SysBusinessInstance]
 	p.Resources = [][]metadata.Resource{
 		{{

@@ -28,8 +28,8 @@ func (ps *parseStream) hostRelated() *parseStream {
 		hostFavorite().
 		cloudResourceSync().
 		hostSnapshot().
-		findObjectIdentifier()
-
+		findObjectIdentifier().
+		HostApply()
 	return ps
 }
 
@@ -278,6 +278,7 @@ const (
 	moveHostToBusinessOrModulePattern = "/api/v3/hosts/sync/new/host"
 	findHostsWithConditionPattern     = "/api/v3/hosts/search"
 	findBizHostsWithoutAppPattern     = "/api/v3/hosts/list_hosts_without_app"
+	findResourcePoolHostsPattern      = "/api/v3/hosts/list_resource_pool_hosts"
 	findHostsDetailsPattern           = "/api/v3/hosts/search/asstdetail"
 	updateHostInfoBatchPattern        = "/api/v3/hosts/batch"
 	updateHostPropertyBatchPattern    = "/api/v3/hosts/property/batch"
@@ -285,6 +286,9 @@ const (
 
 	// 特殊接口，给蓝鲸业务使用
 	hostInstallPattern = "/api/v3/host/install/bk"
+
+	// cc system user config
+	systemUserConfig = "/api/v3/system/config/user_config/blueking_modify"
 )
 
 var (
@@ -684,6 +688,19 @@ func (ps *parseStream) host() *parseStream {
 		return ps
 	}
 
+	// find resource pool hosts
+	if ps.hitPattern(findResourcePoolHostsPattern, http.MethodPost) {
+		ps.Attribute.Resources = []meta.ResourceAttribute{
+			meta.ResourceAttribute{
+				Basic: meta.Basic{
+					Type:   meta.HostInstance,
+					Action: meta.FindMany,
+				},
+			},
+		}
+		return ps
+	}
+
 	// find hosts under business specified by path parameter
 	if ps.hitRegexp(findBizHostsRegex, http.MethodPost) {
 		bizID, err := strconv.ParseInt(ps.RequestCtx.Elements[4], 10, 64)
@@ -779,6 +796,18 @@ func (ps *parseStream) host() *parseStream {
 				Basic: meta.Basic{
 					Type:   meta.InstallBK,
 					Action: meta.Update,
+				},
+			},
+		}
+		return ps
+	}
+
+	if ps.hitPattern(systemUserConfig, http.MethodPost) {
+		ps.Attribute.Resources = []meta.ResourceAttribute{
+			{
+				Basic: meta.Basic{
+					Type:   meta.SystemConfig,
+					Action: meta.FindMany,
 				},
 			},
 		}

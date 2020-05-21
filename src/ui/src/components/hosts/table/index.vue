@@ -114,9 +114,10 @@
                 :sortable="column.sortable ? 'custom' : false"
                 :prop="column.id"
                 :fixed="column.id === 'bk_host_innerip'"
-                :class-name="column.id === 'bk_host_innerip' ? 'is-highlight' : ''">
+                :class-name="column.id === 'bk_host_innerip' ? 'is-highlight' : ''"
+                show-overflow-tooltip>
                 <template slot-scope="{ row }">
-                    {{ row | hostValueFilter(column.objId, column.id) | formatter(column.type, getPropertyValue(column.objId, column.id, 'option')) | addUnit(getPropertyValue(column.objId, column.id, 'unit')) }}
+                    {{ row | hostValueFilter(column.objId, column.id) | formatter(column.type, getPropertyValue(column.objId, column.id, 'option'))}}
                 </template>
             </bk-table-column>
             <cmdb-table-empty slot="empty" :stuff="table.stuff"></cmdb-table-empty>
@@ -198,13 +199,7 @@
             cmdbHostFilter
         },
         filters: {
-            hostValueFilter,
-            addUnit (value, unit) {
-                if (value === '--' || !unit) {
-                    return value
-                }
-                return value + unit
-            }
+            hostValueFilter
         },
         props: {
             columnsConfigProperties: {
@@ -368,6 +363,7 @@
                 }
                 if (this.isHostSearch) {
                     this.scope = 'all'
+                    this.$store.commit('hosts/setIsHostSearch', false)
                 }
             } catch (e) {
                 console.log(e)
@@ -500,7 +496,7 @@
                 this.table.header = properties.map(property => {
                     return {
                         id: property.bk_property_id,
-                        name: property.bk_property_name,
+                        name: this.$tools.getHeaderPropertyName(property),
                         type: property.bk_property_type,
                         objId: property.bk_obj_id,
                         sortable: property.bk_obj_id === 'host' && !['foreignkey'].includes(property.bk_property_type)
@@ -760,12 +756,6 @@
             display: inline-block;
             vertical-align: middle;
             font-size: 14px;
-            &.quick-search-button {
-                .icon-angle-down {
-                    font-size: 12px;
-                    top: 0;
-                }
-            }
             &:first-child {
                 margin-left: 0;
             }

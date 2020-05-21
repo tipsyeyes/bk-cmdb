@@ -15,9 +15,9 @@
             </textarea>
             <i class="bk-icon icon-close"
                 :class="{
-                    'is-show': focus
+                    'is-show': isFocus
                 }"
-                v-if="localValue.length"
+                v-if="localValue.length && !disabled"
                 @click="handleClear">
             </i>
         </div>
@@ -50,7 +50,7 @@
                 localValue: this.value,
                 rows: 1,
                 timer: null,
-                focus: false
+                isFocus: false
             }
         },
         watch: {
@@ -59,7 +59,7 @@
             }
         },
         created () {
-            if (this.focus) {
+            if (this.isFocus) {
                 this.setRows()
             }
         },
@@ -87,10 +87,10 @@
             },
             handleFocus () {
                 this.setRows()
-                this.focus = true
+                this.isFocus = true
             },
             handleBlur () {
-                this.focus = false
+                this.isFocus = false
                 this.timer = setTimeout(() => {
                     this.rows = 1
                     if (this.$refs.textarea) {
@@ -106,6 +106,9 @@
                 this.$nextTick(() => {
                     this.setRows()
                 })
+            },
+            focus () {
+                this.$refs.textarea.focus()
             }
         }
     }
@@ -133,6 +136,12 @@
                 resize: none;
                 font-size: 14px;
                 @include scrollbar-y;
+                &:disabled {
+                    color: #c4c6cc;
+                    background-color: #fafbfd!important;
+                    cursor: not-allowed;
+                    border-color: #dcdee5!important;
+                }
             }
             .icon-close {
                 display: none;
@@ -144,7 +153,7 @@
                 line-height: 28px;
                 text-align: center;
                 transform: translate3d(0, -50%, 0) scale(.5);
-                font-size: 12px;
+                font-size: 20px;
                 border-radius: 50%;
                 background-color: #C4C6CC;
                 color: #fff;

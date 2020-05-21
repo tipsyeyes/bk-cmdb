@@ -18,28 +18,17 @@
                         {{$tools.getPropertyText(property, host) | filterShowText(property.unit)}}
                     </span>
                     <template v-if="!loadingState.includes(property)">
-                        <template v-if="hasRelatedRules(property)">
-                            <i18n path="已配置属性自动应用提示" :id="`rule-${property.id}`">
-                                <bk-button text place="link" @click="handleViewRules(property)">{{$t('点击跳转查看配置详情')}}</bk-button>
-                            </i18n>
+                        <template v-if="hasRelatedRules(property) || !isPropertyEditable(property)">
+                            <span :id="`rule-${property.id}`">
+                                <i18n path="已配置属性自动应用提示" v-if="hasRelatedRules(property)">
+                                    <bk-button text place="link" @click="handleViewRules(property)">{{$t('点击跳转查看配置详情')}}</bk-button>
+                                </i18n>
+                                <span v-else>{{$t('系统限定不可修改')}}</span>
+                            </span>
                             <i class="is-related property-edit icon-cc-edit"
                                 v-bk-tooltips="{
                                     allowHtml: true,
                                     content: `#rule-${property.id}`,
-                                    placement: 'top',
-                                    onShow: () => {
-                                        setFocus(`#property-item-${property.id}`, true)
-                                    },
-                                    onHide: () => {
-                                        setFocus(`#property-item-${property.id}`, false)
-                                    }
-                                }">
-                            </i>
-                        </template>
-                        <template v-else-if="!isPropertyEditable(property)">
-                            <i class="is-related property-edit icon-cc-edit"
-                                v-bk-tooltips="{
-                                    content: $t('系统限定不可修改'),
                                     placement: 'top',
                                     onShow: () => {
                                         setFocus(`#property-item-${property.id}`, true)
@@ -62,17 +51,21 @@
                                 </bk-button>
                             </cmdb-auth>
                             <div class="property-form" v-if="property === editState.property">
-                                <component class="form-component"
-                                    :is="`cmdb-form-${property.bk_property_type}`"
-                                    :class="[property.bk_property_type, { error: errors.has(property.bk_property_id) }]"
-                                    :options="property.option || []"
-                                    :data-vv-name="property.bk_property_id"
-                                    :data-vv-as="property.bk_property_name"
-                                    :placeholder="getPlaceholder(property)"
-                                    :auto-check="false"
-                                    v-validate="$tools.getValidateRules(property)"
-                                    v-model.trim="editState.value">
-                                </component>
+                                <div :class="['form-component', property.bk_property_type]">
+                                    <component
+                                        :is="`cmdb-form-${property.bk_property_type}`"
+                                        :class="[property.bk_property_type, { error: errors.has(property.bk_property_id) }]"
+                                        :unit="property.unit"
+                                        :options="property.option || []"
+                                        :data-vv-name="property.bk_property_id"
+                                        :data-vv-as="property.bk_property_name"
+                                        :placeholder="getPlaceholder(property)"
+                                        :auto-check="false"
+                                        v-validate="$tools.getValidateRules(property)"
+                                        v-model.trim="editState.value"
+                                        :ref="`component-${property.bk_property_id}`">
+                                    </component>
+                                </div>
                                 <i class="form-confirm bk-icon icon-check-1" @click="confirm"></i>
                                 <i class="form-cancel bk-icon icon-close" @click="exitForm"></i>
                                 <span class="form-error"
@@ -193,6 +186,10 @@
                 const value = this.host[property.bk_property_id]
                 this.editState.value = value === null ? '' : value
                 this.editState.property = property
+                this.$nextTick(() => {
+                    const component = this.$refs[`component-${property.bk_property_id}`]
+                    component[0] && component[0].focus && component[0].focus()
+                })
             },
             async confirm () {
                 const { property, value } = this.editState
@@ -394,17 +391,16 @@
             cursor: pointer;
             &.form-confirm {
                 color: #0082ff;
+                font-size: 20px;
                 &:before {
                     display: inline-block;
-                    transform: scale(0.83);
                 }
             }
             &.form-cancel {
                 color: #979ba5;
-                font-size: 14px;
+                font-size: 20px;
                 &:before {
                     display: inline-block;
-                    transform: scale(0.66);
                 }
             }
             &:hover {
@@ -420,13 +416,15 @@
             color: $cmdbDangerColor;
         }
         .form-component {
-            display: inline-block;
+            display: inline-flex;
+            align-items: center;
             vertical-align: middle;
             height: 32px;
             width: 260px;
             margin: 0 4px 0 0;
             &.bool {
                 width: 42px;
+                height: 24px;
             }
         }
     }

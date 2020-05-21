@@ -127,12 +127,12 @@ var SupportOperators = map[Operator]bool{
 	OperatorIsNull:    false,
 	OperatorIsNotNull: false,
 
-	OperatorExist:    false,
+	OperatorExist:    true,
 	OperatorNotExist: false,
 }
 
 func (op Operator) Validate() error {
-	if support, ok := SupportOperators[op]; support == false || ok == false {
+	if support, ok := SupportOperators[op]; !support || !ok {
 		return fmt.Errorf("unsupported operator: %s", op)
 	}
 	return nil
@@ -174,7 +174,7 @@ var (
 )
 
 func (r AtomRule) validateField() error {
-	if ValidFieldPattern.MatchString(r.Field) == false {
+	if !ValidFieldPattern.MatchString(r.Field) {
 		return fmt.Errorf("invalid field: %s", r.Field)
 	}
 	return nil
@@ -340,7 +340,6 @@ type CombinedRule struct {
 var (
 	// 嵌套层级的深度按树的高度计算，查询条件最大深度为3即最多嵌套2层
 	MaxDeep           = 3
-	HostSearchMaxDeep = 3
 )
 
 func (r CombinedRule) GetDeep() int {
