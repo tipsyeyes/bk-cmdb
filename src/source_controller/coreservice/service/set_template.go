@@ -13,14 +13,14 @@
 package service
 
 import (
-	"configcenter/src/common/mapstruct"
+	"configdatabase/src/common/mapstruct"
 	"strconv"
 
-	"configcenter/src/common"
-	"configcenter/src/common/blog"
-	"configcenter/src/common/mapstr"
-	"configcenter/src/common/metadata"
-	"configcenter/src/source_controller/coreservice/core"
+	"configdatabase/src/common"
+	"configdatabase/src/common/blog"
+	"configdatabase/src/common/mapstr"
+	"configdatabase/src/common/metadata"
+	"configdatabase/src/source_controller/coreservice/core"
 )
 
 func (s *coreService) CreateSetTemplate(params core.ContextParams, pathParams, queryParams ParamsGetter, data mapstr.MapStr) (interface{}, error) {

@@ -13,7 +13,7 @@
 package output
 
 import (
-	"configcenter/src/framework/core/output/module/inst"
+	"configdatabase/src/framework/core/output/module/inst"
 )
 
 // InstOperation return the operation interface

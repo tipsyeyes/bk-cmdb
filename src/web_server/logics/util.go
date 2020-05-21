@@ -16,7 +16,7 @@ import (
 	"fmt"
 	"strings"
 
-	"configcenter/src/common"
+	"configdatabase/src/common"
 
 	"github.com/rentiansheng/xlsx"
 )

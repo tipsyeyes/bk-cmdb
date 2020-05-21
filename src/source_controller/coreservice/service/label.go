@@ -13,11 +13,11 @@
 package service
 
 import (
-	"configcenter/src/common"
-	"configcenter/src/common/blog"
-	"configcenter/src/common/mapstr"
-	"configcenter/src/common/selector"
-	"configcenter/src/source_controller/coreservice/core"
+	"configdatabase/src/common"
+	"configdatabase/src/common/blog"
+	"configdatabase/src/common/mapstr"
+	"configdatabase/src/common/selector"
+	"configdatabase/src/source_controller/coreservice/core"
 )
 
 func (s *coreService) AddLabels(ctx core.ContextParams, pathParams, queryParams ParamsGetter, data mapstr.MapStr) (interface{}, error) {

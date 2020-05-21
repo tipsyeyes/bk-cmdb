@@ -20,14 +20,14 @@ import (
 
 	"github.com/rs/xid"
 
-	"configcenter/src/common"
-	"configcenter/src/common/blog"
-	"configcenter/src/common/universalsql/mongo"
-	"configcenter/src/storage/mongodb"
-	"configcenter/src/storage/mongodb/options/deleteopt"
-	"configcenter/src/storage/mongodb/options/findopt"
-	"configcenter/src/storage/tmserver/app/options"
-	"configcenter/src/storage/types"
+	"configdatabase/src/common"
+	"configdatabase/src/common/blog"
+	"configdatabase/src/common/universalsql/mongo"
+	"configdatabase/src/storage/mongodb"
+	"configdatabase/src/storage/mongodb/options/deleteopt"
+	"configdatabase/src/storage/mongodb/options/findopt"
+	"configdatabase/src/storage/tmserver/app/options"
+	"configdatabase/src/storage/types"
 )
 
 type Manager struct {

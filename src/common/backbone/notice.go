@@ -18,9 +18,9 @@ import (
 	"fmt"
 	"time"
 
-	"configcenter/src/common/blog"
-	"configcenter/src/common/types"
-	"configcenter/src/common/zkclient"
+	"configdatabase/src/common/blog"
+	"configdatabase/src/common/types"
+	"configdatabase/src/common/zkclient"
 
 	"github.com/samuel/go-zookeeper/zk"
 )

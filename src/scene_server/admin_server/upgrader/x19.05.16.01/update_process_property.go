@@ -16,12 +16,12 @@ import (
 	"context"
 	"time"
 
-	"configcenter/src/common"
-	"configcenter/src/common/blog"
-	"configcenter/src/common/metadata"
-	mCommon "configcenter/src/scene_server/admin_server/common"
-	"configcenter/src/scene_server/admin_server/upgrader"
-	"configcenter/src/storage/dal"
+	"configdatabase/src/common"
+	"configdatabase/src/common/blog"
+	"configdatabase/src/common/metadata"
+	mCommon "configdatabase/src/scene_server/admin_server/common"
+	"configdatabase/src/scene_server/admin_server/upgrader"
+	"configdatabase/src/storage/dal"
 )
 
 func updateProcessBindIPProperty(ctx context.Context, db dal.RDB, conf *upgrader.Config) error {

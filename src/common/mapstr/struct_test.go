@@ -15,7 +15,7 @@ package mapstr_test
 import (
 	"testing"
 
-	"configcenter/src/common/mapstr"
+	"configdatabase/src/common/mapstr"
 
 	"github.com/stretchr/testify/require"
 )

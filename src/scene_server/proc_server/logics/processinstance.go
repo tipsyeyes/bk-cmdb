@@ -13,12 +13,12 @@
 package logics
 
 import (
-	"configcenter/src/common"
-	"configcenter/src/common/blog"
-	"configcenter/src/common/errors"
-	"configcenter/src/common/http/rest"
-	"configcenter/src/common/mapstr"
-	"configcenter/src/common/metadata"
+	"configdatabase/src/common"
+	"configdatabase/src/common/blog"
+	"configdatabase/src/common/errors"
+	"configdatabase/src/common/http/rest"
+	"configdatabase/src/common/mapstr"
+	"configdatabase/src/common/metadata"
 )
 
 func (lgc *Logic) ListProcessInstanceWithIDs(kit *rest.Kit, procIDs []int64) ([]metadata.Process, errors.CCErrorCoder) {

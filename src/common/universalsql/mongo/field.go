@@ -15,8 +15,8 @@ package mongo
 import (
 	"encoding/json"
 
-	"configcenter/src/common/mapstr"
-	"configcenter/src/common/universalsql"
+	"configdatabase/src/common/mapstr"
+	"configdatabase/src/common/universalsql"
 )
 
 type FieldItem struct {

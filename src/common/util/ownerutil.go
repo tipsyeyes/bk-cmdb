@@ -13,9 +13,9 @@
 package util
 
 import (
-	"configcenter/src/common"
-	"configcenter/src/common/blog"
-	"configcenter/src/common/mapstr"
+	"configdatabase/src/common"
+	"configdatabase/src/common/blog"
+	"configdatabase/src/common/mapstr"
 
 	"gopkg.in/mgo.v2/bson"
 )

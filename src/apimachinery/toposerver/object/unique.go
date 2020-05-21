@@ -17,7 +17,7 @@ import (
 	"fmt"
 	"net/http"
 
-	"configcenter/src/common/metadata"
+	"configdatabase/src/common/metadata"
 )
 
 func (t *object) CreateObjectUnique(ctx context.Context, objID string, h http.Header, data *metadata.CreateUniqueRequest) (resp *metadata.Response, err error) {

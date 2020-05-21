@@ -19,17 +19,17 @@ import (
 	"strconv"
 	"strings"
 
-	"configcenter/src/auth"
-	authmeta "configcenter/src/auth/meta"
-	"configcenter/src/common"
-	"configcenter/src/common/blog"
-	"configcenter/src/common/condition"
-	"configcenter/src/common/mapstr"
-	"configcenter/src/common/mapstruct"
-	"configcenter/src/common/metadata"
-	gparams "configcenter/src/common/paraparse"
-	"configcenter/src/common/util"
-	"configcenter/src/scene_server/topo_server/core/types"
+	"configdatabase/src/auth"
+	authmeta "configdatabase/src/auth/meta"
+	"configdatabase/src/common"
+	"configdatabase/src/common/blog"
+	"configdatabase/src/common/condition"
+	"configdatabase/src/common/mapstr"
+	"configdatabase/src/common/mapstruct"
+	"configdatabase/src/common/metadata"
+	gparams "configdatabase/src/common/paraparse"
+	"configdatabase/src/common/util"
+	"configdatabase/src/scene_server/topo_server/core/types"
 )
 
 // CreateBusiness create a new business

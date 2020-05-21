@@ -21,10 +21,10 @@ import (
 	"os"
 	"strings"
 
-	"configcenter/src/auth"
-	"configcenter/src/auth/authcenter"
-	"configcenter/src/auth/meta"
-	"configcenter/src/common/blog"
+	"configdatabase/src/auth"
+	"configdatabase/src/auth/authcenter"
+	"configdatabase/src/auth/meta"
+	"configdatabase/src/common/blog"
 
 	"github.com/spf13/cobra"
 )

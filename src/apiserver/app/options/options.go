@@ -13,8 +13,8 @@
 package options
 
 import (
-	"configcenter/src/common/auth"
-	"configcenter/src/common/core/cc/config"
+	"configdatabase/src/common/auth"
+	"configdatabase/src/common/core/cc/config"
 
 	"github.com/spf13/pflag"
 )

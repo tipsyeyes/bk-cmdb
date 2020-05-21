@@ -16,8 +16,8 @@ import (
 	"fmt"
 	"net/http"
 
-	"configcenter/src/auth/extensions"
-	"configcenter/src/common"
+	"configdatabase/src/auth/extensions"
+	"configdatabase/src/common"
 )
 
 var (

@@ -13,7 +13,7 @@
 package types
 
 import (
-	"configcenter/src/storage/mongodb"
+	"configdatabase/src/storage/mongodb"
 )
 
 // MsgHeader message header

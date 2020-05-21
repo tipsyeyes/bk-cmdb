@@ -13,7 +13,7 @@
 package logics
 
 import (
-	"configcenter/src/common/backbone"
+	"configdatabase/src/common/backbone"
 )
 
 type Logics struct {

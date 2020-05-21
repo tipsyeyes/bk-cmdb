@@ -14,7 +14,7 @@
 > 改模块的实现原理是启动一个http服务(绑定地址localhost:12140)，收到http请求后，
 > 将消息放入对应消息类型的队列中 (scene_server/datacollection/datacollection/manager.go:65）
 
-- 编译参数配置 `go build -i -ldflags "-X configcenter/src/common/version.CCRunMode=dev"`
+- 编译参数配置 `go build -i -ldflags "-X configdatabase/src/common/version.CCRunMode=dev"`
 - 向 datacollection 模块发送数据
 
 ```python

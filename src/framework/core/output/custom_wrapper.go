@@ -12,7 +12,7 @@
  
 package output
 
-import "configcenter/src/framework/core/types"
+import "configdatabase/src/framework/core/types"
 
 type customWrapper struct {
 	name    string

@@ -16,7 +16,7 @@ import (
 	"context"
 	"net/http"
 
-	"configcenter/src/common/metadata"
+	"configdatabase/src/common/metadata"
 )
 
 func (asst *association) CreateAssociationType(ctx context.Context, h http.Header, input *metadata.CreateAssociationKind) (resp *metadata.CreatedOneOptionResult, err error) {

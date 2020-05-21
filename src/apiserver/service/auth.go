@@ -17,14 +17,14 @@ import (
 	"encoding/json"
 	"net/http"
 
-	"configcenter/src/auth/authcenter"
-	"configcenter/src/auth/meta"
-	"configcenter/src/common"
-	"configcenter/src/common/blog"
-	"configcenter/src/common/mapstr"
-	"configcenter/src/common/metadata"
-	params "configcenter/src/common/paraparse"
-	"configcenter/src/common/util"
+	"configdatabase/src/auth/authcenter"
+	"configdatabase/src/auth/meta"
+	"configdatabase/src/common"
+	"configdatabase/src/common/blog"
+	"configdatabase/src/common/mapstr"
+	"configdatabase/src/common/metadata"
+	params "configdatabase/src/common/paraparse"
+	"configdatabase/src/common/util"
 
 	"github.com/emicklei/go-restful"
 )

@@ -13,9 +13,9 @@
 package options
 
 import (
-	"configcenter/src/common/auth"
-	"configcenter/src/common/core/cc/config"
-	"configcenter/src/storage/dal/mongo"
+	"configdatabase/src/common/auth"
+	"configdatabase/src/common/core/cc/config"
+	"configdatabase/src/storage/dal/mongo"
 
 	"github.com/spf13/pflag"
 )

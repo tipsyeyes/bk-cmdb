@@ -13,11 +13,11 @@
 package service
 
 import (
-	"configcenter/src/common"
-	"configcenter/src/common/blog"
-	"configcenter/src/common/metadata"
-	"configcenter/src/common/universalsql/mongo"
-	"configcenter/src/source_controller/coreservice/core"
+	"configdatabase/src/common"
+	"configdatabase/src/common/blog"
+	"configdatabase/src/common/metadata"
+	"configdatabase/src/common/universalsql/mongo"
+	"configdatabase/src/source_controller/coreservice/core"
 )
 
 func (s *coreService) IsInstanceExist(ctx core.ContextParams, objID string, instID uint64) (exists bool, err error) {

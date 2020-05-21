@@ -16,16 +16,16 @@ import (
 	"context"
 	"fmt"
 
-	"configcenter/src/apimachinery"
-	"configcenter/src/auth/extensions"
-	"configcenter/src/common"
-	"configcenter/src/common/blog"
-	"configcenter/src/common/condition"
-	"configcenter/src/common/mapstr"
-	"configcenter/src/common/metadata"
-	"configcenter/src/scene_server/topo_server/core/inst"
-	"configcenter/src/scene_server/topo_server/core/model"
-	"configcenter/src/scene_server/topo_server/core/types"
+	"configdatabase/src/apimachinery"
+	"configdatabase/src/auth/extensions"
+	"configdatabase/src/common"
+	"configdatabase/src/common/blog"
+	"configdatabase/src/common/condition"
+	"configdatabase/src/common/mapstr"
+	"configdatabase/src/common/metadata"
+	"configdatabase/src/scene_server/topo_server/core/inst"
+	"configdatabase/src/scene_server/topo_server/core/model"
+	"configdatabase/src/scene_server/topo_server/core/types"
 )
 
 type rowInfo struct {

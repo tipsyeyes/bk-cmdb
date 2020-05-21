@@ -16,8 +16,8 @@ import (
 	"fmt"
 	"time"
 
-	"configcenter/src/common/blog"
-	"configcenter/src/scene_server/admin_server/authsynchronizer/meta"
+	"configdatabase/src/common/blog"
+	"configdatabase/src/scene_server/admin_server/authsynchronizer/meta"
 )
 
 // NewWorker creates, and returns a new Worker object. Its only argument

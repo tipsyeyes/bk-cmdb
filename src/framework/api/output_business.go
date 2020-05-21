@@ -13,7 +13,7 @@
 package api
 
 import (
-	"configcenter/src/framework/common"
+	"configdatabase/src/framework/common"
 )
 
 // CreateBusiness create a new Business object

@@ -15,10 +15,10 @@ package options
 import (
 	"github.com/spf13/pflag"
 
-	"configcenter/src/auth/authcenter"
-	"configcenter/src/common/auth"
-	"configcenter/src/common/core/cc/config"
-	"configcenter/src/storage/dal/mongo"
+	"configdatabase/src/auth/authcenter"
+	"configdatabase/src/common/auth"
+	"configdatabase/src/common/core/cc/config"
+	"configdatabase/src/storage/dal/mongo"
 )
 
 type ServerOption struct {

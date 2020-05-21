@@ -17,8 +17,8 @@ import (
 	"fmt"
 	"time"
 
-	"configcenter/src/common/zkclient"
-	"configcenter/src/common/backbone/service_mange/zk"
+	"configdatabase/src/common/zkclient"
+	"configdatabase/src/common/backbone/service_mange/zk"
 )
 
 // ZkRegDiscover config register and discover by zookeeper

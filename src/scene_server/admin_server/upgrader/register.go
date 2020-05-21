@@ -21,11 +21,11 @@ import (
 	"sync"
 	"time"
 
-	"configcenter/src/common"
-	"configcenter/src/common/blog"
-	"configcenter/src/common/util"
-	ccversion "configcenter/src/common/version"
-	"configcenter/src/storage/dal"
+	"configdatabase/src/common"
+	"configdatabase/src/common/blog"
+	"configdatabase/src/common/util"
+	ccversion "configdatabase/src/common/version"
+	"configdatabase/src/storage/dal"
 )
 
 // Config config for upgrader

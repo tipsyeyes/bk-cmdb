@@ -13,7 +13,7 @@
 package util
 
 import (
-	"configcenter/src/common"
+	"configdatabase/src/common"
 	"net/http"
 	"net/http/httptest"
 	"reflect"

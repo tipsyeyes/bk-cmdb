@@ -4,7 +4,7 @@ import (
 	"context"
 	"net/http"
 
-	"configcenter/src/common/metadata"
+	"configdatabase/src/common/metadata"
 )
 
 func (s *service) CreateServiceInstance(ctx context.Context, h http.Header, data map[string]interface{}) (resp *metadata.Response, err error) {

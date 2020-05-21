@@ -3,7 +3,7 @@ package authcenter
 import (
 	"fmt"
 
-	"configcenter/src/auth/meta"
+	"configdatabase/src/auth/meta"
 )
 
 // system constant

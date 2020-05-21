@@ -18,9 +18,9 @@ import (
 	"strings"
 	"time"
 
-	"configcenter/src/common/zkclient"
-	"configcenter/src/storage/dal"
-	"configcenter/src/storage/dal/mongo/local"
+	"configdatabase/src/common/zkclient"
+	"configdatabase/src/storage/dal"
+	"configdatabase/src/storage/dal/mongo/local"
 
 	"github.com/spf13/cobra"
 )

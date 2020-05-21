@@ -13,11 +13,11 @@
 package service
 
 import (
-	"configcenter/src/common"
-	"configcenter/src/common/http/rest"
-	"configcenter/src/common/mapstr"
-	"configcenter/src/common/metadata"
-	"configcenter/src/common/util"
+	"configdatabase/src/common"
+	"configdatabase/src/common/http/rest"
+	"configdatabase/src/common/mapstr"
+	"configdatabase/src/common/metadata"
+	"configdatabase/src/common/util"
 )
 
 func (o *OperationServer) CreateOperationChart(ctx *rest.Contexts) {

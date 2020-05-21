@@ -20,9 +20,9 @@ import (
 	"strconv"
 	"strings"
 
-	"configcenter/src/auth/meta"
-	"configcenter/src/common"
-	"configcenter/src/common/blog"
+	"configdatabase/src/auth/meta"
+	"configdatabase/src/common"
+	"configdatabase/src/common/blog"
 
 	"github.com/tidwall/gjson"
 )

@@ -19,11 +19,11 @@ import (
 	"strings"
 	"time"
 
-	"configcenter/src/auth/authcenter"
-	authmeta "configcenter/src/auth/meta"
-	"configcenter/src/common/blog"
-	"configcenter/src/common/util"
-	"configcenter/src/scene_server/admin_server/authsynchronizer/meta"
+	"configdatabase/src/auth/authcenter"
+	authmeta "configdatabase/src/auth/meta"
+	"configdatabase/src/common/blog"
+	"configdatabase/src/common/util"
+	"configdatabase/src/scene_server/admin_server/authsynchronizer/meta"
 )
 
 func (ih *IAMHandler) getIamResources(taskName string, ra *authmeta.ResourceAttribute, iamIDPrefix string) ([]authmeta.BackendResource, error) {

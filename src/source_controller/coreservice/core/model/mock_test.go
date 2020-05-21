@@ -17,12 +17,12 @@ import (
 	"testing"
 	"time"
 
-	"configcenter/src/common/errors"
-	"configcenter/src/common/language"
-	"configcenter/src/source_controller/coreservice/core"
-	"configcenter/src/source_controller/coreservice/core/model"
-	"configcenter/src/storage/dal/mongo"
-	"configcenter/src/storage/dal/mongo/local"
+	"configdatabase/src/common/errors"
+	"configdatabase/src/common/language"
+	"configdatabase/src/source_controller/coreservice/core"
+	"configdatabase/src/source_controller/coreservice/core/model"
+	"configdatabase/src/storage/dal/mongo"
+	"configdatabase/src/storage/dal/mongo/local"
 
 	"github.com/stretchr/testify/require"
 )

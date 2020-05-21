@@ -13,10 +13,10 @@
 package host
 
 import (
-	"configcenter/src/common"
-	"configcenter/src/common/mapstr"
-	"configcenter/src/common/metadata"
-	"configcenter/src/source_controller/coreservice/core"
+	"configdatabase/src/common"
+	"configdatabase/src/common/mapstr"
+	"configdatabase/src/common/metadata"
+	"configdatabase/src/source_controller/coreservice/core"
 )
 
 func (hm *hostManager) CreateCloudSyncTask(ctx core.ContextParams, input *metadata.CloudTaskList) (uint64, error) {

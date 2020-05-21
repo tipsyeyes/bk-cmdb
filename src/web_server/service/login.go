@@ -13,8 +13,8 @@
 package service
 
 import (
-	"configcenter/src/common/metadata"
-	"configcenter/src/web_server/middleware/user"
+	"configdatabase/src/common/metadata"
+	"configdatabase/src/web_server/middleware/user"
 
 	"github.com/gin-gonic/gin"
 	"github.com/holmeswang/contrib/sessions"

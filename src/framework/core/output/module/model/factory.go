@@ -13,7 +13,7 @@
 package model
 
 import (
-	"configcenter/src/framework/common"
+	"configdatabase/src/framework/common"
 )
 
 // CreateClassification create a new Classification instance

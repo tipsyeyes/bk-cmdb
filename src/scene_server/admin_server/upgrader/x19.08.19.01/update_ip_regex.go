@@ -15,9 +15,9 @@ package x19_08_19_01
 import (
 	"context"
 
-	"configcenter/src/common"
-	"configcenter/src/scene_server/admin_server/upgrader"
-	"configcenter/src/storage/dal"
+	"configdatabase/src/common"
+	"configdatabase/src/scene_server/admin_server/upgrader"
+	"configdatabase/src/storage/dal"
 )
 
 var IPRegex = `^((1?\d{1,2}|2[0-4]\d|25[0-5])[.]){3}(1?\d{1,2}|2[0-4]\d|25[0-5])(,((1?\d{1,2}|2[0-4]\d|25[0-5])[.]){3}(1?\d{1,2}|2[0-4]\d|25[0-5]))*$`

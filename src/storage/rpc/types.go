@@ -21,7 +21,7 @@ import (
 
 	"github.com/rentiansheng/bk_bson/bson"
 
-	"configcenter/src/common/util"
+	"configdatabase/src/common/util"
 )
 
 // Errors define

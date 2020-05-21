@@ -18,11 +18,11 @@ import (
 	"net/http"
 	"strconv"
 
-	"configcenter/src/auth/authcenter"
-	"configcenter/src/auth/meta"
-	"configcenter/src/common/blog"
-	"configcenter/src/common/metadata"
-	"configcenter/src/common/util"
+	"configdatabase/src/auth/authcenter"
+	"configdatabase/src/auth/meta"
+	"configdatabase/src/common/blog"
+	"configdatabase/src/common/metadata"
+	"configdatabase/src/common/util"
 )
 
 /*

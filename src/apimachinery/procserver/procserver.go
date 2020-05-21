@@ -15,11 +15,11 @@ package procserver
 import (
 	"fmt"
 
-	"configcenter/src/apimachinery/procserver/openapi"
-	"configcenter/src/apimachinery/procserver/process"
-	"configcenter/src/apimachinery/procserver/service"
-	"configcenter/src/apimachinery/rest"
-	"configcenter/src/apimachinery/util"
+	"configdatabase/src/apimachinery/procserver/openapi"
+	"configdatabase/src/apimachinery/procserver/process"
+	"configdatabase/src/apimachinery/procserver/service"
+	"configdatabase/src/apimachinery/rest"
+	"configdatabase/src/apimachinery/util"
 )
 
 type ProcServerClientInterface interface {

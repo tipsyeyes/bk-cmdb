@@ -16,7 +16,7 @@ import (
 	"strings"
 	"time"
 
-	"configcenter/src/common"
+	"configdatabase/src/common"
 )
 
 // SetTemplate 集群模板

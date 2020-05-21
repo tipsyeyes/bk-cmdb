@@ -18,12 +18,12 @@ import (
 	"strconv"
 	"time"
 
-	"configcenter/src/common"
-	"configcenter/src/common/blog"
-	"configcenter/src/common/universalsql/mongo"
-	"configcenter/src/common/util"
-	ccredis "configcenter/src/storage/dal/redis"
-	daltypes "configcenter/src/storage/types"
+	"configdatabase/src/common"
+	"configdatabase/src/common/blog"
+	"configdatabase/src/common/universalsql/mongo"
+	"configdatabase/src/common/util"
+	ccredis "configdatabase/src/storage/dal/redis"
+	daltypes "configdatabase/src/storage/types"
 
 	"gopkg.in/redis.v5"
 )

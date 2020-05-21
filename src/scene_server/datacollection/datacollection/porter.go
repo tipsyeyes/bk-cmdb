@@ -20,10 +20,10 @@ import (
 	"runtime/debug"
 	"time"
 
-	"configcenter/src/common"
-	"configcenter/src/common/backbone"
-	"configcenter/src/common/blog"
-	"configcenter/src/common/util"
+	"configdatabase/src/common"
+	"configdatabase/src/common/backbone"
+	"configdatabase/src/common/blog"
+	"configdatabase/src/common/util"
 
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/rs/xid"

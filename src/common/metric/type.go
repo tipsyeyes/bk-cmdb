@@ -16,7 +16,7 @@ import (
 	"errors"
 	"net/http"
 
-	"configcenter/src/common/metadata"
+	"configdatabase/src/common/metadata"
 )
 
 type MetricFamily struct {

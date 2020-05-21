@@ -16,10 +16,10 @@ import (
 	"strconv"
 	"strings"
 
-	"configcenter/src/framework/common"
-	"configcenter/src/framework/core/output/module/client"
-	"configcenter/src/framework/core/output/module/model"
-	"configcenter/src/framework/core/types"
+	"configdatabase/src/framework/common"
+	"configdatabase/src/framework/core/output/module/client"
+	"configdatabase/src/framework/core/output/module/model"
+	"configdatabase/src/framework/core/types"
 )
 
 // OperationInterface inst operation interface

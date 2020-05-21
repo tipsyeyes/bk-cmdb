@@ -17,10 +17,10 @@ import (
 	"errors"
 	"net/http"
 
-	"configcenter/src/apimachinery/util"
-	"configcenter/src/auth/authcenter"
-	"configcenter/src/auth/meta"
-	"configcenter/src/common/metadata"
+	"configdatabase/src/apimachinery/util"
+	"configdatabase/src/auth/authcenter"
+	"configdatabase/src/auth/meta"
+	"configdatabase/src/common/metadata"
 
 	"github.com/prometheus/client_golang/prometheus"
 )

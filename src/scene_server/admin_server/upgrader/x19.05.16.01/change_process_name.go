@@ -15,12 +15,12 @@ package x19_05_16_01
 import (
 	"context"
 
-	"configcenter/src/common"
-	"configcenter/src/common/condition"
-	"configcenter/src/common/mapstr"
-	"configcenter/src/common/metadata"
-	"configcenter/src/scene_server/admin_server/upgrader"
-	"configcenter/src/storage/dal"
+	"configdatabase/src/common"
+	"configdatabase/src/common/condition"
+	"configdatabase/src/common/mapstr"
+	"configdatabase/src/common/metadata"
+	"configdatabase/src/scene_server/admin_server/upgrader"
+	"configdatabase/src/storage/dal"
 )
 
 func changeProcessName(ctx context.Context, db dal.RDB, conf *upgrader.Config) error {

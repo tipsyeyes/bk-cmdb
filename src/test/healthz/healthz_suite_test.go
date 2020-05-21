@@ -3,9 +3,9 @@ package healthz_test
 import (
 	"testing"
 
-	"configcenter/src/common/types"
-	"configcenter/src/test"
-	"configcenter/src/test/reporter"
+	"configdatabase/src/common/types"
+	"configdatabase/src/test"
+	"configdatabase/src/test/reporter"
 
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"

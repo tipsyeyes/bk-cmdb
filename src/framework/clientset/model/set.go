@@ -15,8 +15,8 @@ package model
 import (
 	"fmt"
 
-	"configcenter/src/framework/clientset/types"
-	"configcenter/src/framework/common/rest"
+	"configdatabase/src/framework/clientset/types"
+	"configdatabase/src/framework/common/rest"
 )
 
 type SetInterface interface {

@@ -17,7 +17,7 @@ import (
 	"errors"
 	"fmt"
 
-	"configcenter/src/common/http/httpclient"
+	"configdatabase/src/common/http/httpclient"
 )
 
 func NewMetricController(conf Config, healthFunc HealthFunc, collectors ...*Collector) []Action {

@@ -18,17 +18,17 @@ import (
 	"net/http"
 	"strconv"
 
-	"configcenter/src/common"
-	"configcenter/src/common/auditoplog"
-	"configcenter/src/common/backbone"
-	"configcenter/src/common/blog"
-	ccErr "configcenter/src/common/errors"
-	"configcenter/src/common/language"
-	"configcenter/src/common/mapstr"
-	"configcenter/src/common/metadata"
-	"configcenter/src/common/util"
-	"configcenter/src/framework/core/errors"
-	hutil "configcenter/src/scene_server/host_server/util"
+	"configdatabase/src/common"
+	"configdatabase/src/common/auditoplog"
+	"configdatabase/src/common/backbone"
+	"configdatabase/src/common/blog"
+	ccErr "configdatabase/src/common/errors"
+	"configdatabase/src/common/language"
+	"configdatabase/src/common/mapstr"
+	"configdatabase/src/common/metadata"
+	"configdatabase/src/common/util"
+	"configdatabase/src/framework/core/errors"
+	hutil "configdatabase/src/scene_server/host_server/util"
 )
 
 func (lgc *Logics) AddHost(ctx context.Context, appID int64, moduleIDs []int64, ownerID string, hostInfos map[int64]map[string]interface{}, importType metadata.HostInputType) ([]int64, []string, []string, []string, error) {

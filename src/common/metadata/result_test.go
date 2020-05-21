@@ -3,8 +3,8 @@ package metadata
 import (
 	"testing"
 
-	"configcenter/src/common/errors"
-	"configcenter/src/common/metadata"
+	"configdatabase/src/common/errors"
+	"configdatabase/src/common/metadata"
 )
 
 func TestResponse(t *testing.T) {

@@ -6,13 +6,13 @@ import (
 	"regexp"
 	"strconv"
 
-	"configcenter/src/auth/meta"
-	"configcenter/src/common"
-	"configcenter/src/common/blog"
-	"configcenter/src/common/json"
-	"configcenter/src/common/metadata"
-	"configcenter/src/common/util"
-	"configcenter/src/framework/core/errors"
+	"configdatabase/src/auth/meta"
+	"configdatabase/src/common"
+	"configdatabase/src/common/blog"
+	"configdatabase/src/common/json"
+	"configdatabase/src/common/metadata"
+	"configdatabase/src/common/util"
+	"configdatabase/src/framework/core/errors"
 
 	"github.com/tidwall/gjson"
 )

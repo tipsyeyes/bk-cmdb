@@ -15,12 +15,12 @@ package service
 import (
 	"net/http"
 
-	"configcenter/src/auth/meta"
-	"configcenter/src/common"
-	"configcenter/src/common/auth"
-	"configcenter/src/common/blog"
-	"configcenter/src/common/metadata"
-	"configcenter/src/common/util"
+	"configdatabase/src/auth/meta"
+	"configdatabase/src/common"
+	"configdatabase/src/common/auth"
+	"configdatabase/src/common/blog"
+	"configdatabase/src/common/metadata"
+	"configdatabase/src/common/util"
 
 	"github.com/emicklei/go-restful"
 )

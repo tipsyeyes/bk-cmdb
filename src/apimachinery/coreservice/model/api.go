@@ -17,7 +17,7 @@ import (
 	"fmt"
 	"net/http"
 
-	"configcenter/src/common/metadata"
+	"configdatabase/src/common/metadata"
 )
 
 func (m *model) CreateManyModelClassification(ctx context.Context, h http.Header, input *metadata.CreateManyModelClassifiaction) (resp *metadata.CreatedManyOptionResult, err error) {

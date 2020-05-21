@@ -12,11 +12,11 @@
 package datasynchronize
 
 import (
-	"configcenter/src/common"
-	"configcenter/src/common/errors"
-	"configcenter/src/common/metadata"
-	"configcenter/src/source_controller/coreservice/core"
-	"configcenter/src/storage/dal"
+	"configdatabase/src/common"
+	"configdatabase/src/common/errors"
+	"configdatabase/src/common/metadata"
+	"configdatabase/src/source_controller/coreservice/core"
+	"configdatabase/src/storage/dal"
 )
 
 type instance struct {

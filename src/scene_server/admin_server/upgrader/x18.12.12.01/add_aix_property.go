@@ -15,12 +15,12 @@ import (
 	"context"
 	"time"
 
-	"configcenter/src/common"
-	"configcenter/src/common/condition"
-	"configcenter/src/common/mapstr"
-	"configcenter/src/scene_server/admin_server/upgrader"
-	validator "configcenter/src/source_controller/coreservice/core/instances"
-	"configcenter/src/storage/dal"
+	"configdatabase/src/common"
+	"configdatabase/src/common/condition"
+	"configdatabase/src/common/mapstr"
+	"configdatabase/src/scene_server/admin_server/upgrader"
+	validator "configdatabase/src/source_controller/coreservice/core/instances"
+	"configdatabase/src/storage/dal"
 )
 
 type Attribute struct {

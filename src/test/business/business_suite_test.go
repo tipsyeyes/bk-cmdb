@@ -15,7 +15,7 @@ package business_test
 import (
 	"testing"
 
-	"configcenter/src/test"
+	"configdatabase/src/test"
 
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"

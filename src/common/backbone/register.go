@@ -15,10 +15,10 @@ package backbone
 import (
 	"encoding/json"
 
-	"configcenter/src/common/backbone/service_mange/zk"
-	"configcenter/src/common/registerdiscover"
-	"configcenter/src/common/types"
-	"configcenter/src/framework/core/errors"
+	"configdatabase/src/common/backbone/service_mange/zk"
+	"configdatabase/src/common/registerdiscover"
+	"configdatabase/src/common/types"
+	"configdatabase/src/framework/core/errors"
 )
 
 type ServiceRegisterInterface interface {

@@ -19,9 +19,9 @@ import (
 	"strconv"
 	"time"
 
-	"configcenter/src/common/backbone/service_mange/zk"
-	"configcenter/src/common/blog"
-	"configcenter/src/common/zkclient"
+	"configdatabase/src/common/backbone/service_mange/zk"
+	"configdatabase/src/common/blog"
+	"configdatabase/src/common/zkclient"
 
 	gozk "github.com/samuel/go-zookeeper/zk"
 )

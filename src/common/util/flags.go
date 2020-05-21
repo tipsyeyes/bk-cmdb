@@ -17,9 +17,9 @@ import (
 	"os"
 	"strings"
 
-	"configcenter/src/common/auth"
-	"configcenter/src/common/blog"
-	"configcenter/src/common/version"
+	"configdatabase/src/common/auth"
+	"configdatabase/src/common/blog"
+	"configdatabase/src/common/version"
 
 	"github.com/spf13/pflag"
 )

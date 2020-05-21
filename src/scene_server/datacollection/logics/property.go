@@ -17,10 +17,10 @@ import (
 	"fmt"
 	"net/http"
 
-	"configcenter/src/common"
-	"configcenter/src/common/blog"
-	meta "configcenter/src/common/metadata"
-	"configcenter/src/common/util"
+	"configdatabase/src/common"
+	"configdatabase/src/common/blog"
+	meta "configdatabase/src/common/metadata"
+	"configdatabase/src/common/util"
 )
 
 // AddProperty create new net property

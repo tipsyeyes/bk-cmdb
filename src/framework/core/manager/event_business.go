@@ -15,9 +15,9 @@ package manager
 import (
     "errors"
     
-    "configcenter/src/framework/core/log"
-    "configcenter/src/framework/core/output"
-    "configcenter/src/framework/core/types"
+    "configdatabase/src/framework/core/log"
+    "configdatabase/src/framework/core/output"
+    "configdatabase/src/framework/core/types"
 )
 
 type eventBusiness struct {

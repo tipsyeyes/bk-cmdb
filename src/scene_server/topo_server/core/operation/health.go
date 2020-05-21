@@ -13,12 +13,12 @@
 package operation
 
 import (
-	"configcenter/src/apimachinery"
-	"configcenter/src/common"
-	"configcenter/src/common/metadata"
-	"configcenter/src/common/metric"
-	gtypes "configcenter/src/common/types"
-	"configcenter/src/scene_server/topo_server/core/types"
+	"configdatabase/src/apimachinery"
+	"configdatabase/src/common"
+	"configdatabase/src/common/metadata"
+	"configdatabase/src/common/metric"
+	gtypes "configdatabase/src/common/types"
+	"configdatabase/src/scene_server/topo_server/core/types"
 )
 
 type HealthOperationInterface interface {

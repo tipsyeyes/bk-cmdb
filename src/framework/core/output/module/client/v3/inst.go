@@ -17,8 +17,8 @@ import (
 	"errors"
 	"fmt"
 
-	"configcenter/src/framework/common"
-	"configcenter/src/framework/core/types"
+	"configdatabase/src/framework/common"
+	"configdatabase/src/framework/core/types"
 
 	"github.com/tidwall/gjson"
 )

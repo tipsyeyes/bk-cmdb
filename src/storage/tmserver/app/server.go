@@ -16,13 +16,13 @@ import (
 	"os"
 	"sync"
 
-	"configcenter/src/common/backbone"
-	cc "configcenter/src/common/backbone/configcenter"
-	"configcenter/src/common/types"
-	"configcenter/src/common/version"
-	"configcenter/src/storage/dal/mongo"
-	"configcenter/src/storage/tmserver/app/options"
-	"configcenter/src/storage/tmserver/service"
+	"configdatabase/src/common/backbone"
+	cc "configdatabase/src/common/backbone/configcenter"
+	"configdatabase/src/common/types"
+	"configdatabase/src/common/version"
+	"configdatabase/src/storage/dal/mongo"
+	"configdatabase/src/storage/tmserver/app/options"
+	"configdatabase/src/storage/tmserver/service"
 )
 
 // Server tmserver definition

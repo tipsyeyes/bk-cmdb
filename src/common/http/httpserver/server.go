@@ -18,8 +18,8 @@ import (
 	"net/http"
 	"strconv"
 
-	"configcenter/src/common/blog"
-	"configcenter/src/common/ssl"
+	"configdatabase/src/common/blog"
+	"configdatabase/src/common/ssl"
 
 	"github.com/emicklei/go-restful"
 )

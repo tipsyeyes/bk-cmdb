@@ -16,7 +16,7 @@ import (
 	"context"
 	"net/http"
 
-	"configcenter/src/framework/core/types"
+	"configdatabase/src/framework/core/types"
 )
 
 type ListHostsCtx struct {

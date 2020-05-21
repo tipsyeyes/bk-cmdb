@@ -13,10 +13,10 @@
 package model
 
 import (
-	"configcenter/src/common"
-	"configcenter/src/common/metadata"
-	"configcenter/src/common/universalsql/mongo"
-	"configcenter/src/source_controller/coreservice/core"
+	"configdatabase/src/common"
+	"configdatabase/src/common/metadata"
+	"configdatabase/src/common/universalsql/mongo"
+	"configdatabase/src/source_controller/coreservice/core"
 )
 
 func (g *modelAttributeGroup) groupIDIsExists(ctx core.ContextParams, objID, groupID string, meta metadata.Metadata) (oneResult metadata.Group, isExists bool, err error) {

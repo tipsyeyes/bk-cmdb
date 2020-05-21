@@ -15,8 +15,8 @@ package metadata
 import (
 	"strings"
 
-	"configcenter/src/common"
-	"configcenter/src/common/mapstr"
+	"configdatabase/src/common"
+	"configdatabase/src/common/mapstr"
 )
 
 // Deprecated: SearchLimit sub condition

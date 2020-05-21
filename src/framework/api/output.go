@@ -13,9 +13,9 @@
 package api
 
 import (
-	"configcenter/src/framework/common"
-	"configcenter/src/framework/core/output/module/inst"
-	"configcenter/src/framework/core/output/module/model"
+	"configdatabase/src/framework/common"
+	"configdatabase/src/framework/core/output/module/inst"
+	"configdatabase/src/framework/core/output/module/model"
 )
 
 // BaseInstOperation return the base inst operation interface

@@ -17,8 +17,8 @@ import (
 
 	"github.com/coccyx/timeparser"
 
-	"configcenter/src/common"
-	"configcenter/src/common/util"
+	"configdatabase/src/common"
+	"configdatabase/src/common/util"
 )
 
 const (

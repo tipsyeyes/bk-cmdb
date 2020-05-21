@@ -17,8 +17,8 @@ import (
 	"net/http"
 	"time"
 
-	"configcenter/src/common/errors"
-	"configcenter/src/common/language"
+	"configdatabase/src/common/errors"
+	"configdatabase/src/common/language"
 )
 
 // ContextParams the core function params

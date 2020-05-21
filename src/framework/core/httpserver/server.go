@@ -13,9 +13,9 @@
 package httpserver
 
 import (
-	"configcenter/src/common/http/httpserver"
-	"configcenter/src/framework/core/log"
-	"configcenter/src/framework/core/option"
+	"configdatabase/src/common/http/httpserver"
+	"configdatabase/src/framework/core/log"
+	"configdatabase/src/framework/core/option"
 	"github.com/emicklei/go-restful"
 	"net"
 	"strconv"

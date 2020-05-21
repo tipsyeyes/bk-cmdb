@@ -15,7 +15,7 @@ package parser
 import (
 	"net/http"
 
-	"configcenter/src/auth/meta"
+	"configdatabase/src/auth/meta"
 )
 
 var ProcessInstanceIAMResourceType = meta.ProcessServiceInstance

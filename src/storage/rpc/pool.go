@@ -18,9 +18,9 @@ import (
 	"sync"
 	"time"
 
-	"configcenter/src/common/blog"
-	"configcenter/src/common/util"
-	"configcenter/src/storage/types"
+	"configdatabase/src/common/blog"
+	"configdatabase/src/common/util"
+	"configdatabase/src/storage/types"
 )
 
 type Pool struct {

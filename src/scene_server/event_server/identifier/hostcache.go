@@ -17,12 +17,12 @@ import (
 
 	"gopkg.in/redis.v5"
 
-	"configcenter/src/common"
-	"configcenter/src/common/blog"
-	"configcenter/src/common/condition"
-	"configcenter/src/common/metadata"
-	"configcenter/src/common/util"
-	"configcenter/src/storage/dal"
+	"configdatabase/src/common"
+	"configdatabase/src/common/blog"
+	"configdatabase/src/common/condition"
+	"configdatabase/src/common/metadata"
+	"configdatabase/src/common/util"
+	"configdatabase/src/storage/dal"
 )
 
 func fillIdentifier(identifier *metadata.HostIdentifier, ctx context.Context, cache *redis.Client, db dal.RDB) (*metadata.HostIdentifier, error) {

@@ -18,9 +18,9 @@ import (
 	"strings"
 	"sync"
 
-	"configcenter/src/common/blog"
-	"configcenter/src/common/registerdiscover"
-	"configcenter/src/common/types"
+	"configdatabase/src/common/blog"
+	"configdatabase/src/common/registerdiscover"
+	"configdatabase/src/common/types"
 )
 
 func newServerDiscover(disc *registerdiscover.RegDiscover, path, name string) (*server, error) {

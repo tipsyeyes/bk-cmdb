@@ -16,10 +16,10 @@ import (
 	"context"
 	"time"
 
-	"configcenter/src/common/blog"
-	"configcenter/src/common/metadata"
-	"configcenter/src/common/util"
-	"configcenter/src/scene_server/synchronize_server/app/options"
+	"configdatabase/src/common/blog"
+	"configdatabase/src/common/metadata"
+	"configdatabase/src/common/util"
+	"configdatabase/src/scene_server/synchronize_server/app/options"
 )
 
 func getVersion() int64 {

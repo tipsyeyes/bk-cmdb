@@ -20,7 +20,7 @@ import (
 	"regexp"
 	"strconv"
 
-	"configcenter/src/auth/meta"
+	"configdatabase/src/auth/meta"
 )
 
 var SetTemplateAuthConfigs = []AuthConfig{

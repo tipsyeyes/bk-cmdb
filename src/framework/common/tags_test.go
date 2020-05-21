@@ -13,8 +13,8 @@
 package common_test
 
 import (
-	"configcenter/src/framework/common"
-	"configcenter/src/framework/core/types"
+	"configdatabase/src/framework/common"
+	"configdatabase/src/framework/core/types"
 	"testing"
 )
 

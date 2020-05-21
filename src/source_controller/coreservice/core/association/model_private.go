@@ -13,11 +13,11 @@
 package association
 
 import (
-	"configcenter/src/common"
-	"configcenter/src/common/blog"
-	"configcenter/src/common/metadata"
-	"configcenter/src/common/universalsql/mongo"
-	"configcenter/src/source_controller/coreservice/core"
+	"configdatabase/src/common"
+	"configdatabase/src/common/blog"
+	"configdatabase/src/common/metadata"
+	"configdatabase/src/common/universalsql/mongo"
+	"configdatabase/src/source_controller/coreservice/core"
 )
 
 func (m *associationModel) isValid(ctx core.ContextParams, inputParam metadata.CreateModelAssociation) error {

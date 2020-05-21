@@ -16,11 +16,11 @@ import (
 	"fmt"
 	"strings"
 
-	"configcenter/src/common"
-	"configcenter/src/common/mapstr"
-	"configcenter/src/common/metadata"
-	"configcenter/src/scene_server/admin_server/upgrader"
-	"configcenter/src/storage/dal"
+	"configdatabase/src/common"
+	"configdatabase/src/common/mapstr"
+	"configdatabase/src/common/metadata"
+	"configdatabase/src/scene_server/admin_server/upgrader"
+	"configdatabase/src/storage/dal"
 
 	"gopkg.in/mgo.v2"
 )

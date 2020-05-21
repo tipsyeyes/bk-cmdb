@@ -17,9 +17,9 @@ import (
 	"fmt"
 	"net/http"
 
-	"configcenter/src/common"
-	"configcenter/src/common/metadata"
-	params "configcenter/src/common/paraparse"
+	"configdatabase/src/common"
+	"configdatabase/src/common/metadata"
+	params "configdatabase/src/common/paraparse"
 )
 
 func (a *apiServer) CreateBiz(ctx context.Context, ownerID string, h http.Header, params map[string]interface{}) (resp *metadata.CreateInstResult, err error) {

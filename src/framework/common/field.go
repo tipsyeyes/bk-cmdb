@@ -13,8 +13,8 @@
 package common
 
 import (
-	cccommon "configcenter/src/common"
-	"configcenter/src/framework/core/types"
+	cccommon "configdatabase/src/common"
+	"configdatabase/src/framework/core/types"
 )
 
 // Field create a field

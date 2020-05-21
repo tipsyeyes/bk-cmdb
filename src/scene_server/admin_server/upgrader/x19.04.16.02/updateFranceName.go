@@ -15,13 +15,13 @@ package x19_04_16_02
 import (
 	"context"
 
-	"configcenter/src/common"
-	"configcenter/src/common/condition"
-	"configcenter/src/common/mapstr"
-	"configcenter/src/common/metadata"
-	"configcenter/src/scene_server/admin_server/upgrader"
-	"configcenter/src/source_controller/coreservice/core/instances"
-	"configcenter/src/storage/dal"
+	"configdatabase/src/common"
+	"configdatabase/src/common/condition"
+	"configdatabase/src/common/mapstr"
+	"configdatabase/src/common/metadata"
+	"configdatabase/src/scene_server/admin_server/upgrader"
+	"configdatabase/src/source_controller/coreservice/core/instances"
+	"configdatabase/src/storage/dal"
 )
 
 func updateFranceName(ctx context.Context, db dal.RDB, conf *upgrader.Config) error {

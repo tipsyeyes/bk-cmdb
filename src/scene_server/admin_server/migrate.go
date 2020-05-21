@@ -20,13 +20,13 @@ import (
 
 	"github.com/spf13/pflag"
 
-	"configcenter/src/common"
-	"configcenter/src/common/blog"
-	"configcenter/src/common/types"
-	"configcenter/src/common/util"
-	"configcenter/src/scene_server/admin_server/app"
-	"configcenter/src/scene_server/admin_server/app/options"
-	"configcenter/src/scene_server/admin_server/command"
+	"configdatabase/src/common"
+	"configdatabase/src/common/blog"
+	"configdatabase/src/common/types"
+	"configdatabase/src/common/util"
+	"configdatabase/src/scene_server/admin_server/app"
+	"configdatabase/src/scene_server/admin_server/app/options"
+	"configdatabase/src/scene_server/admin_server/command"
 )
 
 func main() {

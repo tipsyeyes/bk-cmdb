@@ -20,7 +20,7 @@ import (
 	"strconv"
 	"time"
 
-	"configcenter/src/common"
+	"configdatabase/src/common"
 
 	"github.com/rentiansheng/bk_bson/bson"
 )

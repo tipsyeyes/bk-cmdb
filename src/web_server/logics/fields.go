@@ -17,13 +17,13 @@ import (
 	"fmt"
 	"net/http"
 
-	"configcenter/src/common"
-	"configcenter/src/common/blog"
-	lang "configcenter/src/common/language"
-	"configcenter/src/common/mapstr"
-	"configcenter/src/common/metadata"
-	"configcenter/src/common/util"
-	"configcenter/src/framework/core/errors"
+	"configdatabase/src/common"
+	"configdatabase/src/common/blog"
+	lang "configdatabase/src/common/language"
+	"configdatabase/src/common/mapstr"
+	"configdatabase/src/common/metadata"
+	"configdatabase/src/common/util"
+	"configdatabase/src/framework/core/errors"
 )
 
 // Property object fields

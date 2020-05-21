@@ -17,7 +17,7 @@ import (
 	"encoding/base64"
 	"fmt"
 
-	"configcenter/src/common/mapstr"
+	"configdatabase/src/common/mapstr"
 )
 
 // SynchronizeOperateType synchronize data operate type

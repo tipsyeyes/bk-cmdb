@@ -26,9 +26,9 @@ import (
 	"strconv"
 	"syscall"
 
-	"configcenter/src/common/blog"
-	"configcenter/src/common/ssl"
-	"configcenter/src/common/zkclient"
+	"configdatabase/src/common/blog"
+	"configdatabase/src/common/ssl"
+	"configdatabase/src/common/zkclient"
 )
 
 func ListenAndServe(c Server, svcDisc ServiceRegisterInterface, cancel context.CancelFunc) error {

@@ -18,12 +18,12 @@ import (
 	"strings"
 	"time"
 
-	"configcenter/src/auth/extensions"
-	"configcenter/src/common"
-	"configcenter/src/common/auditoplog"
-	"configcenter/src/common/blog"
-	"configcenter/src/common/metadata"
-	"configcenter/src/common/util"
+	"configdatabase/src/auth/extensions"
+	"configdatabase/src/common"
+	"configdatabase/src/common/auditoplog"
+	"configdatabase/src/common/blog"
+	"configdatabase/src/common/metadata"
+	"configdatabase/src/common/util"
 
 	"github.com/tidwall/gjson"
 )

@@ -13,8 +13,8 @@
 package mongo
 
 import (
-	"configcenter/src/common/mapstr"
-	"configcenter/src/common/universalsql"
+	"configdatabase/src/common/mapstr"
+	"configdatabase/src/common/universalsql"
 	"encoding/json"
 )
 

@@ -15,12 +15,12 @@ package service
 import (
 	"context"
 
-	"configcenter/src/common"
-	"configcenter/src/common/blog"
-	"configcenter/src/common/language"
-	"configcenter/src/common/metadata"
-	"configcenter/src/common/util"
-	"configcenter/src/source_controller/coreservice/core/instances"
+	"configdatabase/src/common"
+	"configdatabase/src/common/blog"
+	"configdatabase/src/common/language"
+	"configdatabase/src/common/metadata"
+	"configdatabase/src/common/util"
+	"configdatabase/src/source_controller/coreservice/core/instances"
 )
 
 var defaultNameLanguagePkg = map[string]map[string][]string{

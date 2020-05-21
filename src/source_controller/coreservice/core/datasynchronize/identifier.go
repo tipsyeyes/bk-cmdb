@@ -13,15 +13,15 @@
 package datasynchronize
 
 import (
-	"configcenter/src/common"
-	"configcenter/src/common/blog"
-	"configcenter/src/common/condition"
-	"configcenter/src/common/errors"
-	"configcenter/src/common/mapstr"
-	"configcenter/src/common/metadata"
-	"configcenter/src/common/util"
-	"configcenter/src/source_controller/coreservice/core"
-	"configcenter/src/storage/dal"
+	"configdatabase/src/common"
+	"configdatabase/src/common/blog"
+	"configdatabase/src/common/condition"
+	"configdatabase/src/common/errors"
+	"configdatabase/src/common/mapstr"
+	"configdatabase/src/common/metadata"
+	"configdatabase/src/common/util"
+	"configdatabase/src/source_controller/coreservice/core"
+	"configdatabase/src/storage/dal"
 )
 
 type setIdentifierFlag struct {

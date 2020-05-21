@@ -16,11 +16,11 @@ import (
 	"context"
 	"fmt"
 
-	"configcenter/src/auth/extensions"
-	"configcenter/src/common"
-	"configcenter/src/common/blog"
-	"configcenter/src/scene_server/admin_server/upgrader"
-	"configcenter/src/storage/dal"
+	"configdatabase/src/auth/extensions"
+	"configdatabase/src/common"
+	"configdatabase/src/common/blog"
+	"configdatabase/src/scene_server/admin_server/upgrader"
+	"configdatabase/src/storage/dal"
 )
 
 var tables = []string{

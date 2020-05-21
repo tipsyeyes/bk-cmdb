@@ -19,17 +19,17 @@ import (
 	"sync"
 	"time"
 
-	"configcenter/src/apimachinery"
-	"configcenter/src/apimachinery/discovery"
-	"configcenter/src/apimachinery/util"
-	"configcenter/src/common"
-	cc "configcenter/src/common/backbone/configcenter"
-	"configcenter/src/common/backbone/service_mange/zk"
-	"configcenter/src/common/blog"
-	"configcenter/src/common/errors"
-	"configcenter/src/common/language"
-	"configcenter/src/common/metrics"
-	"configcenter/src/common/types"
+	"configdatabase/src/apimachinery"
+	"configdatabase/src/apimachinery/discovery"
+	"configdatabase/src/apimachinery/util"
+	"configdatabase/src/common"
+	cc "configdatabase/src/common/backbone/configcenter"
+	"configdatabase/src/common/backbone/service_mange/zk"
+	"configdatabase/src/common/blog"
+	"configdatabase/src/common/errors"
+	"configdatabase/src/common/language"
+	"configdatabase/src/common/metrics"
+	"configdatabase/src/common/types"
 )
 
 // connect svcManager retry connect time

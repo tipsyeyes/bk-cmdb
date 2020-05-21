@@ -16,13 +16,13 @@ import (
 	"fmt"
 	"sync"
 
-	"configcenter/src/apimachinery/flowctrl"
-	"configcenter/src/apimachinery/rest"
-	"configcenter/src/apimachinery/util"
-	"configcenter/src/thirdpartyclient/esbserver/esbutil"
-	"configcenter/src/thirdpartyclient/esbserver/gse"
-	"configcenter/src/thirdpartyclient/esbserver/nodeman"
-	"configcenter/src/thirdpartyclient/esbserver/user"
+	"configdatabase/src/apimachinery/flowctrl"
+	"configdatabase/src/apimachinery/rest"
+	"configdatabase/src/apimachinery/util"
+	"configdatabase/src/thirdpartyclient/esbserver/esbutil"
+	"configdatabase/src/thirdpartyclient/esbserver/gse"
+	"configdatabase/src/thirdpartyclient/esbserver/nodeman"
+	"configdatabase/src/thirdpartyclient/esbserver/user"
 
 	"github.com/prometheus/client_golang/prometheus"
 )

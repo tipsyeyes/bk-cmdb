@@ -17,7 +17,7 @@ import (
 	"fmt"
 	"net/http"
 
-    "configcenter/src/common/metadata"
+    "configdatabase/src/common/metadata"
 )
 
 func (a *adminServer) ClearDatabase(ctx context.Context, h http.Header) (resp *metadata.Response, err error) {

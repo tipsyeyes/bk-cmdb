@@ -9,14 +9,14 @@ import (
 	"strings"
 	"time"
 
-	"configcenter/src/apimachinery"
-	"configcenter/src/apimachinery/discovery"
-	"configcenter/src/apimachinery/util"
-	"configcenter/src/common"
-	"configcenter/src/common/backbone/service_mange/zk"
-	"configcenter/src/storage/dal/mongo/local"
-	"configcenter/src/test/run"
-	testutil "configcenter/src/test/util"
+	"configdatabase/src/apimachinery"
+	"configdatabase/src/apimachinery/discovery"
+	"configdatabase/src/apimachinery/util"
+	"configdatabase/src/common"
+	"configdatabase/src/common/backbone/service_mange/zk"
+	"configdatabase/src/storage/dal/mongo/local"
+	"configdatabase/src/test/run"
+	testutil "configdatabase/src/test/util"
 
 	. "github.com/onsi/gomega"
 )

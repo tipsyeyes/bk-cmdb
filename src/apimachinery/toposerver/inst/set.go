@@ -17,9 +17,9 @@ import (
 	"fmt"
 	"net/http"
 
-	"configcenter/src/common/mapstr"
-	"configcenter/src/common/metadata"
-	"configcenter/src/common/paraparse"
+	"configdatabase/src/common/mapstr"
+	"configdatabase/src/common/metadata"
+	"configdatabase/src/common/paraparse"
 )
 
 func (t *instanceClient) CreateSet(ctx context.Context, appID string, h http.Header, dat mapstr.MapStr) (resp *metadata.CreateInstResult, err error) {

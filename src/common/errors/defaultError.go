@@ -12,7 +12,7 @@
 
 package errors
 
-import "configcenter/src/common"
+import "configdatabase/src/common"
 
 // ccDefaultErrorHelper regular language code helper
 type ccDefaultErrorHelper struct {

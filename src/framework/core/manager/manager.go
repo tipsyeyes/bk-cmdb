@@ -17,12 +17,12 @@ import (
 	"encoding/json"
 	"io/ioutil"
 
-	"configcenter/src/framework/common"
-	"configcenter/src/framework/core/httpserver"
-	"configcenter/src/framework/core/input"
-	"configcenter/src/framework/core/log"
-	"configcenter/src/framework/core/output"
-	"configcenter/src/framework/core/types"
+	"configdatabase/src/framework/common"
+	"configdatabase/src/framework/core/httpserver"
+	"configdatabase/src/framework/core/input"
+	"configdatabase/src/framework/core/log"
+	"configdatabase/src/framework/core/output"
+	"configdatabase/src/framework/core/types"
 	"github.com/emicklei/go-restful"
 )
 

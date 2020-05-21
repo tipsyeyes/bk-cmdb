@@ -13,15 +13,15 @@
 package service
 
 import (
-	"configcenter/src/common"
-	"configcenter/src/common/backbone"
-	"configcenter/src/common/errors"
-	"configcenter/src/common/metadata"
-	"configcenter/src/common/metric"
-	"configcenter/src/common/rdapi"
-	"configcenter/src/common/types"
-	"configcenter/src/scene_server/datacollection/logics"
-	"configcenter/src/storage/dal"
+	"configdatabase/src/common"
+	"configdatabase/src/common/backbone"
+	"configdatabase/src/common/errors"
+	"configdatabase/src/common/metadata"
+	"configdatabase/src/common/metric"
+	"configdatabase/src/common/rdapi"
+	"configdatabase/src/common/types"
+	"configdatabase/src/scene_server/datacollection/logics"
+	"configdatabase/src/storage/dal"
 
 	"github.com/emicklei/go-restful"
 	"gopkg.in/redis.v5"

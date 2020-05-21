@@ -17,9 +17,9 @@ import (
 	"fmt"
 	"net/http"
 
-	"configcenter/src/common/blog"
-	"configcenter/src/common/metadata"
-	"configcenter/src/common/util"
+	"configdatabase/src/common/blog"
+	"configdatabase/src/common/metadata"
+	"configdatabase/src/common/util"
 )
 
 // SearchMainlineModelTopo get topo tree of model on mainline

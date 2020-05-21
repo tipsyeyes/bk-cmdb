@@ -18,9 +18,9 @@ import (
 	"fmt"
 	"net/http"
 
-	"configcenter/src/common"
-	params "configcenter/src/common/paraparse"
-	"configcenter/src/test/run"
+	"configdatabase/src/common"
+	params "configdatabase/src/common/paraparse"
+	"configdatabase/src/test/run"
 
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"

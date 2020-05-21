@@ -16,13 +16,13 @@ import (
 	"fmt"
 	"sync"
 
-	"configcenter/src/apimachinery/rest"
-	"configcenter/src/apimachinery/taskserver/queue"
-	"configcenter/src/apimachinery/taskserver/task"
-	"configcenter/src/apimachinery/util"
+	"configdatabase/src/apimachinery/rest"
+	"configdatabase/src/apimachinery/taskserver/queue"
+	"configdatabase/src/apimachinery/taskserver/task"
+	"configdatabase/src/apimachinery/util"
 
-	"configcenter/src/apimachinery/flowctrl"
-	taskUtil "configcenter/src/apimachinery/taskserver/util"
+	"configdatabase/src/apimachinery/flowctrl"
+	taskUtil "configdatabase/src/apimachinery/taskserver/util"
 )
 
 type TaskServerClientInterface interface {

@@ -21,7 +21,7 @@ import (
 	"net/http"
 	"time"
 
-	"configcenter/src/common/ssl"
+	"configdatabase/src/common/ssl"
 )
 
 type HttpClient struct {

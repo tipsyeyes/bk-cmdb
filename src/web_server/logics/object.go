@@ -18,10 +18,10 @@ import (
 	"fmt"
 	"net/http"
 
-	"configcenter/src/common"
-	"configcenter/src/common/language"
-	"configcenter/src/common/mapstr"
-	"configcenter/src/common/metadata"
+	"configdatabase/src/common"
+	"configdatabase/src/common/language"
+	"configdatabase/src/common/mapstr"
+	"configdatabase/src/common/metadata"
 )
 
 // GetObjectData get object data

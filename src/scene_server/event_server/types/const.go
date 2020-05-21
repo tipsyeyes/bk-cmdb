@@ -13,7 +13,7 @@
 package types
 
 import (
-	"configcenter/src/common"
+	"configdatabase/src/common"
 )
 
 // Event Cache Keys

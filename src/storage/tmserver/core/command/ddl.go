@@ -16,11 +16,11 @@ import (
 	"fmt"
 	"strings"
 
-	"configcenter/src/common/blog"
-	"configcenter/src/storage/mongodb"
-	"configcenter/src/storage/rpc"
-	"configcenter/src/storage/tmserver/core"
-	"configcenter/src/storage/types"
+	"configdatabase/src/common/blog"
+	"configdatabase/src/storage/mongodb"
+	"configdatabase/src/storage/rpc"
+	"configdatabase/src/storage/tmserver/core"
+	"configdatabase/src/storage/types"
 )
 
 // DDL(Data Definition Language)，是用于描述数据库中要存储的现实世界实体的语言。

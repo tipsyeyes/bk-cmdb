@@ -17,14 +17,14 @@ import (
 	"fmt"
 	"net/http"
 
-	"configcenter/src/auth/authcenter"
-	"configcenter/src/auth/extensions"
-	authmeta "configcenter/src/auth/meta"
-	"configcenter/src/common"
-	"configcenter/src/common/blog"
-	"configcenter/src/common/metadata"
-	"configcenter/src/common/util"
-	"configcenter/src/scene_server/admin_server/authsynchronizer/meta"
+	"configdatabase/src/auth/authcenter"
+	"configdatabase/src/auth/extensions"
+	authmeta "configdatabase/src/auth/meta"
+	"configdatabase/src/common"
+	"configdatabase/src/common/blog"
+	"configdatabase/src/common/metadata"
+	"configdatabase/src/common/util"
+	"configdatabase/src/scene_server/admin_server/authsynchronizer/meta"
 )
 
 // HandleSetSync do sync set of one business

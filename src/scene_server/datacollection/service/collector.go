@@ -18,10 +18,10 @@ import (
 
 	"github.com/emicklei/go-restful"
 
-	"configcenter/src/common"
-	"configcenter/src/common/blog"
-	"configcenter/src/common/metadata"
-	"configcenter/src/common/util"
+	"configdatabase/src/common"
+	"configdatabase/src/common/blog"
+	"configdatabase/src/common/metadata"
+	"configdatabase/src/common/util"
 )
 
 func (s *Service) SearchCollector(req *restful.Request, resp *restful.Response) {

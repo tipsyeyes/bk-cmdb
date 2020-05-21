@@ -13,9 +13,9 @@
 package metric
 
 import (
-	"configcenter/src/common/metric"
-	"configcenter/src/framework/core/httpserver"
-	"configcenter/src/framework/core/option"
+	"configdatabase/src/common/metric"
+	"configdatabase/src/framework/core/httpserver"
+	"configdatabase/src/framework/core/option"
 	"github.com/emicklei/go-restful"
 )
 

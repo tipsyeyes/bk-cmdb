@@ -21,9 +21,9 @@ import (
 
 	"github.com/stretchr/testify/require"
 
-	"configcenter/src/common"
-	"configcenter/src/common/util"
-	"configcenter/src/storage/dal"
+	"configdatabase/src/common"
+	"configdatabase/src/common/util"
+	"configdatabase/src/storage/dal"
 )
 
 func getTMServer() []string {

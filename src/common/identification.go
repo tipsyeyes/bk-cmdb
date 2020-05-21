@@ -13,7 +13,7 @@
 package common
 
 import (
-	"configcenter/src/common/types"
+	"configdatabase/src/common/types"
 )
 
 var identification string = "unknown"

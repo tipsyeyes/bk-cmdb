@@ -17,10 +17,10 @@ import (
 	"fmt"
 	"os"
 
-	"configcenter/src/common"
-	"configcenter/src/common/backbone/configcenter"
-	"configcenter/src/storage/dal/mongo"
-	"configcenter/src/storage/dal/mongo/local"
+	"configdatabase/src/common"
+	"configdatabase/src/common/backbone/configcenter"
+	"configdatabase/src/storage/dal/mongo"
+	"configdatabase/src/storage/dal/mongo/local"
 
 	"github.com/spf13/pflag"
 )

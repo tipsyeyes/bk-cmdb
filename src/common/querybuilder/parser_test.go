@@ -16,7 +16,7 @@ import (
 	"encoding/json"
 	"testing"
 
-	"configcenter/src/common/querybuilder"
+	"configdatabase/src/common/querybuilder"
 
 	"github.com/stretchr/testify/assert"
 )

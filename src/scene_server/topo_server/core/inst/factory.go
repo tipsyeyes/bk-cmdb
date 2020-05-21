@@ -13,10 +13,10 @@
 package inst
 
 import (
-	"configcenter/src/apimachinery"
-	"configcenter/src/common/mapstr"
-	"configcenter/src/scene_server/topo_server/core/model"
-	"configcenter/src/scene_server/topo_server/core/types"
+	"configdatabase/src/apimachinery"
+	"configdatabase/src/common/mapstr"
+	"configdatabase/src/scene_server/topo_server/core/model"
+	"configdatabase/src/scene_server/topo_server/core/types"
 )
 
 // New create a new inst factory

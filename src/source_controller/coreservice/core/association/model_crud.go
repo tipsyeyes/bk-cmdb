@@ -13,12 +13,12 @@
 package association
 
 import (
-	"configcenter/src/common"
-	"configcenter/src/common/blog"
-	"configcenter/src/common/mapstr"
-	"configcenter/src/common/metadata"
-	"configcenter/src/common/universalsql"
-	"configcenter/src/source_controller/coreservice/core"
+	"configdatabase/src/common"
+	"configdatabase/src/common/blog"
+	"configdatabase/src/common/mapstr"
+	"configdatabase/src/common/metadata"
+	"configdatabase/src/common/universalsql"
+	"configdatabase/src/source_controller/coreservice/core"
 )
 
 func (m *associationModel) count(ctx core.ContextParams, cond universalsql.Condition) (cnt uint64, err error) {

@@ -22,12 +22,12 @@ import (
 	"sync"
 	"time"
 
-	"configcenter/src/common/backbone/service_mange/zk"
-	"configcenter/src/common/blog"
-	"configcenter/src/common/registerdiscover"
-	"configcenter/src/common/types"
-	"configcenter/src/common/version"
-	"configcenter/src/framework/core/log"
+	"configdatabase/src/common/backbone/service_mange/zk"
+	"configdatabase/src/common/blog"
+	"configdatabase/src/common/registerdiscover"
+	"configdatabase/src/common/types"
+	"configdatabase/src/common/version"
+	"configdatabase/src/framework/core/log"
 )
 
 var _ DiscoverInterface = &RegDiscover{}

@@ -17,7 +17,7 @@ import (
 	"reflect"
 	"testing"
 
-	"configcenter/src/common/metadata"
+	"configdatabase/src/common/metadata"
 )
 
 func TestCreateModelInst(t *testing.T) {

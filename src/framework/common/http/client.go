@@ -18,7 +18,7 @@ import (
 	"net/http"
 	"time"
 
-	"configcenter/src/common/ssl"
+	"configdatabase/src/common/ssl"
 )
 
 func NewClient(c *TLSConfig) (*http.Client, error) {

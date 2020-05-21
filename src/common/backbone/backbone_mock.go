@@ -13,10 +13,10 @@
 package backbone
 
 import (
-	"configcenter/src/apimachinery"
-	"configcenter/src/common/errors"
-	"configcenter/src/common/language"
-	"configcenter/src/common/types"
+	"configdatabase/src/apimachinery"
+	"configdatabase/src/common/errors"
+	"configdatabase/src/common/language"
+	"configdatabase/src/common/types"
 )
 
 func NewMockBackbone(c *Config) (*Engine, error) {

@@ -15,8 +15,8 @@ import (
 	"context"
 	"net/http"
 
-	//"configcenter/src/apimachinery/rest"
-	"configcenter/src/common/metadata"
+	//"configdatabase/src/apimachinery/rest"
+	"configdatabase/src/common/metadata"
 )
 
 func (s *synchronize) Find(ctx context.Context, h http.Header, input *metadata.SynchronizeFindInfoParameter) (resp *metadata.ResponseInstData, err error) {

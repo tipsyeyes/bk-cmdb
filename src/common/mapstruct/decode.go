@@ -15,7 +15,7 @@ package mapstruct
 import (
 	"encoding/json"
 
-	"configcenter/src/common/metadata"
+	"configdatabase/src/common/metadata"
 
 	"github.com/mitchellh/mapstructure"
 )

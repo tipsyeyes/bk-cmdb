@@ -13,7 +13,7 @@
 package universalsql
 
 import (
-	"configcenter/src/common/mapstr"
+	"configdatabase/src/common/mapstr"
 )
 
 type Result interface {

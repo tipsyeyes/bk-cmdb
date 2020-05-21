@@ -18,7 +18,7 @@ import (
 	"strings"
 	"time"
 
-	"configcenter/src/common/zkclient"
+	"configdatabase/src/common/zkclient"
 )
 
 // ZkClient do service register and discover by zookeeper

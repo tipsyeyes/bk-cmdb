@@ -13,7 +13,7 @@
 package service
 
 import (
-	"configcenter/src/common/version"
+	"configdatabase/src/common/version"
 
 	"github.com/emicklei/go-restful"
 )

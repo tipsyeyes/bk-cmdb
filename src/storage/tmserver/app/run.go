@@ -17,11 +17,11 @@ import (
 	"fmt"
 	"time"
 
-	"configcenter/src/common/backbone"
-	"configcenter/src/common/blog"
-	mgo "configcenter/src/storage/mongodb/driver"
-	"configcenter/src/storage/tmserver/app/options"
-	"configcenter/src/storage/tmserver/service"
+	"configdatabase/src/common/backbone"
+	"configdatabase/src/common/blog"
+	mgo "configdatabase/src/storage/mongodb/driver"
+	"configdatabase/src/storage/tmserver/app/options"
+	"configdatabase/src/storage/tmserver/service"
 
 	"github.com/emicklei/go-restful"
 )

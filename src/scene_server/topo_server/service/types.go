@@ -13,11 +13,11 @@
 package service
 
 import (
-	"configcenter/src/common/http/httpserver"
-	"configcenter/src/common/mapstr"
-	"configcenter/src/common/metadata"
-	"configcenter/src/scene_server/topo_server/core"
-	"configcenter/src/scene_server/topo_server/core/types"
+	"configdatabase/src/common/http/httpserver"
+	"configdatabase/src/common/mapstr"
+	"configdatabase/src/common/metadata"
+	"configdatabase/src/scene_server/topo_server/core"
+	"configdatabase/src/scene_server/topo_server/core/types"
 )
 
 // LogicFunc the core logic function definition

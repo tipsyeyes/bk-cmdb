@@ -18,8 +18,8 @@ import (
 	"net/http"
 	"runtime/debug"
 
-	"configcenter/src/common/blog"
-	"configcenter/src/common/version"
+	"configdatabase/src/common/blog"
+	"configdatabase/src/common/version"
 )
 
 // Manager manage the porter goroutine

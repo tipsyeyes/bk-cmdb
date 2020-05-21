@@ -15,9 +15,9 @@ package v3v0v8
 import (
 	"time"
 
-	"configcenter/src/common"
-	mCommon "configcenter/src/scene_server/admin_server/common"
-	validator "configcenter/src/source_controller/coreservice/core/instances"
+	"configdatabase/src/common"
+	mCommon "configdatabase/src/scene_server/admin_server/common"
+	validator "configdatabase/src/source_controller/coreservice/core/instances"
 )
 
 // default group

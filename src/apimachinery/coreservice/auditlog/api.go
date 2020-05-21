@@ -16,7 +16,7 @@ import (
 	"context"
 	"net/http"
 
-	"configcenter/src/common/metadata"
+	"configdatabase/src/common/metadata"
 )
 
 func (inst *auditlog) SaveAuditLog(ctx context.Context, h http.Header, logs ...metadata.SaveAuditLogParams) (resp *metadata.Response, err error) {

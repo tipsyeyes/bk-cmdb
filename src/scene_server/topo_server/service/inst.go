@@ -16,15 +16,15 @@ import (
 	"strconv"
 	"strings"
 
-	"configcenter/src/common"
-	"configcenter/src/common/blog"
-	"configcenter/src/common/condition"
-	"configcenter/src/common/mapstr"
-	"configcenter/src/common/metadata"
-	paraparse "configcenter/src/common/paraparse"
-	"configcenter/src/common/util"
-	"configcenter/src/scene_server/topo_server/core/operation"
-	"configcenter/src/scene_server/topo_server/core/types"
+	"configdatabase/src/common"
+	"configdatabase/src/common/blog"
+	"configdatabase/src/common/condition"
+	"configdatabase/src/common/mapstr"
+	"configdatabase/src/common/metadata"
+	paraparse "configdatabase/src/common/paraparse"
+	"configdatabase/src/common/util"
+	"configdatabase/src/scene_server/topo_server/core/operation"
+	"configdatabase/src/scene_server/topo_server/core/types"
 )
 
 var whiteList = []string{

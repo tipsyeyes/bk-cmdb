@@ -17,12 +17,12 @@ import (
 
 	"gopkg.in/redis.v5"
 
-	"configcenter/src/auth/extensions"
-	"configcenter/src/common"
-	"configcenter/src/common/backbone"
-	"configcenter/src/common/errors"
-	"configcenter/src/common/language"
-	"configcenter/src/common/util"
+	"configdatabase/src/auth/extensions"
+	"configdatabase/src/common"
+	"configdatabase/src/common/backbone"
+	"configdatabase/src/common/errors"
+	"configdatabase/src/common/language"
+	"configdatabase/src/common/util"
 )
 
 type Logics struct {

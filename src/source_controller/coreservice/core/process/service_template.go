@@ -16,12 +16,12 @@ import (
 	"fmt"
 	"time"
 
-	"configcenter/src/common"
-	"configcenter/src/common/blog"
-	"configcenter/src/common/errors"
-	"configcenter/src/common/metadata"
-	"configcenter/src/common/util"
-	"configcenter/src/source_controller/coreservice/core"
+	"configdatabase/src/common"
+	"configdatabase/src/common/blog"
+	"configdatabase/src/common/errors"
+	"configdatabase/src/common/metadata"
+	"configdatabase/src/common/util"
+	"configdatabase/src/source_controller/coreservice/core"
 )
 
 func (p *processOperation) CreateServiceTemplate(ctx core.ContextParams, template metadata.ServiceTemplate) (*metadata.ServiceTemplate, errors.CCErrorCoder) {

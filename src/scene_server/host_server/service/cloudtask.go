@@ -21,10 +21,10 @@ import (
 
 	"github.com/emicklei/go-restful"
 
-	"configcenter/src/common"
-	"configcenter/src/common/blog"
-	"configcenter/src/common/mapstr"
-	meta "configcenter/src/common/metadata"
+	"configdatabase/src/common"
+	"configdatabase/src/common/blog"
+	"configdatabase/src/common/mapstr"
+	meta "configdatabase/src/common/metadata"
 )
 
 // CloudAddTask create cloud sync task

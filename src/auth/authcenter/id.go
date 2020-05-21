@@ -16,7 +16,7 @@ import (
 	"fmt"
 	"strconv"
 
-	"configcenter/src/auth/meta"
+	"configdatabase/src/auth/meta"
 )
 
 func GenerateResourceID(resourceType ResourceTypeID, attribute *meta.ResourceAttribute) ([]RscTypeAndID, error) {

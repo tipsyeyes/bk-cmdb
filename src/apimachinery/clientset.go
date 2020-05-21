@@ -13,18 +13,18 @@
 package apimachinery
 
 import (
-	"configcenter/src/apimachinery/adminserver"
-	"configcenter/src/apimachinery/apiserver"
-	"configcenter/src/apimachinery/coreservice"
-	"configcenter/src/apimachinery/discovery"
-	"configcenter/src/apimachinery/eventserver"
-	"configcenter/src/apimachinery/flowctrl"
-	"configcenter/src/apimachinery/healthz"
-	"configcenter/src/apimachinery/hostserver"
-	"configcenter/src/apimachinery/procserver"
-	"configcenter/src/apimachinery/taskserver"
-	"configcenter/src/apimachinery/toposerver"
-	"configcenter/src/apimachinery/util"
+	"configdatabase/src/apimachinery/adminserver"
+	"configdatabase/src/apimachinery/apiserver"
+	"configdatabase/src/apimachinery/coreservice"
+	"configdatabase/src/apimachinery/discovery"
+	"configdatabase/src/apimachinery/eventserver"
+	"configdatabase/src/apimachinery/flowctrl"
+	"configdatabase/src/apimachinery/healthz"
+	"configdatabase/src/apimachinery/hostserver"
+	"configdatabase/src/apimachinery/procserver"
+	"configdatabase/src/apimachinery/taskserver"
+	"configdatabase/src/apimachinery/toposerver"
+	"configdatabase/src/apimachinery/util"
 )
 
 type ClientSetInterface interface {

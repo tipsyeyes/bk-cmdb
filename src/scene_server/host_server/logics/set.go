@@ -15,12 +15,12 @@ package logics
 import (
 	"context"
 
-	"configcenter/src/common"
-	"configcenter/src/common/blog"
-	"configcenter/src/common/errors"
-	"configcenter/src/common/mapstr"
-	"configcenter/src/common/metadata"
-	parse "configcenter/src/common/paraparse"
+	"configdatabase/src/common"
+	"configdatabase/src/common/blog"
+	"configdatabase/src/common/errors"
+	"configdatabase/src/common/mapstr"
+	"configdatabase/src/common/metadata"
+	parse "configdatabase/src/common/paraparse"
 )
 
 func (lgc *Logics) GetSetIDByCond(ctx context.Context, cond []metadata.ConditionItem) ([]int64, errors.CCError) {

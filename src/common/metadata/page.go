@@ -16,7 +16,7 @@ import (
 	"fmt"
 	"strconv"
 
-	"configcenter/src/common"
+	"configdatabase/src/common"
 )
 
 const (

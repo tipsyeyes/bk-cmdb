@@ -16,11 +16,11 @@ import (
 	"context"
 	"time"
 
-	"configcenter/src/common"
-	"configcenter/src/common/blog"
-	"configcenter/src/common/http/rest"
-	"configcenter/src/common/mapstr"
-	"configcenter/src/common/metadata"
+	"configdatabase/src/common"
+	"configdatabase/src/common/blog"
+	"configdatabase/src/common/http/rest"
+	"configdatabase/src/common/mapstr"
+	"configdatabase/src/common/metadata"
 
 	"github.com/robfig/cron"
 )

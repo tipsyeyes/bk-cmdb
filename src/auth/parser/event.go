@@ -18,7 +18,7 @@ import (
 	"regexp"
 	"strconv"
 
-	"configcenter/src/auth/meta"
+	"configdatabase/src/auth/meta"
 )
 
 func (ps *parseStream) eventRelated() *parseStream {

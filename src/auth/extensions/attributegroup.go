@@ -17,12 +17,12 @@ import (
 	"fmt"
 	"net/http"
 
-	"configcenter/src/auth/meta"
-	"configcenter/src/common"
-	"configcenter/src/common/blog"
-	"configcenter/src/common/condition"
-	"configcenter/src/common/metadata"
-	"configcenter/src/common/util"
+	"configdatabase/src/auth/meta"
+	"configdatabase/src/common"
+	"configdatabase/src/common/blog"
+	"configdatabase/src/common/condition"
+	"configdatabase/src/common/metadata"
+	"configdatabase/src/common/util"
 )
 
 func (am *AuthManager) collectAttributesGroupByIDs(ctx context.Context, header http.Header, agIDs ...int64) ([]metadata.Group, error) {

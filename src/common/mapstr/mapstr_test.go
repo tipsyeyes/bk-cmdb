@@ -19,7 +19,7 @@ import (
 
 	"github.com/stretchr/testify/require"
 
-	"configcenter/src/common/mapstr"
+	"configdatabase/src/common/mapstr"
 )
 
 func TestConvertToMapStrFromInterface(t *testing.T) {

@@ -17,7 +17,7 @@ import (
 	"fmt"
 	"strings"
 
-	"configcenter/src/common/blog"
+	"configdatabase/src/common/blog"
 )
 
 type HostSnap struct {

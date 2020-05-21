@@ -16,7 +16,7 @@ import (
 	"context"
 	"fmt"
 
-	"configcenter/src/storage/dal"
+	"configdatabase/src/storage/dal"
 )
 
 func export(ctx context.Context, db dal.RDB, opt *option) error {

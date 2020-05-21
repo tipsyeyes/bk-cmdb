@@ -16,11 +16,11 @@ import (
 	"context"
 	"io"
 
-	"configcenter/src/common"
-	"configcenter/src/common/blog"
-	"configcenter/src/common/condition"
-	"configcenter/src/common/mapstr"
-	"configcenter/src/common/metadata"
+	"configdatabase/src/common"
+	"configdatabase/src/common/blog"
+	"configdatabase/src/common/condition"
+	"configdatabase/src/common/mapstr"
+	"configdatabase/src/common/metadata"
 )
 
 func (cli *inst) updateMainlineAssociation(child Inst, parentID int64) error {

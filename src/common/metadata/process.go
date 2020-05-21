@@ -20,11 +20,11 @@ import (
 	"strings"
 	"time"
 
-	"configcenter/src/common"
-	"configcenter/src/common/blog"
-	"configcenter/src/common/mapstr"
-	"configcenter/src/common/selector"
-	"configcenter/src/common/util"
+	"configdatabase/src/common"
+	"configdatabase/src/common/blog"
+	"configdatabase/src/common/mapstr"
+	"configdatabase/src/common/selector"
+	"configdatabase/src/common/util"
 )
 
 type DeleteCategoryInput struct {

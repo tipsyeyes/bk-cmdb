@@ -13,11 +13,11 @@
 package inst
 
 import (
-	"configcenter/src/framework/common"
-	//"configcenter/src/framework/logics/log"
-	"configcenter/src/framework/core/output/module/client"
-	"configcenter/src/framework/core/output/module/model"
-	"configcenter/src/framework/core/types"
+	"configdatabase/src/framework/common"
+	//"configdatabase/src/framework/logics/log"
+	"configdatabase/src/framework/core/output/module/client"
+	"configdatabase/src/framework/core/output/module/model"
+	"configdatabase/src/framework/core/types"
 	//"fmt"
 	"io"
 )

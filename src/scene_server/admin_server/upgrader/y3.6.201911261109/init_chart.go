@@ -17,10 +17,10 @@ import (
 	"fmt"
 	"time"
 
-	"configcenter/src/common"
-	"configcenter/src/common/metadata"
-	"configcenter/src/scene_server/admin_server/upgrader"
-	"configcenter/src/storage/dal"
+	"configdatabase/src/common"
+	"configdatabase/src/common/metadata"
+	"configdatabase/src/scene_server/admin_server/upgrader"
+	"configdatabase/src/storage/dal"
 )
 
 func initInnerChart(ctx context.Context, db dal.RDB, conf *upgrader.Config) error {

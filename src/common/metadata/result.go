@@ -15,9 +15,9 @@ package metadata
 import (
 	"fmt"
 
-	"configcenter/src/common"
-	"configcenter/src/common/errors"
-	"configcenter/src/common/mapstr"
+	"configdatabase/src/common"
+	"configdatabase/src/common/errors"
+	"configdatabase/src/common/mapstr"
 )
 
 // BaseResp common result struct

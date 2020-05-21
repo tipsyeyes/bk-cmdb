@@ -13,8 +13,8 @@
 package host
 
 import (
-	"configcenter/src/common/metadata"
-	"configcenter/src/source_controller/coreservice/core"
+	"configdatabase/src/common/metadata"
+	"configdatabase/src/source_controller/coreservice/core"
 )
 
 // TransferHostToInnerModule transfer host to inner module

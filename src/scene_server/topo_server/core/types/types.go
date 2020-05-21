@@ -16,10 +16,10 @@ import (
 	"context"
 	"net/http"
 
-	"configcenter/src/common/backbone"
-	"configcenter/src/common/errors"
-	"configcenter/src/common/language"
-	"configcenter/src/common/metadata"
+	"configdatabase/src/common/backbone"
+	"configdatabase/src/common/errors"
+	"configdatabase/src/common/language"
+	"configdatabase/src/common/metadata"
 )
 
 // ContextParams the logics function params

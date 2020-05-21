@@ -18,7 +18,7 @@ import (
 	"strconv"
 	"strings"
 
-	"configcenter/src/common/blog"
+	"configdatabase/src/common/blog"
 )
 
 /*

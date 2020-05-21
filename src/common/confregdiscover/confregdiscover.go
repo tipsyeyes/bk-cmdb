@@ -13,7 +13,7 @@
 package confregdiscover
 
 import (
-	"configcenter/src/common/backbone/service_mange/zk"
+	"configdatabase/src/common/backbone/service_mange/zk"
 )
 
 //DiscoverEvent if servers changed, will create a discover event

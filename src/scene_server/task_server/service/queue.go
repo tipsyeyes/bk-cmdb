@@ -19,15 +19,15 @@ import (
 	"sync"
 	"time"
 
-	taskUtil "configcenter/src/apimachinery/taskserver/util"
-	"configcenter/src/common"
-	"configcenter/src/common/blog"
-	"configcenter/src/common/condition"
-	"configcenter/src/common/mapstr"
-	"configcenter/src/common/metadata"
-	"configcenter/src/common/types"
-	"configcenter/src/common/util"
-	"configcenter/src/scene_server/task_server/taskconfig"
+	taskUtil "configdatabase/src/apimachinery/taskserver/util"
+	"configdatabase/src/common"
+	"configdatabase/src/common/blog"
+	"configdatabase/src/common/condition"
+	"configdatabase/src/common/mapstr"
+	"configdatabase/src/common/metadata"
+	"configdatabase/src/common/types"
+	"configdatabase/src/common/util"
+	"configdatabase/src/scene_server/task_server/taskconfig"
 )
 
 var (

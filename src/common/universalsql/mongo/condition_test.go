@@ -16,12 +16,12 @@ import (
 	"strconv"
 	"testing"
 
-	"configcenter/src/common/mapstr"
+	"configdatabase/src/common/mapstr"
 
-	"configcenter/src/common"
-	"configcenter/src/common/condition"
-	"configcenter/src/common/metadata"
-	"configcenter/src/common/universalsql/mongo"
+	"configdatabase/src/common"
+	"configdatabase/src/common/condition"
+	"configdatabase/src/common/metadata"
+	"configdatabase/src/common/universalsql/mongo"
 
 	"github.com/stretchr/testify/require"
 )

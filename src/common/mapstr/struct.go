@@ -18,7 +18,7 @@ import (
 	"reflect"
 	"strings"
 
-	"configcenter/src/common/blog"
+	"configdatabase/src/common/blog"
 )
 
 func setMapStrByStruct(targetType reflect.Type, targetValue reflect.Value, values MapStr, tagName string) error {

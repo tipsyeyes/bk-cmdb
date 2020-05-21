@@ -13,12 +13,12 @@
 package service
 
 import (
-    "configcenter/src/apimachinery/discovery"
-    "configcenter/src/auth"
-    "configcenter/src/auth/authcenter"
-    "configcenter/src/common/backbone"
-    "configcenter/src/common/errors"
-    "configcenter/src/common/rdapi"
+    "configdatabase/src/apimachinery/discovery"
+    "configdatabase/src/auth"
+    "configdatabase/src/auth/authcenter"
+    "configdatabase/src/common/backbone"
+    "configdatabase/src/common/errors"
+    "configdatabase/src/common/rdapi"
 
     "github.com/emicklei/go-restful"
 )

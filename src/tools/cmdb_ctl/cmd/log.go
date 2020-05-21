@@ -19,8 +19,8 @@ import (
 	"strconv"
 	"strings"
 
-	"configcenter/src/common/types"
-	"configcenter/src/tools/cmdb_ctl/app/config"
+	"configdatabase/src/common/types"
+	"configdatabase/src/tools/cmdb_ctl/app/config"
 
 	"github.com/spf13/cobra"
 )

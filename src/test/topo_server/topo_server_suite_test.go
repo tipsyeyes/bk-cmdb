@@ -3,9 +3,9 @@ package topo_server_test
 import (
 	"testing"
 
-	"configcenter/src/test"
-	"configcenter/src/test/reporter"
-	"configcenter/src/test/util"
+	"configdatabase/src/test"
+	"configdatabase/src/test/reporter"
+	"configdatabase/src/test/util"
 
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"

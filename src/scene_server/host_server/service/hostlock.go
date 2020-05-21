@@ -13,16 +13,16 @@
 package service
 
 import (
-	"configcenter/src/auth"
+	"configdatabase/src/auth"
 	"encoding/json"
 	"net/http"
 
 	"github.com/emicklei/go-restful"
 
-	authmeta "configcenter/src/auth/meta"
-	"configcenter/src/common"
-	"configcenter/src/common/blog"
-	"configcenter/src/common/metadata"
+	authmeta "configdatabase/src/auth/meta"
+	"configdatabase/src/common"
+	"configdatabase/src/common/blog"
+	"configdatabase/src/common/metadata"
 )
 
 func (s *Service) LockHost(req *restful.Request, resp *restful.Response) {

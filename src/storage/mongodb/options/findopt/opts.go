@@ -13,7 +13,7 @@
 package findopt
 
 import (
-	"configcenter/src/common"
+	"configdatabase/src/common"
 )
 
 // SortItem used to define the sort condition

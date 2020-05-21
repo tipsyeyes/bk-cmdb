@@ -20,7 +20,7 @@ import (
 	"strconv"
 	"time"
 
-	"configcenter/src/framework/core/log"
+	"configdatabase/src/framework/core/log"
 )
 
 // Get return the origin value by the key

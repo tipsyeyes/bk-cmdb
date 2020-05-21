@@ -13,7 +13,7 @@
 package types
 
 import (
-    "configcenter/src/framework/core/types"
+    "configdatabase/src/framework/core/types"
 )
 
 type BusinessResponse struct {

@@ -15,14 +15,14 @@ package logics
 import (
 	"context"
 
-	"configcenter/src/common"
-	"configcenter/src/common/blog"
-	"configcenter/src/common/errors"
-	"configcenter/src/common/mapstr"
-	meta "configcenter/src/common/metadata"
-	parse "configcenter/src/common/paraparse"
-	"configcenter/src/common/util"
-	hutil "configcenter/src/scene_server/host_server/util"
+	"configdatabase/src/common"
+	"configdatabase/src/common/blog"
+	"configdatabase/src/common/errors"
+	"configdatabase/src/common/mapstr"
+	meta "configdatabase/src/common/metadata"
+	parse "configdatabase/src/common/paraparse"
+	"configdatabase/src/common/util"
+	hutil "configdatabase/src/scene_server/host_server/util"
 )
 
 // get the object attributes

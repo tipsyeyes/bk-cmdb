@@ -12,7 +12,7 @@
 
 package metadata
 
-import "configcenter/src/common/mapstr"
+import "configdatabase/src/common/mapstr"
 
 type SearchInstResult struct {
 	BaseResp `json:",inline"`

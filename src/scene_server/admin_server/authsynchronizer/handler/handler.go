@@ -13,8 +13,8 @@
 package handler
 
 import (
-	"configcenter/src/apimachinery"
-	"configcenter/src/auth/extensions"
+	"configdatabase/src/apimachinery"
+	"configdatabase/src/auth/extensions"
 )
 
 // IAMHandler sync resource to iam

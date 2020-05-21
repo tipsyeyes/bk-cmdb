@@ -12,7 +12,7 @@
 
 package api
 
-import "configcenter/src/framework/common"
+import "configdatabase/src/framework/common"
 
 // CreateHost create a new host object
 func CreateHost(supplierAccount string) (*HostWrapper, error) {

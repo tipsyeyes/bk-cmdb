@@ -13,7 +13,7 @@
 package manager
 
 import (
-	"configcenter/src/common/metadata"
+	"configdatabase/src/common/metadata"
 )
 
 var (

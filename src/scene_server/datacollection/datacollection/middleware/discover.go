@@ -17,9 +17,9 @@ import (
 	"fmt"
 	"net/http"
 
-	"configcenter/src/auth/extensions"
-	bkc "configcenter/src/common"
-	"configcenter/src/common/backbone"
+	"configdatabase/src/auth/extensions"
+	bkc "configdatabase/src/common"
+	"configdatabase/src/common/backbone"
 
 	"gopkg.in/redis.v5"
 )

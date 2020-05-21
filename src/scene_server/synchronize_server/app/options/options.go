@@ -15,8 +15,8 @@ package options
 import (
 	"github.com/spf13/pflag"
 
-	"configcenter/src/common/auth"
-	"configcenter/src/common/core/cc/config"
+	"configdatabase/src/common/auth"
+	"configdatabase/src/common/core/cc/config"
 )
 
 //ServerOption define option of server in flags

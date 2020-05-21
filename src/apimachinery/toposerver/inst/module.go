@@ -17,8 +17,8 @@ import (
 	"fmt"
 	"net/http"
 
-	"configcenter/src/common/metadata"
-	"configcenter/src/common/paraparse"
+	"configdatabase/src/common/metadata"
+	"configdatabase/src/common/paraparse"
 )
 
 func (t *instanceClient) CreateModule(ctx context.Context, appID string, setID string, h http.Header, dat map[string]interface{}) (resp *metadata.CreateInstResult, err error) {

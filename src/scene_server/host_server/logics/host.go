@@ -16,15 +16,15 @@ import (
 	"context"
 	"strconv"
 
-	"configcenter/src/auth/meta"
-	"configcenter/src/common"
-	"configcenter/src/common/auditoplog"
-	"configcenter/src/common/blog"
-	"configcenter/src/common/errors"
-	"configcenter/src/common/mapstr"
-	"configcenter/src/common/metadata"
-	"configcenter/src/common/util"
-	hutil "configcenter/src/scene_server/host_server/util"
+	"configdatabase/src/auth/meta"
+	"configdatabase/src/common"
+	"configdatabase/src/common/auditoplog"
+	"configdatabase/src/common/blog"
+	"configdatabase/src/common/errors"
+	"configdatabase/src/common/mapstr"
+	"configdatabase/src/common/metadata"
+	"configdatabase/src/common/util"
+	hutil "configdatabase/src/scene_server/host_server/util"
 )
 
 func (lgc *Logics) GetHostAttributes(ctx context.Context, ownerID string, businessMedatadata *metadata.Metadata) ([]metadata.Header, error) {

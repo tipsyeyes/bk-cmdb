@@ -16,10 +16,10 @@ import (
 	"fmt"
 	"strings"
 
-	"configcenter/src/common"
-	"configcenter/src/common/backbone/service_mange/zk"
-	"configcenter/src/common/registerdiscover"
-	"configcenter/src/common/types"
+	"configdatabase/src/common"
+	"configdatabase/src/common/backbone/service_mange/zk"
+	"configdatabase/src/common/registerdiscover"
+	"configdatabase/src/common/types"
 )
 
 type ServiceManageInterface interface {

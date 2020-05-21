@@ -15,9 +15,9 @@ package x19_09_03_06
 import (
 	"context"
 
-	"configcenter/src/common/blog"
-	"configcenter/src/scene_server/admin_server/upgrader"
-	"configcenter/src/storage/dal"
+	"configdatabase/src/common/blog"
+	"configdatabase/src/scene_server/admin_server/upgrader"
+	"configdatabase/src/storage/dal"
 )
 
 func init() {

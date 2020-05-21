@@ -20,11 +20,11 @@ import (
 
 	"github.com/emicklei/go-restful"
 
-	"configcenter/src/common"
-	"configcenter/src/common/blog"
-	meta "configcenter/src/common/metadata"
-	parser "configcenter/src/common/paraparse"
-	"configcenter/src/common/util"
+	"configdatabase/src/common"
+	"configdatabase/src/common/blog"
+	meta "configdatabase/src/common/metadata"
+	parser "configdatabase/src/common/paraparse"
+	"configdatabase/src/common/util"
 )
 
 func (s *Service) AddUserCustomQuery(req *restful.Request, resp *restful.Response) {

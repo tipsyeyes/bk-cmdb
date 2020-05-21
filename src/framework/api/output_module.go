@@ -13,7 +13,7 @@
 package api
 
 import (
-	"configcenter/src/framework/common"
+	"configdatabase/src/framework/common"
 )
 
 // CreateModule create a new module object

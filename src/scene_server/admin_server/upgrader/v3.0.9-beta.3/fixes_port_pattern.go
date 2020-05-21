@@ -15,11 +15,11 @@ package v3v0v9beta3
 import (
 	"context"
 
-	"configcenter/src/common"
-	"configcenter/src/common/blog"
-	"configcenter/src/scene_server/admin_server/upgrader"
-	validator "configcenter/src/source_controller/coreservice/core/instances"
-	"configcenter/src/storage/dal"
+	"configdatabase/src/common"
+	"configdatabase/src/common/blog"
+	"configdatabase/src/scene_server/admin_server/upgrader"
+	validator "configdatabase/src/source_controller/coreservice/core/instances"
+	"configdatabase/src/storage/dal"
 )
 
 func fixesProcessPortPattern(ctx context.Context, db dal.RDB, conf *upgrader.Config) (err error) {

@@ -18,10 +18,10 @@ import (
 	"strings"
 	"time"
 
-	"configcenter/src/common/backbone"
-	"configcenter/src/storage/dal"
-	"configcenter/src/storage/dal/mongo/local"
-	"configcenter/src/storage/dal/mongo/remote"
+	"configdatabase/src/common/backbone"
+	"configdatabase/src/storage/dal"
+	"configdatabase/src/storage/dal/mongo/local"
+	"configdatabase/src/storage/dal/mongo/remote"
 )
 
 // Config config

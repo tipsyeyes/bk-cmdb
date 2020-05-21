@@ -15,9 +15,9 @@ package host
 import (
     "fmt"
     
-    "configcenter/src/framework/clientset/types"
-    "configcenter/src/framework/common/rest"
-    types2 "configcenter/src/framework/core/types"
+    "configdatabase/src/framework/clientset/types"
+    "configdatabase/src/framework/common/rest"
+    types2 "configdatabase/src/framework/core/types"
 )
 
 type hostClient struct {

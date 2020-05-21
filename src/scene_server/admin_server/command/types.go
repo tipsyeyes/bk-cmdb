@@ -16,8 +16,8 @@ import (
 	"fmt"
 	"strings"
 
-	"configcenter/src/common"
-	"configcenter/src/common/blog"
+	"configdatabase/src/common"
+	"configdatabase/src/common/blog"
 )
 
 type option struct {

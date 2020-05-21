@@ -15,11 +15,11 @@ package service
 import (
 	"net/http"
 
-	"configcenter/src/common"
-	"configcenter/src/common/blog"
-	"configcenter/src/common/metadata"
-	"configcenter/src/common/util"
-	"configcenter/src/scene_server/admin_server/upgrader"
+	"configdatabase/src/common"
+	"configdatabase/src/common/blog"
+	"configdatabase/src/common/metadata"
+	"configdatabase/src/common/util"
+	"configdatabase/src/scene_server/admin_server/upgrader"
 
 	"github.com/emicklei/go-restful"
 )

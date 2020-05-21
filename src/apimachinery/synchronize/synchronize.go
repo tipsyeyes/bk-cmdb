@@ -16,11 +16,11 @@ import (
 	"net/http"
 	"sync"
 
-	"configcenter/src/apimachinery/flowctrl"
-	"configcenter/src/apimachinery/rest"
-	"configcenter/src/apimachinery/synchronize/synchronizeserver"
-	synchronizeUtil "configcenter/src/apimachinery/synchronize/util"
-	"configcenter/src/apimachinery/util"
+	"configdatabase/src/apimachinery/flowctrl"
+	"configdatabase/src/apimachinery/rest"
+	"configdatabase/src/apimachinery/synchronize/synchronizeserver"
+	synchronizeUtil "configdatabase/src/apimachinery/synchronize/util"
+	"configdatabase/src/apimachinery/util"
 )
 
 type SynchronizeClientInterface interface {

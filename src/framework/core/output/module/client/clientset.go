@@ -13,9 +13,9 @@
 package client
 
 import (
-	"configcenter/src/framework/core/config"
-	"configcenter/src/framework/core/discovery"
-	"configcenter/src/framework/core/output/module/client/v3"
+	"configdatabase/src/framework/core/config"
+	"configdatabase/src/framework/core/discovery"
+	"configdatabase/src/framework/core/output/module/client/v3"
 )
 
 var _ Interface = &Clientset{}

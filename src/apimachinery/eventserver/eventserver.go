@@ -17,9 +17,9 @@ import (
 	"fmt"
 	"net/http"
 
-	"configcenter/src/apimachinery/rest"
-	"configcenter/src/apimachinery/util"
-	"configcenter/src/common/metadata"
+	"configdatabase/src/apimachinery/rest"
+	"configdatabase/src/apimachinery/util"
+	"configdatabase/src/common/metadata"
 )
 
 type EventServerClientInterface interface {

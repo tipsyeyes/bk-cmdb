@@ -17,9 +17,9 @@ import (
 	"errors"
 	"net/http"
 
-	ccErr "configcenter/src/common/errors"
-	"configcenter/src/storage/mongodb"
-	"configcenter/src/storage/types"
+	ccErr "configdatabase/src/common/errors"
+	"configdatabase/src/storage/mongodb"
+	"configdatabase/src/storage/types"
 )
 
 // Errors defind

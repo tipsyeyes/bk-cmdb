@@ -15,8 +15,8 @@ package driver
 import (
 	"context"
 
-	"configcenter/src/common/mapstr"
-	"configcenter/src/storage/mongodb"
+	"configdatabase/src/common/mapstr"
+	"configdatabase/src/storage/mongodb"
 
 	"github.com/mongodb/mongo-go-driver/mongo"
 	"github.com/mongodb/mongo-go-driver/x/bsonx"

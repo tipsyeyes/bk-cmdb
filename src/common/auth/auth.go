@@ -16,7 +16,7 @@ import (
 	"strconv"
 	"sync"
 
-	"configcenter/src/common/blog"
+	"configdatabase/src/common/blog"
 )
 
 var EnableAuth = "true"

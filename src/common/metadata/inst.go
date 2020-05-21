@@ -16,7 +16,7 @@ import (
 	"encoding/json"
 	"sort"
 
-	"configcenter/src/common/util"
+	"configdatabase/src/common/util"
 )
 
 // SetInst contains partial fields of a real set

@@ -16,10 +16,10 @@ import (
 	"encoding/json"
 	"net/http"
 
-	"configcenter/src/common"
-	"configcenter/src/common/blog"
-	"configcenter/src/common/metadata"
-	meta "configcenter/src/common/metadata"
+	"configdatabase/src/common"
+	"configdatabase/src/common/blog"
+	"configdatabase/src/common/metadata"
+	meta "configdatabase/src/common/metadata"
 
 	"github.com/emicklei/go-restful"
 )

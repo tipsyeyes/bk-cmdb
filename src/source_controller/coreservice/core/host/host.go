@@ -15,11 +15,11 @@ package host
 import (
 	"gopkg.in/redis.v5"
 
-	"configcenter/src/common/eventclient"
-	"configcenter/src/source_controller/coreservice/core"
-	"configcenter/src/source_controller/coreservice/core/host/searcher"
-	"configcenter/src/source_controller/coreservice/core/host/transfer"
-	"configcenter/src/storage/dal"
+	"configdatabase/src/common/eventclient"
+	"configdatabase/src/source_controller/coreservice/core"
+	"configdatabase/src/source_controller/coreservice/core/host/searcher"
+	"configdatabase/src/source_controller/coreservice/core/host/transfer"
+	"configdatabase/src/storage/dal"
 )
 
 var _ core.HostOperation = (*hostManager)(nil)

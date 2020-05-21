@@ -16,9 +16,9 @@ import (
 	"context"
 	"testing"
 
-	"configcenter/src/common/mapstr"
-	"configcenter/src/common/universalsql/mongo"
-	"configcenter/src/storage/dal/mongo/remote"
+	"configdatabase/src/common/mapstr"
+	"configdatabase/src/common/universalsql/mongo"
+	"configdatabase/src/storage/dal/mongo/remote"
 
 	"github.com/rs/xid"
 	"github.com/stretchr/testify/require"

@@ -6,11 +6,11 @@ import (
 	"net/http"
 	"regexp"
 
-	"configcenter/src/auth/meta"
-	"configcenter/src/common"
-	"configcenter/src/common/backbone"
-	"configcenter/src/common/blog"
-	"configcenter/src/common/metadata"
+	"configdatabase/src/auth/meta"
+	"configdatabase/src/common"
+	"configdatabase/src/common/backbone"
+	"configdatabase/src/common/blog"
+	"configdatabase/src/common/metadata"
 )
 
 type RequestContext struct {

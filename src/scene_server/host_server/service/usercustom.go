@@ -18,9 +18,9 @@ import (
 
 	"github.com/emicklei/go-restful"
 
-	"configcenter/src/common"
-	"configcenter/src/common/blog"
-	"configcenter/src/common/metadata"
+	"configdatabase/src/common"
+	"configdatabase/src/common/blog"
+	"configdatabase/src/common/metadata"
 )
 
 func (s *Service) SaveUserCustom(req *restful.Request, resp *restful.Response) {

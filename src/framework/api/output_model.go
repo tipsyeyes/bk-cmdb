@@ -13,8 +13,8 @@
 package api
 
 import (
-	"configcenter/src/framework/common"
-	"configcenter/src/framework/core/output/module/model"
+	"configdatabase/src/framework/common"
+	"configdatabase/src/framework/core/output/module/model"
 )
 
 // CreateClassification create a new classification

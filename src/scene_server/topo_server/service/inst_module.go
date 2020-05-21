@@ -16,14 +16,14 @@ import (
 	"strconv"
 	"strings"
 
-	"configcenter/src/common"
-	"configcenter/src/common/blog"
-	"configcenter/src/common/errors"
-	"configcenter/src/common/mapstr"
-	"configcenter/src/common/mapstruct"
-	"configcenter/src/common/metadata"
-	parser "configcenter/src/common/paraparse"
-	"configcenter/src/scene_server/topo_server/core/types"
+	"configdatabase/src/common"
+	"configdatabase/src/common/blog"
+	"configdatabase/src/common/errors"
+	"configdatabase/src/common/mapstr"
+	"configdatabase/src/common/mapstruct"
+	"configdatabase/src/common/metadata"
+	parser "configdatabase/src/common/paraparse"
+	"configdatabase/src/scene_server/topo_server/core/types"
 )
 
 func (s *Service) IsSetInitializedByTemplate(params types.ContextParams, setID int64) (bool, errors.CCErrorCoder) {

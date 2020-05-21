@@ -13,8 +13,8 @@
 package association
 
 import (
-	"configcenter/src/source_controller/coreservice/core"
-	"configcenter/src/storage/dal"
+	"configdatabase/src/source_controller/coreservice/core"
+	"configdatabase/src/storage/dal"
 )
 
 var _ core.AssociationOperation = (*associationManager)(nil)

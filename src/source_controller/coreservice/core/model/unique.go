@@ -13,9 +13,9 @@
 package model
 
 import (
-	"configcenter/src/common/metadata"
-	"configcenter/src/source_controller/coreservice/core"
-	"configcenter/src/storage/dal"
+	"configdatabase/src/common/metadata"
+	"configdatabase/src/source_controller/coreservice/core"
+	"configdatabase/src/storage/dal"
 )
 
 type modelAttrUnique struct {

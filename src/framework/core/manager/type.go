@@ -13,7 +13,7 @@
 package manager
 
 import (
-	"configcenter/src/framework/core/types"
+	"configdatabase/src/framework/core/types"
 )
 
 const (

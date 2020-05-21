@@ -13,10 +13,10 @@
 package service
 
 import (
-	"configcenter/src/common/blog"
-	"configcenter/src/common/metadata"
-	"configcenter/src/common/universalsql/mongo"
-	"configcenter/src/source_controller/coreservice/core"
+	"configdatabase/src/common/blog"
+	"configdatabase/src/common/metadata"
+	"configdatabase/src/common/universalsql/mongo"
+	"configdatabase/src/source_controller/coreservice/core"
 )
 
 // HasInstance used to check if the model has some instances

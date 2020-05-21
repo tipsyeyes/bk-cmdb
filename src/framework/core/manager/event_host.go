@@ -13,11 +13,11 @@
 package manager
 
 import (
-	"configcenter/src/framework/common"
-	"configcenter/src/framework/core/log"
-	"configcenter/src/framework/core/output"
-	"configcenter/src/framework/core/output/module/inst"
-	"configcenter/src/framework/core/types"
+	"configdatabase/src/framework/common"
+	"configdatabase/src/framework/core/log"
+	"configdatabase/src/framework/core/output"
+	"configdatabase/src/framework/core/output/module/inst"
+	"configdatabase/src/framework/core/types"
 
 	"errors"
 )

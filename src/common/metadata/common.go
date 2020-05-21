@@ -17,10 +17,10 @@ import (
 	"fmt"
 	"time"
 
-	"configcenter/src/common"
-	"configcenter/src/common/errors"
-	"configcenter/src/common/mapstr"
-	"configcenter/src/common/util"
+	"configdatabase/src/common"
+	"configdatabase/src/common/errors"
+	"configdatabase/src/common/mapstr"
+	"configdatabase/src/common/util"
 
 	"github.com/coccyx/timeparser"
 )

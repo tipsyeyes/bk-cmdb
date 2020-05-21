@@ -16,7 +16,7 @@ import (
 	"fmt"
 	"net/http"
 
-	"configcenter/src/common"
+	"configdatabase/src/common"
 )
 
 type CreateSetTemplateOption struct {

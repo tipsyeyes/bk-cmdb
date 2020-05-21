@@ -15,7 +15,7 @@ import (
 	"net/http"
 	"time"
 
-	"configcenter/src/common/mapstr"
+	"configdatabase/src/common/mapstr"
 )
 
 // CreateTaskRequest create task request parameters

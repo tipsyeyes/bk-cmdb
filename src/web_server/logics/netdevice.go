@@ -19,12 +19,12 @@ import (
 	"strconv"
 	"strings"
 
-	"configcenter/src/common"
-	"configcenter/src/common/blog"
-	"configcenter/src/common/condition"
-	"configcenter/src/common/language"
-	"configcenter/src/common/mapstr"
-	"configcenter/src/common/util"
+	"configdatabase/src/common"
+	"configdatabase/src/common/blog"
+	"configdatabase/src/common/condition"
+	"configdatabase/src/common/language"
+	"configdatabase/src/common/mapstr"
+	"configdatabase/src/common/util"
 
 	"github.com/rentiansheng/xlsx"
 )
