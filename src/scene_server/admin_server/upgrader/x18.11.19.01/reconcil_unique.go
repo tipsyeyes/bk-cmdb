@@ -96,6 +96,10 @@ func reconcilUnique(ctx context.Context, db dal.RDB, conf *upgrader.Config) erro
 		keyfunc(common.BKInnerObjIDModule, common.BKAppIDField),
 		keyfunc(common.BKInnerObjIDModule, common.BKSetIDField),
 		keyfunc(common.BKInnerObjIDModule, common.BKModuleNameField),
+
+		// add by tes
+		keyfunc(common.BKInnerObjIDRealBiz, common.BKInstNameField),
+		keyfunc(common.BKInnerObjIDRealBiz, common.BKParentIDField),
 	}
 
 	checkKeysShouldExists(propertyIDToProperty, shouldCheck)
@@ -185,6 +189,25 @@ func reconcilUnique(ctx context.Context, db dal.RDB, conf *upgrader.Config) erro
 				{
 					Kind: metadata.UniqueKeyKindProperty,
 					ID:   uint64(propertyIDToProperty[keyfunc(common.BKInnerObjIDApp, common.BKAppNameField)].ID),
+				},
+			},
+			Ispre:    true,
+			OwnerID:  conf.OwnerID,
+			LastTime: metadata.Now(),
+		},
+		// add by tes
+		// rbiz
+		{
+			ObjID:     common.BKInnerObjIDRealBiz,
+			MustCheck: true,
+			Keys: []metadata.UniqueKey{
+				{
+					Kind: metadata.UniqueKeyKindProperty,
+					ID:   uint64(propertyIDToProperty[keyfunc(common.BKInnerObjIDRealBiz, common.BKInstNameField)].ID),
+				},
+				{
+					Kind: metadata.UniqueKeyKindProperty,
+					ID:   uint64(propertyIDToProperty[keyfunc(common.BKInnerObjIDRealBiz, common.BKParentIDField)].ID),
 				},
 			},
 			Ispre:    true,
