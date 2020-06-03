@@ -14,7 +14,7 @@ package extensions
 
 import (
 	"configdatabase/src/apimachinery/coreservice"
-	"configdatabase/src/auth/authcenter"
+	authcenter "configdatabase/src/auth/account"
 	"configdatabase/src/auth/meta"
 	"configdatabase/src/common"
 	"configdatabase/src/common/blog"

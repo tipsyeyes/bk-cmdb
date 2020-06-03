@@ -59,5 +59,12 @@ func setEnableAuth(enable bool) {
 }
 
 func IsAuthed() bool {
-	return enableAuth
+	// mod by elias 05/27
+	//if common.GetIdentification() == types.CC_MODULE_APISERVER ||
+	//	common.GetIdentification() == types.CC_MODULE_HOST ||
+	//	common.GetIdentification() == types.CC_MODULE_TOPO {
+	//	// common.GetIdentification() == types.CC_MODULE_MIGRATE { // for auth sync & init
+	//	return true
+	//}
+	return false
 }

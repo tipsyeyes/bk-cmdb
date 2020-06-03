@@ -18,7 +18,7 @@ import (
 	"net/http"
 	"strconv"
 
-	"configdatabase/src/auth/authcenter"
+	authcenter "configdatabase/src/auth/account"
 	"configdatabase/src/auth/meta"
 	"configdatabase/src/common/blog"
 	"configdatabase/src/common/metadata"
