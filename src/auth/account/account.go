@@ -4,8 +4,11 @@ import (
 	"configdatabase/src/apimachinery/flowctrl"
 	"configdatabase/src/apimachinery/rest"
 	"configdatabase/src/apimachinery/util"
+	"configdatabase/src/auth/meta"
 	"configdatabase/src/common/auth"
 	"configdatabase/src/common/blog"
+	"configdatabase/src/common/metadata"
+	"context"
 	"errors"
 	"github.com/prometheus/client_golang/prometheus"
 	"net/http"
@@ -101,6 +104,38 @@ func (ac *AccountCenter) Enabled() bool {
 	return auth.IsAuthed()
 }
 
+func (ac *AccountCenter) Authorize(ctx context.Context, a *meta.AuthAttribute) (decision meta.Decision, err error) {
+	return meta.Decision{}, nil
+}
 
+func (ac *AccountCenter) AuthorizeBatch(ctx context.Context, user meta.UserInfo, resources ...meta.ResourceAttribute) (decisions []meta.Decision, err error) {
+	return nil, nil
+}
 
+func (ac *AccountCenter) GetAnyAuthorizedBusinessList(ctx context.Context, user meta.UserInfo) ([]int64, error) {
+	return nil, nil
+}
 
+func (ac *AccountCenter) GetExactAuthorizedBusinessList(ctx context.Context, user meta.UserInfo) ([]int64, error) {
+	return nil, nil
+}
+
+func (ac *AccountCenter) ListAuthorizedResources(ctx context.Context, username string, bizID int64, resourceType meta.ResourceType, action meta.Action) ([]IamResource, error) {
+	return nil, nil
+}
+
+func (ac *AccountCenter) AdminEntrance(ctx context.Context, user meta.UserInfo) ([]string, error) {
+	return nil, nil
+}
+
+func (ac *AccountCenter) GetAuthorizedAuditList(ctx context.Context, user meta.UserInfo, businessID int64) ([]AuthorizedResource, error) {
+	return nil, nil
+}
+
+func (ac *AccountCenter) GetNoAuthSkipUrl(ctx context.Context, header http.Header, p []metadata.Permission) (url string, err error) {
+	return "", nil
+}
+
+func (ac *AccountCenter) GetUserGroupMembers(ctx context.Context, header http.Header, bizID int64, groups []string) ([]UserGroupMembers, error) {
+	return nil, nil
+}

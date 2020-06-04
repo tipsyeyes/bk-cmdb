@@ -88,9 +88,9 @@ const (
 
 var ActionIDNameMap = map[ActionID]string{
 	Unknown:                "未知操作",
-	Edit:                   "编辑",
-	Create:                 "新建",
 	Get:                    "查询",
+	Create:                 "新建",
+	Edit:                   "编辑",
 	Delete:                 "删除",
 	Archive:                "归档",
 	ModelTopologyOperation: "编辑项目层级",

@@ -21,5 +21,16 @@ func (ac *AccountCenter) initAuthResources(ctx context.Context, configs meta.Ini
 		return err
 	}
 
+	// register system &project resource/action
+	if err := ac.authClient.UpsertResourceTypeBatch(ctx, header, SystemIDCMDB, ScopeTypeIDSystem, expectSystemResourceType); err != nil {
+		return err
+	}
+	if err := ac.authClient.UpsertResourceTypeBatch(ctx, header, SystemIDCMDB, ScopeTypeIDBiz, expectBizResourceType); err != nil {
+		return err
+	}
+
+	// register resource instance
+
+
 	return nil
 }
