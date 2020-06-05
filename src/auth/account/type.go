@@ -1,6 +1,9 @@
 package account
 
-import "fmt"
+import (
+	"configdatabase/src/auth/meta"
+	"fmt"
+)
 
 // system constant
 const (
@@ -96,8 +99,8 @@ type ScopeInfo struct {
 	ScopeID   string `json:"scope_id,omitempty"`
 }
 
-// 注册资源实体信息
-type RegisterEntityInfo struct {
+// 注册资源实体信息 RegisterEntityInfo
+type RegisterInfo struct {
 	// 创建者信息，可忽略
 	// type: system/user
 	// id: user/custom username
@@ -110,7 +113,8 @@ type RegisterEntityInfo struct {
 type ResourceEntity struct {
 	ResourceType ResourceTypeID 	`json:"resource_type"`
 	ResourceName string         	`json:"resource_name,omitempty"`
-	ResourceID   []string 			`json:"resource_id,omitempty"`
+	// 资源id
+	ResourceID   []RscTypeAndID 	`json:"resource_id,omitempty"`
 
 	// TODO: remove
 	ScopeInfo
@@ -131,18 +135,24 @@ type AuthorizedResource struct {
 	ResourceIDs  []IamResource  `json:"resource_ids"`
 }
 
-
-
-
-
-
-
-
-
+// 用户组(即cmdb业务角色)成员信息
 type UserGroupMembers struct {
 	ID int64 `json:"group_id"`
 	// user's group name, should be one of follows:
 	// bk_biz_maintainer, bk_biz_productor, bk_biz_test, bk_biz_developer, operator
 	Name  string   `json:"group_code"`
 	Users []string `json:"users"`
+}
+
+// Search iam condition
+type SearchCondition struct {
+	ScopeInfo
+	ResourceType    ResourceTypeID `json:"resource_type"`
+	ParentResources []RscTypeAndID `json:"parent_resources"`
+}
+
+// iam page resource
+type PageBackendResource struct {
+	Count   int64                  `json:"count"`
+	Results []meta.BackendResource `json:"results"`
 }

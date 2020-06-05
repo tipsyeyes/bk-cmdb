@@ -202,7 +202,8 @@ func (m *user) GetUserList(c *gin.Context, config map[string]string) ([]*metadat
 		blog.V(5).Infof("use skip login flag: %v, rid: %s", skipLogin, rid)
 		adminData := []*metadata.LoginSystemUserInfo{
 			{
-				CnName: "admin",
+				//CnName: "admin",
+				CnName: "管理员",
 				EnName: "admin",
 			},
 		}

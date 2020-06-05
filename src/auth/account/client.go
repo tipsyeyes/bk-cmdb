@@ -82,7 +82,7 @@ func (a *authClient) UpsertResourceTypeBatch(ctx context.Context, header http.He
 }
 
 // Register resource instance
-func (a *authClient) registerResource(ctx context.Context, header http.Header, info *RegisterEntityInfo) error {
+func (a *authClient) registerResource(ctx context.Context, header http.Header, info *RegisterInfo) error {
 	// register resource with empty id will make crash
 	for _, resource := range info.Resources {
 		if resource.ResourceID == nil || len(resource.ResourceID) == 0 {

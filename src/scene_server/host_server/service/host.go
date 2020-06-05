@@ -19,7 +19,7 @@ import (
 	"strings"
 
 	"configdatabase/src/auth"
-	"configdatabase/src/auth/authcenter"
+	authcenter "configdatabase/src/auth/account"
 	authmeta "configdatabase/src/auth/meta"
 	"configdatabase/src/common"
 	"configdatabase/src/common/auditoplog"

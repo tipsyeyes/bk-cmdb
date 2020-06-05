@@ -15,7 +15,7 @@ package handler
 import (
 	"fmt"
 
-	"configdatabase/src/auth/authcenter"
+	authcenter "configdatabase/src/auth/account"
 	"configdatabase/src/auth/extensions"
 	authmeta "configdatabase/src/auth/meta"
 	"configdatabase/src/common"

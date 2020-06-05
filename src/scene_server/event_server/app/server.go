@@ -20,8 +20,9 @@ import (
 	"sync"
 	"time"
 
+	"configdatabase/src/auth"
 	"configdatabase/src/auth/authcenter"
-	"configdatabase/src/common/auth"
+	cauth "configdatabase/src/common/auth"
 	"configdatabase/src/common/backbone"
 	cc "configdatabase/src/common/backbone/configcenter"
 	"configdatabase/src/common/blog"
@@ -100,12 +101,14 @@ func Run(ctx context.Context, cancel context.CancelFunc, op *options.ServerOptio
 			return fmt.Errorf("connect subcli redis server failed, err: %s", err.Error())
 		}
 
-		authCli, err := authcenter.NewAuthCenter(nil, process.Config.Auth, engine.Metric().Registry())
+		// mod by elias 06/05 调用统一初始化方法
+		// authCli, err := authcenter.NewAuthCenter(nil, process.Config.Auth, engine.Metric().Registry())
+		authCli, err := auth.NewAuthorize(nil, process.Config.Auth, engine.Metric().Registry())
 		if err != nil {
 			return fmt.Errorf("new authcenter failed: %v, config: %+v", err, process.Config.Auth)
 		}
 		process.Service.SetAuth(authCli)
-		blog.Infof("enable auth center: %v", auth.IsAuthed())
+		blog.Infof("enable auth center: %v", cauth.IsAuthed())
 
 		go func() {
 			errCh <- distribution.SubscribeChannel(subCli)

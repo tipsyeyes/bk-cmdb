@@ -18,12 +18,20 @@ import (
 	"net/http"
 
 	"configdatabase/src/apimachinery/util"
-	"configdatabase/src/auth/authcenter"
+	ac "configdatabase/src/auth/authcenter"
+	authcenter "configdatabase/src/auth/account"
 	"configdatabase/src/auth/meta"
 	"configdatabase/src/common/metadata"
 
 	"github.com/prometheus/client_golang/prometheus"
 )
+
+/**
+	import "configdatabase/src/auth/authcenter"
+
+	import authcenter "configdatabase/src/auth/account"
+	import ac "configdatabase/src/auth/authcenter"
+ */
 
 type Authorize interface {
 	Authorizer
@@ -78,6 +86,30 @@ type ResourceHandler interface {
 // This allows bk-cmdb to support other kind of auth center.
 // tls can be nil if it is not care.
 // authConfig is a way to parse configuration info for the connection to a auth center.
-func NewAuthorize(tls *util.TLSClientConfig, authConfig authcenter.AuthConfig, reg prometheus.Registerer) (Authorize, error) {
-	return authcenter.NewAuthCenter(tls, authConfig, reg)
+
+/*
+	origin auth center
+	import "configdatabase/src/auth/authcenter"
+ */
+//func NewAuthorize(tls *util.TLSClientConfig, authConfig authcenter.AuthConfig, reg prometheus.Registerer) (Authorize, error) {
+//	return authcenter.NewAuthCenter(tls, authConfig, reg)
+//}
+
+/*
+	new auth center
+	import authcenter "configdatabase/src/auth/account"
+	import ac "configdatabase/src/auth/authcenter"
+*/
+func NewAuthorize(tls *util.TLSClientConfig, aCfg ac.AuthConfig, reg prometheus.Registerer) (Authorize, error) {
+	newCfg := authcenter.AuthConfig{
+		Address:             aCfg.Address,
+		AppCode:             aCfg.AppCode,
+		AppSecret:           aCfg.AppSecret,
+		SystemID:            aCfg.SystemID,
+		EnableSync:          aCfg.EnableSync,
+		SyncWorkerCount:     aCfg.SyncWorkerCount,
+		SyncIntervalMinutes: aCfg.SyncIntervalMinutes,
+	}
+	return authcenter.NewAccountCenter(tls, newCfg, reg)
 }
+

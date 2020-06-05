@@ -20,6 +20,7 @@ import (
 	"strconv"
 	"time"
 
+	"configdatabase/src/auth"
 	"configdatabase/src/auth/authcenter"
 	"configdatabase/src/auth/extensions"
 	"configdatabase/src/common"
@@ -111,7 +112,9 @@ func Run(ctx context.Context, cancel context.CancelFunc, op *options.ServerOptio
 		return err
 	}
 
-	authorize, err := authcenter.NewAuthCenter(nil, server.Config.Auth, engine.Metric().Registry())
+	// mod by elias 06/05 调用统一初始化方法
+	// authorize, err := authcenter.NewAuthCenter(nil, server.Config.Auth, engine.Metric().Registry())
+	authorize, err := auth.NewAuthorize(nil, server.Config.Auth, engine.Metric().Registry())
 	if err != nil {
 		blog.Errorf("it is failed to create a new auth API, err:%s", err.Error())
 		return err

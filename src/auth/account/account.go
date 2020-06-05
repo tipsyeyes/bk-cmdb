@@ -105,7 +105,7 @@ func (ac *AccountCenter) Enabled() bool {
 }
 
 func (ac *AccountCenter) Authorize(ctx context.Context, a *meta.AuthAttribute) (decision meta.Decision, err error) {
-	return meta.Decision{}, nil
+	return meta.Decision{Authorized: true}, nil
 }
 
 func (ac *AccountCenter) AuthorizeBatch(ctx context.Context, user meta.UserInfo, resources ...meta.ResourceAttribute) (decisions []meta.Decision, err error) {
@@ -138,4 +138,50 @@ func (ac *AccountCenter) GetNoAuthSkipUrl(ctx context.Context, header http.Heade
 
 func (ac *AccountCenter) GetUserGroupMembers(ctx context.Context, header http.Header, bizID int64, groups []string) ([]UserGroupMembers, error) {
 	return nil, nil
+}
+
+// Register a resource instance
+func (ac *AccountCenter) RegisterResource(ctx context.Context, rs ...meta.ResourceAttribute) error {
+	return nil
+}
+
+// Register a resource instance
+func (ac *AccountCenter) DryRunRegisterResource(ctx context.Context, rs ...meta.ResourceAttribute) (*RegisterInfo, error) {
+	return nil, nil
+}
+
+// Deregister a resource instance
+func (ac *AccountCenter) DeregisterResource(ctx context.Context, rs ...meta.ResourceAttribute) error {
+	return nil
+}
+
+// Deregister a resource instance with raw iam resource id
+func (ac *AccountCenter) RawDeregisterResource(ctx context.Context, scope ScopeInfo, rs ...meta.BackendResource) error {
+	return nil
+}
+
+// Update a resource instance info
+func (ac *AccountCenter) UpdateResource(ctx context.Context, r *meta.ResourceAttribute) error {
+	return nil
+}
+
+// Get a resource instance info
+func (ac *AccountCenter) Get(ctx context.Context) error {
+	return nil
+}
+
+// List iam resources instance by condition/convert level
+func (ac *AccountCenter) ListResources(ctx context.Context, r *meta.ResourceAttribute) ([]meta.BackendResource, error) {
+	return nil, nil
+}
+func (ac *AccountCenter) RawListResources(ctx context.Context, header http.Header, searchCondition SearchCondition) ([]meta.BackendResource, error) {
+	return nil, nil
+}
+
+// List iam resources in page
+func (ac *AccountCenter) ListPageResources(ctx context.Context, r *meta.ResourceAttribute, limit, offset int64) (PageBackendResource, error) {
+	return PageBackendResource{}, nil
+}
+func (ac *AccountCenter) RawPageListResources(ctx context.Context, header http.Header, searchCondition SearchCondition, limit, offset int64) (PageBackendResource, error) {
+	return PageBackendResource{}, nil
 }

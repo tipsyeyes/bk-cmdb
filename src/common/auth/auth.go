@@ -16,6 +16,8 @@ import (
 	"strconv"
 	"sync"
 
+	"configdatabase/src/common"
+	"configdatabase/src/common/types"
 	"configdatabase/src/common/blog"
 )
 
@@ -60,11 +62,11 @@ func setEnableAuth(enable bool) {
 
 func IsAuthed() bool {
 	// mod by elias 05/27
-	//if common.GetIdentification() == types.CC_MODULE_APISERVER ||
-	//	common.GetIdentification() == types.CC_MODULE_HOST ||
-	//	common.GetIdentification() == types.CC_MODULE_TOPO {
-	//	// common.GetIdentification() == types.CC_MODULE_MIGRATE { // for auth sync & init
-	//	return true
-	//}
+	if common.GetIdentification() == types.CC_MODULE_APISERVER ||
+		common.GetIdentification() == types.CC_MODULE_HOST ||
+		common.GetIdentification() == types.CC_MODULE_TOPO {
+		// common.GetIdentification() == types.CC_MODULE_MIGRATE { // for auth sync & init
+		return true
+	}
 	return false
 }
