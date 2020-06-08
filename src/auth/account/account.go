@@ -1,6 +1,7 @@
 package account
 
 import (
+	commonutil "cmdb/src/common/util"
 	"configdatabase/src/apimachinery/flowctrl"
 	"configdatabase/src/apimachinery/rest"
 	"configdatabase/src/apimachinery/util"
@@ -10,8 +11,10 @@ import (
 	"configdatabase/src/common/metadata"
 	"context"
 	"errors"
+	"fmt"
 	"github.com/prometheus/client_golang/prometheus"
 	"net/http"
+	"strconv"
 	"sync"
 )
 
@@ -88,6 +91,7 @@ func NewAccountCenter(tls *util.TLSClientConfig, cfg AuthConfig, reg prometheus.
 			Config:      cfg,
 			basicHeader: header,
 		},
+		authFilter: &authFilter{},
 	}, nil
 }
 
@@ -98,6 +102,9 @@ type AccountCenter struct {
 	// http header info
 	header     http.Header
 	authClient *authClient
+
+	// account center filter
+	authFilter *authFilter
 }
 
 func (ac *AccountCenter) Enabled() bool {
@@ -105,6 +112,43 @@ func (ac *AccountCenter) Enabled() bool {
 }
 
 func (ac *AccountCenter) Authorize(ctx context.Context, a *meta.AuthAttribute) (decision meta.Decision, err error) {
+	if !auth.IsAuthed() {
+		return meta.Decision{Authorized: true}, nil
+	}
+
+	// filter out SkipAction, which set by api server to skip authorization
+	noSkipResources := make([]meta.ResourceAttribute, 0)
+	for _, resource := range a.Resources {
+		if resource.Action == meta.SkipAction {
+			continue
+		}
+		noSkipResources = append(noSkipResources, resource)
+	}
+	a.Resources = noSkipResources
+	if len(noSkipResources) == 0 {
+		blog.V(5).Infof("Authorize skip. auth attribute: %+v", a)
+		return meta.Decision{Authorized: true}, nil
+	}
+
+	batchResult, err := ac.AuthorizeBatch(ctx, a.User, a.Resources...)
+	if err != nil {
+		blog.Errorf("AuthorizeBatch error. err:%s", err.Error())
+		return meta.Decision{}, err
+	}
+	noAuth := make([]string, 0)
+	for i, item := range batchResult {
+		if !item.Authorized {
+			noAuth = append(noAuth, fmt.Sprintf("resource [%v] permission deny by reason: %s", a.Resources[i].Type, item.Reason))
+		}
+	}
+
+	if len(noAuth) > 0 {
+		return meta.Decision{
+			Authorized: false,
+			Reason:     fmt.Sprintf("%v", noAuth),
+		}, nil
+	}
+
 	return meta.Decision{Authorized: true}, nil
 }
 
@@ -113,11 +157,13 @@ func (ac *AccountCenter) AuthorizeBatch(ctx context.Context, user meta.UserInfo,
 }
 
 func (ac *AccountCenter) GetAnyAuthorizedBusinessList(ctx context.Context, user meta.UserInfo) ([]int64, error) {
-	return nil, nil
+	return ac.GetExactAuthorizedBusinessList(ctx, user)
 }
 
+// GetExactAuthorizedBusinessList
+// 获取所有授权的业务列表
 func (ac *AccountCenter) GetExactAuthorizedBusinessList(ctx context.Context, user meta.UserInfo) ([]int64, error) {
-	return nil, nil
+	return []int64{3}, nil
 }
 
 func (ac *AccountCenter) ListAuthorizedResources(ctx context.Context, username string, bizID int64, resourceType meta.ResourceType, action meta.Action) ([]IamResource, error) {
@@ -152,7 +198,62 @@ func (ac *AccountCenter) DryRunRegisterResource(ctx context.Context, rs ...meta.
 
 // Deregister a resource instance
 func (ac *AccountCenter) DeregisterResource(ctx context.Context, rs ...meta.ResourceAttribute) error {
-	return nil
+	rid := commonutil.ExtractRequestIDFromContext(ctx)
+
+	if !auth.IsAuthed() {
+		return nil
+	}
+
+	if len(rs) <= 0 {
+		// not resource should be deregister
+		return nil
+	}
+	info := DeregisterInfo{}
+	header := http.Header{}
+	for _, r := range rs {
+		if ac.authFilter.registerResourceFilter(ctx, r) {
+			continue
+		}
+
+		if len(r.Basic.Type) == 0 {
+			return errors.New("invalid resource attribute with empty object")
+		}
+
+		scope, err := ac.getScopeInfo(&r)
+		if err != nil {
+			return err
+		}
+
+		rscInfo, err := adaptor(&r)
+		if err != nil {
+			return fmt.Errorf("adaptor resource info failed, err: %v", err)
+		}
+
+		entity := ResourceEntity{}
+		entity.ScopeID = scope.ScopeID
+		entity.ScopeType = scope.ScopeType
+		entity.ResourceType = rscInfo.ResourceType
+		entity.ResourceID = rscInfo.ResourceID
+		entity.ResourceName = rscInfo.ResourceName
+
+		// 不关联实例ID的资源类型不需要取消注册
+		if IsRelatedToResourceID(entity.ResourceType) == false {
+			continue
+		}
+
+		info.Resources = append(info.Resources, entity)
+
+		header.Set(AuthSupplierAccountHeaderKey, r.SupplierAccount)
+	}
+
+	if len(info.Resources) == 0 {
+		if blog.V(5) {
+			blog.InfoJSON("no resource to be deregister for original resource: %s, rid: %s", rs, rid)
+		}
+		return nil
+	}
+
+	return ac.authClient.deregisterResource(ctx, header, &info)
 }
 
 // Deregister a resource instance with raw iam resource id
@@ -184,4 +285,18 @@ func (ac *AccountCenter) ListPageResources(ctx context.Context, r *meta.Resource
 }
 func (ac *AccountCenter) RawPageListResources(ctx context.Context, header http.Header, searchCondition SearchCondition, limit, offset int64) (PageBackendResource, error) {
 	return PageBackendResource{}, nil
+}
+
+func (ac *AccountCenter) getScopeInfo(r *meta.ResourceAttribute) (*ScopeInfo, error) {
+	s := new(ScopeInfo)
+	// TODO: this operation may be wrong, because some api filters does not
+	// fill the business id field, so these api should be normalized.
+	if r.BusinessID > 0 {
+		s.ScopeType = ScopeTypeIDBiz
+		s.ScopeID = strconv.FormatInt(r.BusinessID, 10)
+	} else {
+		s.ScopeType = ScopeTypeIDSystem
+		s.ScopeID = SystemIDCMDB
+	}
+	return s, nil
 }

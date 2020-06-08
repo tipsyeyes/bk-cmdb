@@ -126,6 +126,13 @@ type RscTypeAndID struct {
 	ResourceID   string         `json:"resource_id,omitempty"`
 }
 
+type ResourceInfo struct {
+	ResourceType ResourceTypeID `json:"resource_type"`
+	// this filed is not always used, it's decided by the api
+	// that is used.
+	ResourceEntity
+}
+
 // iam授权资源
 type IamResource []RscTypeAndID
 
@@ -155,4 +162,8 @@ type SearchCondition struct {
 type PageBackendResource struct {
 	Count   int64                  `json:"count"`
 	Results []meta.BackendResource `json:"results"`
+}
+
+type DeregisterInfo struct {
+	Resources []ResourceEntity `json:"resources"`
 }

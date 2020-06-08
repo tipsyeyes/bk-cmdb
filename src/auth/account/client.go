@@ -113,3 +113,27 @@ func (a *authClient) registerResource(ctx context.Context, header http.Header, i
 
 	return nil
 }
+
+func (a *authClient) deregisterResource(ctx context.Context, header http.Header, info *DeregisterInfo) error {
+	util.CopyHeader(a.basicHeader, header)
+	resp := new(BaseResponse)
+	err := a.client.Delete().
+		SubResourcef("/iam/perm/systems/%s/resources/batch-delete", a.Config.SystemID).
+		WithContext(ctx).
+		WithHeaders(header).
+		Body(info).
+		Do().Into(resp)
+
+	if err != nil {
+		return err
+	}
+
+	if resp.Status != statusSuccess {
+		if resp.Code == codeNotFound {
+			return nil
+		}
+		return &AuthError{fmt.Errorf("deregister resource failed, error code: %d, message: %s", resp.Code, resp.Message)}
+	}
+
+	return nil
+}
