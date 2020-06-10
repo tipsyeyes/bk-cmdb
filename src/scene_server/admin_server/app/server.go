@@ -20,6 +20,7 @@ import (
 	"sync"
 	"time"
 
+	authc "configdatabase/src/auth"
 	"configdatabase/src/auth/authcenter"
 	"configdatabase/src/common/auth"
 	"configdatabase/src/common/backbone"
@@ -99,7 +100,8 @@ func Run(ctx context.Context, cancel context.CancelFunc, op *options.ServerOptio
 
 		if auth.IsAuthed() {
 			blog.Info("enable auth center access.")
-			authCli, err := authcenter.NewAuthCenter(nil, process.Config.AuthCenter, engine.Metric().Registry())
+			//authCli, err := authcenter.NewAuthCenter(nil, process.Config.AuthCenter, engine.Metric().Registry())
+			authCli, err := authc.NewAuthorize(nil, process.Config.AuthCenter, engine.Metric().Registry())
 			if err != nil {
 				return fmt.Errorf("new authcenter client failed: %v", err)
 			}

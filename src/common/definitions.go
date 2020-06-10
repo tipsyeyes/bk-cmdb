@@ -893,6 +893,9 @@ const (
 	BKHTTPCCRequestTime     = "Cc_Request_Time"
 	BKHTTPCCTransactionID   = "Cc_Txn_Id"
 	BKHTTPCCTxnTMServerAddr = "Cc_Txn_Tm_addr-Ip"
+
+	// add by elias
+	BKHTTPAUTHORIZATION = "Authorization"
 )
 
 type CCContextKey string

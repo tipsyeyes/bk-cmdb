@@ -1,7 +1,7 @@
 package account
 
 import (
-	commonutil "cmdb/src/common/util"
+	commonutil "configdatabase/src/common/util"
 	"configdatabase/src/apimachinery/flowctrl"
 	"configdatabase/src/apimachinery/rest"
 	"configdatabase/src/apimachinery/util"

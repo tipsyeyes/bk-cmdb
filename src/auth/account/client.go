@@ -35,7 +35,7 @@ type authClient struct {
 // Register system to auth center
 func (a *authClient) RegisterSystem(ctx context.Context, header http.Header, system System) error {
 	util.CopyHeader(a.basicHeader, header)
-	const url = "/iam/perm-model/systems"
+	const url = "/iam/perm-model/system"
 	resp := BaseResponse{}
 
 	err := a.client.Post().
@@ -64,7 +64,7 @@ func (a *authClient) UpsertResourceTypeBatch(ctx context.Context, header http.He
 	resp := BaseResponse{}
 
 	err := a.client.Post().
-		SubResourcef("/iam/perm-model/systems/%s/scope-types/%s/resource-types/batch-upsert", systemID, scopeType).
+		SubResourcef("/iam/perm-model/system/%s/scope-type/%s/resource-type/batch-upsert", systemID, scopeType).
 		WithContext(ctx).
 		WithHeaders(header).
 		Body(struct {
@@ -93,7 +93,7 @@ func (a *authClient) registerResource(ctx context.Context, header http.Header, i
 	util.CopyHeader(a.basicHeader, header)
 	resp := new(BaseResponse)
 	err := a.client.Post().
-		SubResourcef("/iam/perm/systems/%s/resources/batch-register", a.Config.SystemID).
+		SubResourcef("/iam/perm/system/%s/resource/batch-register", a.Config.SystemID).
 		WithContext(ctx).
 		WithHeaders(header).
 		Body(info).
@@ -118,7 +118,7 @@ func (a *authClient) deregisterResource(ctx context.Context, header http.Header,
 	util.CopyHeader(a.basicHeader, header)
 	resp := new(BaseResponse)
 	err := a.client.Delete().
-		SubResourcef("/iam/perm/systems/%s/resources/batch-delete", a.Config.SystemID).
+		SubResourcef("/iam/perm/system/%s/resource/batch-delete", a.Config.SystemID).
 		WithContext(ctx).
 		WithHeaders(header).
 		Body(info).

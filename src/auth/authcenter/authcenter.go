@@ -24,6 +24,7 @@ import (
 	"configdatabase/src/apimachinery/flowctrl"
 	"configdatabase/src/apimachinery/rest"
 	"configdatabase/src/apimachinery/util"
+	"configdatabase/src/auth/account"
 	"configdatabase/src/auth/authcenter/permit"
 	"configdatabase/src/auth/meta"
 	"configdatabase/src/common/auth"
@@ -66,11 +67,11 @@ func ParseConfigFromKV(prefix string, configmap map[string]string) (AuthConfig, 
 	if len(cfg.Address) == 0 {
 		return cfg, errors.New(`invalid "address" configuration for auth center`)
 	}
-	for i := range cfg.Address {
-		if !strings.HasSuffix(cfg.Address[i], "/") {
-			cfg.Address[i] = cfg.Address[i] + "/"
-		}
-	}
+	//for i := range cfg.Address {
+	//	if !strings.HasSuffix(cfg.Address[i], "/") {
+	//		cfg.Address[i] = cfg.Address[i] + "/"
+	//	}
+	//}
 
 	cfg.AppSecret, exist = configmap[prefix+".appSecret"]
 	if !exist {
@@ -116,7 +117,7 @@ func ParseConfigFromKV(prefix string, configmap map[string]string) (AuthConfig, 
 	}
 	cfg.SyncIntervalMinutes = int(syncIntervalMinutes)
 
-	cfg.SystemID = SystemIDCMDB
+	cfg.SystemID = account.SystemIDCMDB
 
 	return cfg, nil
 }

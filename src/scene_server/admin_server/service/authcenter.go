@@ -118,7 +118,59 @@ func (s *Service) InitAuthCenter(req *restful.Request, resp *restful.Response) {
 		Classifications:  cls,
 		AssociationKinds: assoKinds,
 	}
-	if err := s.authCenter.Init(s.ctx, initCfg); nil != err {
+	if err := s.authCenter.Init(s.ctx, rHeader, initCfg); nil != err {
+		blog.Errorf("init auth center failed, err: %+v, rid: %s", err, rid)
+		result := &metadata.RespError{
+			Msg: defErr.Errorf(common.CCErrCommInitAuthCenterFailed, err.Error()),
+		}
+		resp.WriteError(http.StatusInternalServerError, result)
+		return
+	}
+	resp.WriteEntity(metadata.NewSuccessResp("init auth center success"))
+}
+
+// init new auth center
+func (s *Service) InitAuthAccount(req *restful.Request, resp *restful.Response) {
+	rHeader := req.Request.Header
+	rid := util.GetHTTPCCRequestID(rHeader)
+	defErr := s.CCErr.CreateDefaultCCErrorIf(util.GetLanguage(rHeader))
+	if !auth.IsAuthed() {
+		blog.Errorf("received auth center initialization request, but auth center not enabled, rid: %s", rid)
+		result := &metadata.RespError{
+			Msg: defErr.Error(common.CCErrCommAuthCenterIsNotEnabled),
+		}
+		resp.WriteError(http.StatusBadRequest, result)
+		return
+	}
+
+	bizs := make([]metadata.BizInst, 0)
+	bizFilter := map[string]interface{}{
+		common.BKDefaultField: map[string]interface{}{
+			common.BKDBNE: common.DefaultAppFlag,
+		},
+	}
+	if err := s.db.Table(common.BKTableNameBaseApp).Find(bizFilter).All(s.ctx, &bizs); err != nil {
+		blog.Errorf("init auth center failed, list businesses failed, err: %v, rid: %s", err, rid)
+		result := &metadata.RespError{
+			Msg: defErr.Errorf(common.CCErrCommInitAuthCenterFailed, err.Error()),
+		}
+		resp.WriteError(http.StatusInternalServerError, result)
+		return
+	}
+
+	noRscPoolBiz := make([]metadata.BizInst, 0)
+	resourcePoolNames := []string{"资源池", "resource pool"}
+	for _, biz := range bizs {
+		if util.InArray(biz.BizName, resourcePoolNames) {
+			continue
+		}
+		noRscPoolBiz = append(noRscPoolBiz, biz)
+	}
+
+	initCfg := meta.InitConfig{
+		Bizs:             noRscPoolBiz,
+	}
+	if err := s.authCenter.Init(s.ctx, rHeader, initCfg); nil != err {
 		blog.Errorf("init auth center failed, err: %+v, rid: %s", err, rid)
 		result := &metadata.RespError{
 			Msg: defErr.Errorf(common.CCErrCommInitAuthCenterFailed, err.Error()),

@@ -78,7 +78,7 @@ type ResourceHandler interface {
 	RawPageListResources(ctx context.Context, header http.Header, searchCondition authcenter.SearchCondition, limit, offset int64) (authcenter.PageBackendResource, error)
 
 	// init the auth center
-	Init(ctx context.Context, config meta.InitConfig) error
+	Init(ctx context.Context, header http.Header, config meta.InitConfig) error
 }
 
 // NewAuthorize is used to initialized a Authorize instance interface,

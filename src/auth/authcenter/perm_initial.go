@@ -22,7 +22,7 @@ import (
 	"configdatabase/src/common/blog"
 )
 
-func (ac *AuthCenter) Init(ctx context.Context, configs meta.InitConfig) error {
+func (ac *AuthCenter) Init(ctx context.Context, header http.Header, configs meta.InitConfig) error {
 	if err := ac.initAuthResources(ctx, configs); err != nil {
 		return fmt.Errorf("initial auth resources failed, err: %v", err)
 	}

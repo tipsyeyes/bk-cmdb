@@ -13,9 +13,9 @@
 package service
 
 import (
+	"configdatabase/src/auth"
 	"context"
 
-	"configdatabase/src/auth/authcenter"
 	"configdatabase/src/common"
 	"configdatabase/src/common/backbone"
 	"configdatabase/src/common/errors"
@@ -35,7 +35,7 @@ type Service struct {
 	ccApiSrvAddr string
 	ctx          context.Context
 	Config       options.Config
-	authCenter   *authcenter.AuthCenter
+	authCenter   auth.Authorize
 }
 
 func NewService(ctx context.Context) *Service {
@@ -48,7 +48,7 @@ func (s *Service) SetDB(db dal.RDB) {
 	s.db = db
 }
 
-func (s *Service) SetAuthCenter(authCenter *authcenter.AuthCenter) {
+func (s *Service) SetAuthCenter(authCenter auth.Authorize) {
 	s.authCenter = authCenter
 }
 
@@ -68,7 +68,8 @@ func (s *Service) WebService() *restful.Container {
 	api.Filter(rdapi.AllGlobalFilter(getErrFunc))
 	api.Produces(restful.MIME_JSON)
 
-	api.Route(api.POST("/authcenter/init").To(s.InitAuthCenter))
+	//api.Route(api.POST("/authcenter/init").To(s.InitAuthCenter))
+	api.Route(api.POST("/authcenter/init").To(s.InitAuthAccount))
 	api.Route(api.POST("/migrate/{distribution}/{ownerID}").To(s.migrate))
 	api.Route(api.POST("/migrate/system/hostcrossbiz/{ownerID}").To(s.SetSystemConfiguration))
 	api.Route(api.GET("/healthz").To(s.Healthz))

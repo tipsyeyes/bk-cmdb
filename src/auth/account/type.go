@@ -57,7 +57,7 @@ func (br BaseResponse) ErrorString() string {
 }
 
 type System struct {
-	SystemID   string `json:"system_id,omitempty"`
+	SystemID   string `json:"system_code,omitempty"`
 	SystemName string `json:"system_name"`
 	Desc       string `json:"desc"`
 	// 可为空，在使用注册资源的方式时
@@ -75,7 +75,7 @@ type System struct {
 
 // 注册资源类型信息
 type ResourceType struct {
-	ResourceTypeID       ResourceTypeID `json:"resource_type"`
+	ResourceTypeID       ResourceTypeID `json:"resource_type_code"`
 	ResourceTypeName     string         `json:"resource_type_name"`
 	ParentResourceTypeID ResourceTypeID `json:"parent_resource_type"`
 	Share                bool           `json:"is_share"`
@@ -83,7 +83,7 @@ type ResourceType struct {
 }
 
 type Action struct {
-	ActionID          	ActionID 	`json:"action_id"`
+	ActionID          	ActionID 	`json:"action_code"`
 	ActionName        	string   	`json:"action_name"`
 	// 是否为功能操作性权限
 	IsFunctional		bool 		`json:"is_functional"`
@@ -102,8 +102,8 @@ type ScopeInfo struct {
 // 注册资源实体信息 RegisterEntityInfo
 type RegisterInfo struct {
 	// 创建者信息，可忽略
-	// type: system/user
-	// id: user/custom username
+	// type: user
+	// id: system or custom username
 	CreatorType string           `json:"creator_type"`
 	CreatorID   string           `json:"creator_id"`
 
