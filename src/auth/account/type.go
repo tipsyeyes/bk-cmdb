@@ -111,12 +111,11 @@ type RegisterInfo struct {
 }
 
 type ResourceEntity struct {
-	ResourceType ResourceTypeID 	`json:"resource_type"`
-	ResourceName string         	`json:"resource_name,omitempty"`
+	ResourceType ResourceTypeID `json:"resource_type"`
+	ResourceName string         `json:"resource_name,omitempty"`
 	// 资源id
-	ResourceID   []RscTypeAndID 	`json:"resource_id,omitempty"`
+	ResourceID []RscTypeAndID `json:"resource_id,omitempty"`
 
-	// TODO: remove
 	ScopeInfo
 }
 
