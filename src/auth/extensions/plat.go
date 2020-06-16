@@ -319,10 +319,10 @@ func (am *AuthManager) ListAuthorizedPlatIDs(ctx context.Context, username strin
 
 	authorizedPlatIDs := make([]int64, 0)
 	for _, iamResource := range authorizedResources {
-		if len(iamResource) == 0 {
-			continue
-		}
-		resource := iamResource[len(iamResource)-1]
+		// mod by elias 06/16
+		resource := iamResource
+		// resource := iamResource[len(iamResource)-1]
+
 		if strings.HasPrefix(resource.ResourceID, "plat:") {
 			parts := strings.Split(resource.ResourceID, ":")
 			if len(parts) < 2 {

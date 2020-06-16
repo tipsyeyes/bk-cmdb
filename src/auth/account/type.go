@@ -99,6 +99,11 @@ type ScopeInfo struct {
 	ScopeID   string `json:"scope_id,omitempty"`
 }
 
+type Principal struct {
+	Type string `json:"principal_type"`
+	ID   string `json:"principal_id"`
+}
+
 // 注册资源实体信息 RegisterEntityInfo
 type RegisterInfo struct {
 	// 创建者信息，可忽略
@@ -111,7 +116,7 @@ type RegisterInfo struct {
 }
 
 type ResourceEntity struct {
-	ResourceType ResourceTypeID `json:"resource_type"`
+	ResourceType ResourceTypeID `json:"resource_code"`
 	ResourceName string         `json:"resource_name,omitempty"`
 	// 资源id
 	ResourceID []RscTypeAndID `json:"resource_id,omitempty"`
@@ -121,7 +126,7 @@ type ResourceEntity struct {
 
 // 资源 id &type
 type RscTypeAndID struct {
-	ResourceType ResourceTypeID `json:"resource_type"`
+	ResourceType ResourceTypeID `json:"resource_code"`
 	ResourceID   string         `json:"resource_id,omitempty"`
 }
 
@@ -132,12 +137,33 @@ type ResourceInfo struct {
 	ResourceEntity
 }
 
+type ListAuthorizedResources struct {
+	Principal   `json:",inline"`
+	ScopeInfo   `json:",inline"`
+	TypeActions []TypeAction `json:"resource_types_actions"`
+	// array or string
+	DataType string `json:"resource_data_type"`
+	Exact    bool   `json:"is_exact_resource"`
+}
+
+type TypeAction struct {
+	ActionID     ActionID       `json:"action_code"`
+	ResourceType ResourceTypeID `json:"resource_code"`
+}
+
+type ListAuthorizedResourcesResult struct {
+	BaseResponse
+	Data []AuthorizedResource `json:"data"`
+}
+
 // iam授权资源
-type IamResource []RscTypeAndID
+// 取消原来的2层数组，不利于理解
+// type IamResource []RscTypeAndID
+type IamResource RscTypeAndID
 
 type AuthorizedResource struct {
-	ActionID     ActionID       `json:"action_id"`
-	ResourceType ResourceTypeID `json:"resource_type"`
+	ActionID     ActionID       `json:"action_code"`
+	ResourceType ResourceTypeID `json:"resource_code"`
 	ResourceIDs  []IamResource  `json:"resource_ids"`
 }
 

@@ -1117,6 +1117,7 @@ const (
 	ContextRequestIDField    = "request_id"
 	ContextRequestUserField  = "request_user"
 	ContextRequestOwnerField = "request_owner"
+	ContextRequestTokenField = "request_token"
 )
 
 const (

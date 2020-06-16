@@ -9,11 +9,11 @@ type authFilter struct {
 
 }
 
-// Register a resource instance
-func (af *authFilter) registerResourceFilter(ctx context.Context, rs meta.ResourceAttribute) bool {
-	if rs.Type == meta.Business {
-		return false
-	}
+// Register resource filter
+func (af *authFilter) needRegisterResource(ctx context.Context, rs meta.ResourceAttribute) bool {
+	//if rs.Type == meta.Business {
+	//	return true
+	//}
 
-	return true
+	return false
 }

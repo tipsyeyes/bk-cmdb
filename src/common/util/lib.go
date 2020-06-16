@@ -51,6 +51,10 @@ func GetOwnerID(header http.Header) string {
 	return header.Get(common.BKHTTPOwnerID)
 }
 
+func GetToken(header http.Header) string {
+	return header.Get(common.BKHTTPAUTHORIZATION)
+}
+
 // set supplier id and account in head
 func SetOwnerIDAndAccount(req *restful.Request) {
 	owner := req.Request.Header.Get(common.BKHTTPOwner)
@@ -97,10 +101,12 @@ func NewContextFromHTTPHeader(header http.Header) context.Context {
 	rid := GetHTTPCCRequestID(header)
 	user := GetUser(header)
 	owner := GetOwnerID(header)
+	token := GetToken(header)
 	ctx := context.Background()
 	ctx = context.WithValue(ctx, common.ContextRequestIDField, rid)
 	ctx = context.WithValue(ctx, common.ContextRequestUserField, user)
 	ctx = context.WithValue(ctx, common.ContextRequestOwnerField, owner)
+	ctx = context.WithValue(ctx, common.ContextRequestTokenField, token)
 	return ctx
 }
 
@@ -112,6 +118,18 @@ func ExtractRequestUserFromContext(ctx context.Context) string {
 	userValue, ok := user.(string)
 	if ok == true {
 		return userValue
+	}
+	return ""
+}
+
+func ExtractRequestTokenFromContext(ctx context.Context) string {
+	if ctx == nil {
+		return ""
+	}
+	token := ctx.Value(common.ContextRequestTokenField)
+	tokenValue, ok := token.(string)
+	if ok == true {
+		return tokenValue
 	}
 	return ""
 }

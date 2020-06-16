@@ -137,3 +137,23 @@ func (a *authClient) deregisterResource(ctx context.Context, header http.Header,
 
 	return nil
 }
+
+func (a *authClient) GetAuthorizedResources(ctx context.Context, header http.Header, body *ListAuthorizedResources) ([]AuthorizedResource, error) {
+	util.CopyHeader(a.basicHeader, header)
+	resp := ListAuthorizedResourcesResult{}
+
+	err := a.client.Post().
+		SubResourcef("/iam/perm/system/%s/authorized-resource/search", SystemIDCMDB).
+		WithContext(ctx).
+		WithHeaders(header).
+		Body(body).
+		Do().Into(&resp)
+	if err != nil {
+		return nil, fmt.Errorf("get authorized resource failed, err: %v", err)
+	}
+	if resp.Status != statusSuccess {
+		return nil, fmt.Errorf("get authorized resource failed, err: %v", resp.ErrorString())
+	}
+
+	return resp.Data, nil
+}

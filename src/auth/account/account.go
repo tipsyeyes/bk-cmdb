@@ -1,6 +1,7 @@
 package account
 
 import (
+	"configdatabase/src/common"
 	commonutil "configdatabase/src/common/util"
 	"configdatabase/src/apimachinery/flowctrl"
 	"configdatabase/src/apimachinery/rest"
@@ -161,9 +162,56 @@ func (ac *AccountCenter) GetAnyAuthorizedBusinessList(ctx context.Context, user 
 }
 
 // GetExactAuthorizedBusinessList
+// get a user's authorized read business list.
 // 获取所有授权的业务列表
+// ctx := util.NewContextFromHTTPHeader(header)
 func (ac *AccountCenter) GetExactAuthorizedBusinessList(ctx context.Context, user meta.UserInfo) ([]int64, error) {
-	return []int64{3}, nil
+	rid := commonutil.ExtractRequestIDFromContext(ctx)
+	token := commonutil.ExtractRequestTokenFromContext(ctx)
+
+	if !auth.IsAuthed() {
+		return make([]int64, 0), nil
+	}
+
+	option := &ListAuthorizedResources{
+		Principal: Principal{
+			Type: cmdbUser,
+			ID:   user.UserName,
+		},
+		ScopeInfo: ScopeInfo{
+			ScopeType: ScopeTypeIDSystem,
+			ScopeID:   SystemIDCMDB,
+		},
+		TypeActions: []TypeAction{
+			{
+				ActionID:     Get,
+				ResourceType: SysBusinessInstance,
+			},
+		},
+		DataType: "array",
+		Exact:    true,
+	}
+
+	header := http.Header{}
+	header.Set(common.BKHTTPCCRequestID, rid)
+	header.Set(common.BKHTTPAUTHORIZATION, token)
+	appListRsc, err := ac.authClient.GetAuthorizedResources(ctx, header, option)
+	if err != nil {
+		return nil, err
+	}
+
+	businessIDs := make([]int64, 0)
+	for _, appRsc := range appListRsc {
+		for _, app := range appRsc.ResourceIDs {
+			id, err := strconv.ParseInt(app.ResourceID, 10, 64)
+			if err != nil {
+				return businessIDs, err
+			}
+			businessIDs = append(businessIDs, id)
+		}
+	}
+
+	return businessIDs, nil
 }
 
 func (ac *AccountCenter) ListAuthorizedResources(ctx context.Context, username string, bizID int64, resourceType meta.ResourceType, action meta.Action) ([]IamResource, error) {
@@ -186,19 +234,117 @@ func (ac *AccountCenter) GetUserGroupMembers(ctx context.Context, header http.He
 	return nil, nil
 }
 
+const pageSize = 500
+
 // Register a resource instance
 func (ac *AccountCenter) RegisterResource(ctx context.Context, rs ...meta.ResourceAttribute) error {
-	return nil
+	rid := commonutil.ExtractRequestIDFromContext(ctx)
+	token := commonutil.ExtractRequestTokenFromContext(ctx)
+
+	if !auth.IsAuthed() {
+		blog.V(5).Infof("auth disabled, auth config: %+v, rid: %s", ac.Config, rid)
+		return nil
+	}
+
+	if len(rs) == 0 {
+		return errors.New("no resource to be registered")
+	}
+
+	registerInfo, err := ac.DryRunRegisterResource(ctx, rs...)
+	if err != nil {
+		return err
+	}
+
+	// 清除不需要关联资源ID类型的注册
+	resourceEntities := make([]ResourceEntity, 0)
+	for index, resource := range registerInfo.Resources {
+		if IsRelatedToResourceID(resource.ResourceType) == true {
+			resourceEntities = append(resourceEntities, registerInfo.Resources[index])
+		}
+	}
+	if len(resourceEntities) == 0 {
+		return nil
+	}
+	registerInfo.Resources = resourceEntities
+
+	header := http.Header{}
+	//header.Set(AuthSupplierAccountHeaderKey, rs[0].SupplierAccount)
+	header.Set(common.BKHTTPCCRequestID, rid)
+	header.Set(common.BKHTTPAUTHORIZATION, token)
+
+	var firstErr error
+	count := len(resourceEntities)
+	for start := 0; start < count; start += pageSize {
+		end := start + pageSize
+		if end > count {
+			end = count
+		}
+		entities := resourceEntities[start:end]
+		registerInfo.Resources = entities
+		if err := ac.authClient.registerResource(ctx, header, registerInfo); err != nil {
+			if err != ErrDuplicated {
+				firstErr = err
+			}
+		}
+	}
+
+	return firstErr
 }
 
 // Register a resource instance
 func (ac *AccountCenter) DryRunRegisterResource(ctx context.Context, rs ...meta.ResourceAttribute) (*RegisterInfo, error) {
-	return nil, nil
+	rid := commonutil.ExtractRequestIDFromContext(ctx)
+	user := commonutil.ExtractRequestUserFromContext(ctx)
+	if len(user) == 0 {
+		user = cmdbUserID
+	}
+
+	if !auth.IsAuthed() {
+		blog.V(5).Infof("auth disabled, auth config: %+v, rid: %s", ac.Config, rid)
+		return new(RegisterInfo), nil
+	}
+
+	info := RegisterInfo{}
+	info.CreatorType = cmdbUser
+	info.CreatorID = user
+	info.Resources = make([]ResourceEntity, 0)
+	for _, r := range rs {
+		if !ac.authFilter.needRegisterResource(ctx, r) {
+			continue
+		}
+
+		if len(r.Basic.Type) == 0 {
+			return nil, errors.New("invalid resource attribute with empty object")
+		}
+		scope, err := ac.getScopeInfo(&r)
+		if err != nil {
+			return nil, err
+		}
+
+		rscInfo, err := adaptor(&r)
+		if err != nil {
+			return nil, fmt.Errorf("adaptor resource info failed, err: %v", err)
+		}
+		entity := ResourceEntity{
+			ResourceType: rscInfo.ResourceType,
+			ScopeInfo: ScopeInfo{
+				ScopeType: scope.ScopeType,
+				ScopeID:   scope.ScopeID,
+			},
+			ResourceName: rscInfo.ResourceName,
+			ResourceID:   rscInfo.ResourceID,
+		}
+
+		// TODO replace register with batch create or update interface, currently is register one by one.
+		info.Resources = append(info.Resources, entity)
+	}
+	return &info, nil
 }
 
 // Deregister a resource instance
 func (ac *AccountCenter) DeregisterResource(ctx context.Context, rs ...meta.ResourceAttribute) error {
 	rid := commonutil.ExtractRequestIDFromContext(ctx)
+	token := commonutil.ExtractRequestTokenFromContext(ctx)
 
 	if !auth.IsAuthed() {
 		return nil
@@ -209,9 +355,12 @@ func (ac *AccountCenter) DeregisterResource(ctx context.Context, rs ...meta.Reso
 		return nil
 	}
 	info := DeregisterInfo{}
+
 	header := http.Header{}
+	header.Set(common.BKHTTPCCRequestID, rid)
+	header.Set(common.BKHTTPAUTHORIZATION, token)
 	for _, r := range rs {
-		if ac.authFilter.registerResourceFilter(ctx, r) {
+		if !ac.authFilter.needRegisterResource(ctx, r) {
 			continue
 		}
 

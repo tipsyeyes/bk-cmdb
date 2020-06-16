@@ -169,14 +169,21 @@ func (am *AuthManager) MakeAuthorizedAuditListCondition(ctx context.Context, hea
 
 		modelIDs := make([]string, 0)
 		for _, authorizedList := range auditList {
+			// mod by elias 06/16
 			for _, resourceID := range authorizedList.ResourceIDs {
-				if len(resourceID) == 0 {
-					continue
-				}
-				modelID := resourceID[len(resourceID)-1].ResourceID
+				modelID := resourceID.ResourceID
 				id := util.GetStrByInterface(modelID)
 				modelIDs = append(modelIDs, id)
 			}
+
+			//for _, resourceID := range authorizedList.ResourceIDs {
+			//	if len(resourceID) == 0 {
+			//		continue
+			//	}
+			//	modelID := resourceID[len(resourceID)-1].ResourceID
+			//	id := util.GetStrByInterface(modelID)
+			//	modelIDs = append(modelIDs, id)
+			//}
 		}
 
 		if len(modelIDs) == 0 {
