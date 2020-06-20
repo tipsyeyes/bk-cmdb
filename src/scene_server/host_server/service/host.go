@@ -416,7 +416,10 @@ func (s *Service) SearchHost(req *restful.Request, resp *restful.Response) {
 	}
 
 	host, err := srvData.lgc.SearchHost(srvData.ctx, body, false)
-	if err != nil {
+	if err == auth.NoAuthorizeError {
+		_ = resp.WriteError(http.StatusOK, &meta.RespError{Msg: srvData.ccErr.Error(common.CCErrCommAuthorizeFailed)})
+		return
+	} else if err != nil {
 		blog.Errorf("search host failed, err: %v,input:%+v,rid:%s", err, body, srvData.rid)
 		_ = resp.WriteError(http.StatusBadRequest, &meta.RespError{Msg: srvData.ccErr.Error(common.CCErrHostGetFail)})
 		return

@@ -147,6 +147,10 @@ func ParseHostParams(input []metadata.ConditionItem, output map[string]interface
 			output[i.Field] = queryCondItem
 		}
 	}
+
+	if len(multiAndOper) > 0 {
+		output[common.BKDBAND] = multiAndOper
+	}
 	return nil
 }
 

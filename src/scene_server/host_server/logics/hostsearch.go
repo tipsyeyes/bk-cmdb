@@ -15,9 +15,13 @@ package logics
 import (
 	"context"
 	"net/http"
+	"reflect"
+	"sort"
 	"strconv"
 	"strings"
 
+	"configdatabase/src/auth"
+	authmeta "configdatabase/src/auth/meta"
 	"configdatabase/src/common"
 	"configdatabase/src/common/blog"
 	"configdatabase/src/common/errors"
@@ -29,9 +33,11 @@ import (
 
 func (lgc *Logics) SearchHost(ctx context.Context, data *metadata.HostCommonSearch, isDetail bool) (*metadata.SearchHost, error) {
 	searchHostInst := NewSearchHost(ctx, lgc, data)
-	searchHostInst.ParseCondition()
 	retHostInfo := &metadata.SearchHost{
 		Info: make([]mapstr.MapStr, 0),
+	}
+	if err := searchHostInst.ParseConditionEx(); err != nil {
+		return retHostInfo, err
 	}
 	err := searchHostInst.SearchHostByConds()
 	if err != nil {
@@ -123,6 +129,7 @@ type appLevelInfo struct {
 // searchHostInterface Too many methods, hiding private methods
 type searchHostInterface interface {
 	ParseCondition()
+	ParseConditionEx() errors.CCError
 	SearchHostByConds() errors.CCError
 	FillTopologyData() ([]mapstr.MapStr, int, errors.CCError)
 }
@@ -868,4 +875,117 @@ func (sh *searchHost) tryParseAppID() {
 			Value:    sh.hostSearchParam.AppID,
 		})
 	}
+}
+
+func (sh *searchHost) ParseConditionEx() errors.CCError {
+
+	for _, object := range sh.hostSearchParam.Condition {
+		if object.ObjectID == common.BKInnerObjIDHost {
+			sh.conds.hostCond = object
+		} else if object.ObjectID == common.BKInnerObjIDSet {
+			sh.conds.setCond = object
+			sh.topoShowSection.set = true
+		} else if object.ObjectID == common.BKInnerObjIDModule {
+			sh.conds.moduleCond = object
+			sh.topoShowSection.module = true
+		} else if object.ObjectID == common.BKInnerObjIDApp {
+			sh.conds.appCond = object
+			sh.topoShowSection.app = true
+		} else if object.ObjectID == common.BKInnerObjIDObject {
+			sh.conds.mainlineCond = object
+		} else if object.ObjectID == common.BKInnerObjIDPlat {
+			sh.conds.platCond = object
+		} else {
+			sh.conds.objectCondMap[object.ObjectID] = object.Condition
+		}
+	}
+
+	return sh.tryParseAppIDEx()
+
+}
+
+// add by elias 06/19
+// 强制查询授权业务
+func (sh *searchHost) tryParseAppIDEx() error {
+	//search appID by cond
+	if sh.lgc.AuthManager.Enabled() {
+		// parse business id from user's condition
+		var bizIDs []int64
+		exist := false
+		var bizItem metadata.ConditionItem
+		for _, item := range sh.conds.appCond.Condition {
+			if item.Field == common.BKAppIDField {
+				exist = true
+				bizItem = item
+				break
+			}
+		}
+		if exist {
+			if bizItem.Operator == "$eq" {
+				cond := bizItem.Value
+				if reflect.TypeOf(cond).ConvertibleTo(reflect.TypeOf(int64(1))) == false {
+					return sh.ccErr.Errorf(common.CCErrCommParamsInvalid, common.BKAppIDField)
+				}
+				bizIDs = []int64{int64(cond.(float64))}
+			} else if bizItem.Operator == "$in" {
+				cond := bizItem.Value
+				if conds, ok := cond.([]interface{}); ok {
+					for _, c := range conds {
+						if reflect.TypeOf(c).ConvertibleTo(reflect.TypeOf(int64(1))) == false {
+							return sh.ccErr.Errorf(common.CCErrCommParamsInvalid, common.BKAppIDField)
+						}
+						bizIDs = append(bizIDs, int64(c.(float64)))
+					}
+				}
+			}
+		}
+
+		user := authmeta.UserInfo{UserName: util.GetUser(sh.pheader), SupplierAccount: util.GetOwnerID(sh.pheader)}
+		appList, err := sh.lgc.AuthManager.Authorize.GetExactAuthorizedBusinessList(sh.ctx, user)
+		if err != nil {
+			blog.Errorf("[api-host] SearchBusiness failed, GetExactAuthorizedBusinessList failed, user: %s, err: %s, rid: %s", user, err.Error(), sh.ccRid)
+			return sh.ccErr.Error(common.CCErrorTopoGetAuthorizedBusinessListFailed)
+		}
+		if len(bizIDs) > 0 {
+			for _, bizID := range bizIDs {
+				if !util.InArray(bizID, appList) {
+					//noAuthResp, err := sh.lgc.AuthManager.GenBusinessAuditNoPermissionResp(sh.ctx, sh.pheader, bizID)
+					//if err != nil {
+					//	return sh.ccErr.Error(common.CCErrTopoAppSearchFailed)
+					//}
+					return auth.NoAuthorizeError
+				}
+			}
+		} else {
+			// sort for prepare to find business with page.
+			sort.Sort(util.Int64Slice(appList))
+			// user can only find business that is already authorized.
+			sh.conds.appCond.Condition = append(sh.conds.appCond.Condition, metadata.ConditionItem{
+				Field:    common.BKAppIDField,
+				Operator: common.BKDBIN,
+				Value:    appList,
+			})
+		}
+
+		if -1 != sh.hostSearchParam.AppID && 0 != sh.hostSearchParam.AppID {
+			if !util.InArray(sh.hostSearchParam.AppID, appList) {
+				return auth.NoAuthorizeError
+			}
+			sh.conds.appCond.Condition = append(sh.conds.appCond.Condition, metadata.ConditionItem{
+				Field:    common.BKAppIDField,
+				Operator: common.BKDBEQ,
+				Value:    sh.hostSearchParam.AppID,
+			})
+		}
+
+	} else {
+		if -1 != sh.hostSearchParam.AppID && 0 != sh.hostSearchParam.AppID {
+			sh.conds.appCond.Condition = append(sh.conds.appCond.Condition, metadata.ConditionItem{
+				Field:    common.BKAppIDField,
+				Operator: common.BKDBEQ,
+				Value:    sh.hostSearchParam.AppID,
+			})
+		}
+	}
+	return nil
 }
