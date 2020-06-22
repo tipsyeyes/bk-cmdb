@@ -20,9 +20,9 @@ import (
 	"sync"
 	"time"
 
-	authc "configdatabase/src/auth"
+	"configdatabase/src/auth"
 	"configdatabase/src/auth/authcenter"
-	"configdatabase/src/common/auth"
+	authc "configdatabase/src/common/auth"
 	"configdatabase/src/common/backbone"
 	"configdatabase/src/common/backbone/configcenter"
 	cc "configdatabase/src/common/backbone/configcenter"
@@ -98,10 +98,10 @@ func Run(ctx context.Context, cancel context.CancelFunc, op *options.ServerOptio
 		process.Service.SetDB(db)
 		process.Service.SetApiSrvAddr(process.Config.ProcSrvConfig.CCApiSrvAddr)
 
-		if auth.IsAuthed() {
+		if authc.IsAuthed() {
 			blog.Info("enable auth center access.")
 			//authCli, err := authcenter.NewAuthCenter(nil, process.Config.AuthCenter, engine.Metric().Registry())
-			authCli, err := authc.NewAuthorize(nil, process.Config.AuthCenter, engine.Metric().Registry())
+			authCli, err := auth.NewAuthorize(nil, process.Config.AuthCenter, engine.Metric().Registry())
 			if err != nil {
 				return fmt.Errorf("new authcenter client failed: %v", err)
 			}
@@ -163,7 +163,7 @@ func (h *MigrateServer) onHostConfigUpdate(previous, current cc.ProcessConfig) {
 
 		var err error
 		h.Config.AuthCenter, err = authcenter.ParseConfigFromKV("auth", current.ConfigMap)
-		if err != nil && auth.IsAuthed() {
+		if err != nil && authc.IsAuthed() {
 			blog.Errorf("parse authcenter error: %v, config: %+v", err, current.ConfigMap)
 		}
 	}
