@@ -55,6 +55,10 @@ func GetToken(header http.Header) string {
 	return header.Get(common.BKHTTPAUTHORIZATION)
 }
 
+func GetSuper(header http.Header) bool {
+	return "1" == header.Get(common.BKHTTPHeaderSuper)
+}
+
 // set supplier id and account in head
 func SetOwnerIDAndAccount(req *restful.Request) {
 	owner := req.Request.Header.Get(common.BKHTTPOwner)
@@ -132,6 +136,18 @@ func ExtractRequestTokenFromContext(ctx context.Context) string {
 		return tokenValue
 	}
 	return ""
+}
+
+func ExtractRequestSuperFromContext(ctx context.Context) bool {
+	if ctx == nil {
+		return false
+	}
+	token := ctx.Value(common.ContextRequestSuperField)
+	tokenValue, ok := token.(bool)
+	if ok == true {
+		return tokenValue
+	}
+	return false
 }
 
 // GetSupplierID return supplier_id from http header

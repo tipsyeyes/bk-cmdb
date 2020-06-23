@@ -896,6 +896,7 @@ const (
 
 	// add by elias
 	BKHTTPAUTHORIZATION = "Authorization"
+	BKHTTPHeaderSuper = "BK_Super"
 )
 
 type CCContextKey string
@@ -1118,6 +1119,7 @@ const (
 	ContextRequestUserField  = "request_user"
 	ContextRequestOwnerField = "request_owner"
 	ContextRequestTokenField = "request_token"
+	ContextRequestSuperField = "request_super"
 )
 
 const (

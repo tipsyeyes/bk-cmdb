@@ -116,6 +116,10 @@ func (ac *AccountCenter) Authorize(ctx context.Context, a *meta.AuthAttribute) (
 	if !auth.IsAuthed() {
 		return meta.Decision{Authorized: true}, nil
 	}
+	// super user return true
+	if commonutil.ExtractRequestSuperFromContext(ctx) {
+		return meta.Decision{Authorized: true}, nil
+	}
 
 	// filter out SkipAction, which set by api server to skip authorization
 	noSkipResources := make([]meta.ResourceAttribute, 0)
