@@ -142,10 +142,10 @@ func ExtractRequestSuperFromContext(ctx context.Context) bool {
 	if ctx == nil {
 		return false
 	}
-	token := ctx.Value(common.ContextRequestSuperField)
-	tokenValue, ok := token.(bool)
+	super := ctx.Value(common.ContextRequestSuperField)
+	superValue, ok := super.(bool)
 	if ok == true {
-		return tokenValue
+		return superValue
 	}
 	return false
 }

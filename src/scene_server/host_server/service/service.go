@@ -59,10 +59,12 @@ func (s *Service) newSrvComm(header http.Header) *srvComm {
 	lang := util.GetLanguage(header)
 	user := util.GetUser(header)
 	token := util.GetToken(header)
+	super := util.GetSuper(header)
 	ctx, cancel := s.Engine.CCCtx.WithCancel()
 	ctx = context.WithValue(ctx, common.ContextRequestIDField, rid)
 	ctx = context.WithValue(ctx, common.ContextRequestUserField, user)
 	ctx = context.WithValue(ctx, common.ContextRequestTokenField, token)
+	ctx = context.WithValue(ctx, common.ContextRequestSuperField, super)
 
 	return &srvComm{
 		header:        header,

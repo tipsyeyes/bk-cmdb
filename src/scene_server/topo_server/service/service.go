@@ -245,7 +245,9 @@ func (s *Service) Actions() []*httpserver.Action {
 				ctx = context.WithValue(ctx, common.ContextRequestUserField, user)
 				// add by elias 06/16
 				token := util.GetToken(req.Request.Header)
+				super := util.GetSuper(req.Request.Header)
 				ctx = context.WithValue(ctx, common.ContextRequestTokenField, token)
+				ctx = context.WithValue(ctx, common.ContextRequestSuperField, super)
 
 				handlerContext := types.ContextParams{
 					Context:         ctx,

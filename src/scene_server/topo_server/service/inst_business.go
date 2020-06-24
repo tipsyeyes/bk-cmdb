@@ -368,7 +368,9 @@ func (s *Service) SearchBusiness(params types.ContextParams, pathParams, queryPa
 		}
 	}
 
-	if s.AuthManager.Enabled() {
+	// ignore super
+	super := util.ExtractRequestSuperFromContext(params.Context)
+	if s.AuthManager.Enabled() && !super {
 		user := authmeta.UserInfo{UserName: params.User, SupplierAccount: params.SupplierAccount}
 		appList, err := s.AuthManager.Authorize.GetExactAuthorizedBusinessList(params.Context, user)
 		if err != nil {

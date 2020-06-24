@@ -62,6 +62,7 @@ func ValidLogin(config options.Config, disc discovery.DiscoveryInterface) gin.Ha
 			c.Request.Header.Add(common.BKHTTPSupplierID, supplierID)
 			// 使用自定义token数据
 			c.Request.Header.Add(common.BKHTTPAuthorization, config.MyToken)
+			c.Request.Header.Add(common.BKHTTPHeaderSuper, util.GetTokenSuper(config.MyToken))
 
 			if path1 == "api" {
 				servers, err := disc.ApiServer().GetServers()

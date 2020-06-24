@@ -907,8 +907,10 @@ func (sh *searchHost) ParseConditionEx() errors.CCError {
 // add by elias 06/19
 // 强制查询授权业务
 func (sh *searchHost) tryParseAppIDEx() error {
+	// ignore super
+	super := util.ExtractRequestSuperFromContext(sh.ctx)
 	//search appID by cond
-	if sh.lgc.AuthManager.Enabled() {
+	if sh.lgc.AuthManager.Enabled() && !super {
 		// parse business id from user's condition
 		var bizIDs []int64
 		exist := false
