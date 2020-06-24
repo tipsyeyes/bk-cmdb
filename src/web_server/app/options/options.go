@@ -21,6 +21,7 @@ import (
 //ServerOption define option of server in flags
 type ServerOption struct {
 	ServConf *config.CCAPIConfig
+	MyToken  string
 }
 
 //NewServerOption create a ServerOption object
@@ -37,6 +38,7 @@ func (s *ServerOption) AddFlags(fs *pflag.FlagSet) {
 	fs.StringVar(&s.ServConf.AddrPort, "addrport", "", "The ip address and port for the serve on")
 	fs.StringVar(&s.ServConf.RegDiscover, "regdiscv", "", "hosts of register and discover server. e.g: 127.0.0.1:2181")
 	fs.StringVar(&s.ServConf.ExConfig, "config", "", "The config path. e.g conf/ccapi.conf")
+	fs.StringVar(&s.MyToken, "token", "", "Custom token for auth")
 }
 
 type Session struct {
@@ -77,6 +79,8 @@ type Config struct {
 	LoginVersion string
 	ConfigMap    map[string]string
 	AuthCenter   AppInfo
+
+	MyToken  string
 }
 
 type AppInfo struct {

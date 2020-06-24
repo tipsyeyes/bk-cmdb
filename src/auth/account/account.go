@@ -198,7 +198,7 @@ func (ac *AccountCenter) GetExactAuthorizedBusinessList(ctx context.Context, use
 
 	header := http.Header{}
 	header.Set(common.BKHTTPCCRequestID, rid)
-	header.Set(common.BKHTTPAUTHORIZATION, token)
+	header.Set(common.BKHTTPAuthorization, token)
 	appListRsc, err := ac.authClient.GetAuthorizedResources(ctx, header, option)
 	if err != nil {
 		return nil, err
@@ -274,7 +274,7 @@ func (ac *AccountCenter) RegisterResource(ctx context.Context, rs ...meta.Resour
 	header := http.Header{}
 	//header.Set(AuthSupplierAccountHeaderKey, rs[0].SupplierAccount)
 	header.Set(common.BKHTTPCCRequestID, rid)
-	header.Set(common.BKHTTPAUTHORIZATION, token)
+	header.Set(common.BKHTTPAuthorization, token)
 
 	var firstErr error
 	count := len(resourceEntities)
@@ -362,7 +362,7 @@ func (ac *AccountCenter) DeregisterResource(ctx context.Context, rs ...meta.Reso
 
 	header := http.Header{}
 	header.Set(common.BKHTTPCCRequestID, rid)
-	header.Set(common.BKHTTPAUTHORIZATION, token)
+	header.Set(common.BKHTTPAuthorization, token)
 	for _, r := range rs {
 		if !ac.authFilter.needRegisterResource(ctx, r) {
 			continue

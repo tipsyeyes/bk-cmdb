@@ -895,7 +895,7 @@ const (
 	BKHTTPCCTxnTMServerAddr = "Cc_Txn_Tm_addr-Ip"
 
 	// add by elias
-	BKHTTPAUTHORIZATION = "Authorization"
+	BKHTTPAuthorization = "Authorization"
 	BKHTTPHeaderSuper = "BK_Super"
 )
 

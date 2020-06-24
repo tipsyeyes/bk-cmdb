@@ -52,7 +52,7 @@ func GetOwnerID(header http.Header) string {
 }
 
 func GetToken(header http.Header) string {
-	return header.Get(common.BKHTTPAUTHORIZATION)
+	return header.Get(common.BKHTTPAuthorization)
 }
 
 func GetSuper(header http.Header) bool {

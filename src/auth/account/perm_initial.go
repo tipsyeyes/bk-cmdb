@@ -21,7 +21,7 @@ func (ac *AccountCenter) Init(ctx context.Context, header http.Header, configs m
 func (ac *AccountCenter) initAuthResources(ctx context.Context, header http.Header, configs meta.InitConfig) error {
 	h := http.Header{}
 	h.Set(common.BKHTTPCCRequestID, util.GetHTTPCCRequestID(header))
-	h.Set(common.BKHTTPAUTHORIZATION, header.Get(common.BKHTTPAUTHORIZATION))
+	h.Set(common.BKHTTPAuthorization, header.Get(common.BKHTTPAuthorization))
 	if err := ac.authClient.RegisterSystem(ctx, h, expectSystem); err != nil && err != ErrDuplicated {
 		return err
 	}

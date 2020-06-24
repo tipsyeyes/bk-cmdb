@@ -72,6 +72,7 @@ func Run(ctx context.Context, cancel context.CancelFunc, op *options.ServerOptio
 	if false == configReady {
 		return errors.New("configuration item not found")
 	}
+	webSvr.Config.MyToken = op.MyToken
 
 	redisAddress := webSvr.Config.Session.Host
 	redisSecret := strings.TrimSpace(webSvr.Config.Session.Secret)
