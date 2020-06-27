@@ -129,6 +129,8 @@ const (
 	BKInnerObjIDVMHOST = "bk_vm"
 	// BKInnerObjIDIPRES the inner object
 	BKInnerObjIDIPRES = "bk_ip"
+	// BKInnerObjIDCONFIG the inner object
+	BKInnerObjIDCONFIG = "bk_config"
 )
 
 // Revision
