@@ -73,4 +73,6 @@ import (
 	_ "configdatabase/src/scene_server/admin_server/upgrader/y3.6.201911141015"
 	_ "configdatabase/src/scene_server/admin_server/upgrader/y3.6.201911141516"
 	_ "configdatabase/src/scene_server/admin_server/upgrader/y3.6.201911261109"
+	// add by elias 06/28
+	_ "configdatabase/src/scene_server/admin_server/upgrader/y3.6.202006271525"
 )

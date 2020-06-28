@@ -172,6 +172,7 @@ func RegistUpgrader(version string, handlerFunc func(context.Context, dal.RDB, *
 	if err := ValidateMigrationVersionFormat(version); err != nil {
 		blog.Fatalf("ValidateMigrationVersionFormat failed, err: %s", err.Error())
 	}
+	fmt.Println(version)
 	registLock.Lock()
 	defer registLock.Unlock()
 	v := Upgrader{version: version, do: handlerFunc}
