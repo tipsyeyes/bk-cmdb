@@ -106,11 +106,13 @@ func NewContextFromHTTPHeader(header http.Header) context.Context {
 	user := GetUser(header)
 	owner := GetOwnerID(header)
 	token := GetToken(header)
+	super := GetSuper(header)
 	ctx := context.Background()
 	ctx = context.WithValue(ctx, common.ContextRequestIDField, rid)
 	ctx = context.WithValue(ctx, common.ContextRequestUserField, user)
 	ctx = context.WithValue(ctx, common.ContextRequestOwnerField, owner)
 	ctx = context.WithValue(ctx, common.ContextRequestTokenField, token)
+	ctx = context.WithValue(ctx, common.ContextRequestSuperField, super)
 	return ctx
 }
 

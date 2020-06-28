@@ -205,7 +205,9 @@ func (s *Service) SearchReducedBusinessList(params types.ContextParams, pathPara
 		},
 	}
 
-	if s.AuthManager.Enabled() {
+	// ignore super
+	super := util.ExtractRequestSuperFromContext(params.Context)
+	if s.AuthManager.Enabled() && !super {
 		user := authmeta.UserInfo{UserName: params.User, SupplierAccount: params.SupplierAccount}
 		appList, err := s.AuthManager.Authorize.GetAnyAuthorizedBusinessList(params.Context, user)
 		if err != nil {
