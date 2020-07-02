@@ -13,6 +13,8 @@ import (
 	"configdatabase/src/common/metadata"
 )
 
+var NoMatchRulesError = errors.New("no matched rules")
+
 type RequestContext struct {
 	Rid string
 	// http header
@@ -178,7 +180,7 @@ func (ps *parseStream) finalizer() *parseStream {
 		return ps
 	}
 	if len(ps.Attribute.Resources) <= 0 {
-		ps.err = errors.New("no matched rules")
+		ps.err = NoMatchRulesError
 	}
 	return ps
 }

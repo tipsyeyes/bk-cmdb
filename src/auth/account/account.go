@@ -115,7 +115,10 @@ func (ac *AccountCenter) Enabled() bool {
 func (ac *AccountCenter) Authorize(ctx context.Context, a *meta.AuthAttribute) (decision meta.Decision, err error) {
 	if !auth.IsAuthed() {
 		return meta.Decision{Authorized: true}, nil
+	} else if a == nil {
+		return meta.Decision{Authorized: true}, nil
 	}
+
 	// super user return true
 	if commonutil.ExtractRequestSuperFromContext(ctx) {
 		return meta.Decision{Authorized: true}, nil

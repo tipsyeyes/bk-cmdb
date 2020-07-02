@@ -162,7 +162,12 @@ func (s *service) authFilter(errFunc func() errors.CCErrorIf) func(req *restful.
 
 		language := util.GetLanguage(req.Request.Header)
 		attribute, err := parser.ParseAttribute(req, s.engine)
-		if err != nil {
+		if err == parser.NoMatchRulesError {
+			// 忽略新增的api鉴权
+			// 原始的方案，目的是利用 api server层，隔离一些内部的路由，基于安全方面的考虑
+
+			// admin server的 api不支持从web层调用
+		} else if err != nil {
 			blog.Errorf("authFilter failed, caller: %s, parse auth attribute for %s %s failed, err: %v, rid: %s", req.Request.RemoteAddr, req.Request.Method, req.Request.URL.Path, err, rid)
 			rsp := metadata.BaseResp{
 				Code:   common.CCErrCommParseAuthAttributeFailed,
