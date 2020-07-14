@@ -118,6 +118,12 @@ func (z *ZkClient) Connect() error {
 	return z.ConnectEx(time.Second * 60)
 }
 
+// TODO mark by elias 07/14
+// 初始化 backbone的时候，初始化了一个全局的 zkclient.ZkClient链接
+// 在自动发现节点的时候，起了多个 go routine来 watch节点的变化
+// 但如果链接被关闭时，会重新调用此函数去重新链接，导致 z.Close()也会被多次调用，
+// 进而导致 zk.Conn的 shouldQuit chan被多次关闭，从而引发异常，主程序强制退出
+// TODO 是否考虑在此处增加一个锁，来保证重新链接的过程
 func (z *ZkClient) ConnectEx(sessionTimeOut time.Duration) error {
 	if z.ZkConn != nil {
 		z.Close()
