@@ -157,3 +157,58 @@ func (a *authClient) GetAuthorizedResources(ctx context.Context, header http.Hea
 
 	return resp.Data, nil
 }
+
+// 对特定资源批量鉴权
+// 包含资源实例信息
+func (a *authClient) verifyExactResourceBatch(ctx context.Context, header http.Header, batch *AuthBatch) ([]BatchStatus, error) {
+	util.CopyHeader(a.basicHeader, header)
+	resp := new(BatchResult)
+	err := a.client.Post().
+		SubResourcef("/iam/perm/systems/%s/resource-perm/batch-verify", a.Config.SystemID).
+		WithContext(ctx).
+		WithHeaders(header).
+		Body(batch).
+		Do().Into(resp)
+
+	if err != nil {
+		return nil, err
+	}
+	if resp.Status != statusSuccess {
+		return nil, &AuthError{
+			Reason:    fmt.Errorf("verify resource failed, error code: %d, message: %s", resp.Code, resp.Message),
+		}
+	}
+
+	if len(batch.ResourceActions) != len(resp.Data) {
+		return nil, fmt.Errorf("expect %d result, IAM returns %d result", len(batch.ResourceActions), len(resp.Data))
+	}
+	return resp.Data, nil
+}
+
+// 对任意资源批量鉴权
+// 不包含资源实例信息，仅仅对功能权限
+func (a *authClient) verifyAnyResourceBatch(ctx context.Context, header http.Header, batch *AuthBatch) ([]BatchStatus, error) {
+	util.CopyHeader(a.basicHeader, header)
+	resp := new(BatchResult)
+	err := a.client.Post().
+		// TODO 权限中心那边其实可以和 verifyExactResourceBatch用相同的接口
+		SubResourcef("/iam/perm/systems/%s/any-resource-perm/batch-verify", a.Config.SystemID).
+		WithContext(ctx).
+		WithHeaders(header).
+		Body(batch).
+		Do().Into(resp)
+
+	if err != nil {
+		return nil, err
+	}
+	if resp.Status != statusSuccess {
+		return nil, &AuthError{
+			Reason:    fmt.Errorf("verify resource failed, error code: %d, message: %s", resp.Code, resp.Message),
+		}
+	}
+
+	if len(batch.ResourceActions) != len(resp.Data) {
+		return nil, fmt.Errorf("expect %d result, IAM returns %d result", len(batch.ResourceActions), len(resp.Data))
+	}
+	return resp.Data, nil
+}

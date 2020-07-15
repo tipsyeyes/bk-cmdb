@@ -1,6 +1,7 @@
 package account
 
 import (
+	"configdatabase/src/auth/account/permit"
 	"configdatabase/src/common"
 	commonutil "configdatabase/src/common/util"
 	"configdatabase/src/apimachinery/flowctrl"
@@ -138,7 +139,7 @@ func (ac *AccountCenter) Authorize(ctx context.Context, a *meta.AuthAttribute) (
 		return meta.Decision{Authorized: true}, nil
 	}
 
-	batchResult, err := ac.AuthorizeBatch(ctx, a.User, a.Resources...)
+	batchResult, err := ac.AuthorizeBatchEx(ctx, a.User, a.Resources...)
 	if err != nil {
 		blog.Errorf("AuthorizeBatch error. err:%s", err.Error())
 		return meta.Decision{}, err
@@ -160,8 +161,260 @@ func (ac *AccountCenter) Authorize(ctx context.Context, a *meta.AuthAttribute) (
 	return meta.Decision{Authorized: true}, nil
 }
 
-func (ac *AccountCenter) AuthorizeBatch(ctx context.Context, user meta.UserInfo, resources ...meta.ResourceAttribute) (decisions []meta.Decision, err error) {
+func (ac *AccountCenter) AuthorizeBatchEx(ctx context.Context, user meta.UserInfo, resources ...meta.ResourceAttribute) (decisions []meta.Decision, err error) {
+	// api层不做鉴权处理
 	return nil, nil
+}
+
+// AuthorizeBatch api层批量鉴权
+// 包括各种功能权限，比如"业务的创建(cc.business.create)"
+// 或者对某个资源的修改或删除权限，比如"业务的修改(cc.business.delete)"，附带鉴权的资源id信息
+func (ac *AccountCenter) AuthorizeBatch(ctx context.Context, user meta.UserInfo, resources ...meta.ResourceAttribute) (decisions []meta.Decision, err error) {
+	rid := commonutil.ExtractRequestIDFromContext(ctx)
+	token := commonutil.ExtractRequestTokenFromContext(ctx)
+	decisions = make([]meta.Decision, len(resources))
+	if !auth.IsAuthed() {
+		for i := range decisions {
+			decisions[i].Authorized = true
+		}
+		return decisions, nil
+	}
+
+	header := http.Header{}
+	header.Set(AuthSupplierAccountHeaderKey, user.SupplierAccount)
+	header.Set(common.BKHTTPCCRequestID, rid)
+	header.Set(common.BKHTTPAuthorization, token)
+
+	// this two index array record the resources's action original index.
+	// used for recover the order of decisions.
+	sysInputIndexes := make([]int, 0)
+	sysInputExactIndexes := make([]int, 0)
+	bizInputIndexes := make(map[int64][]int)
+	bizInputExactIndexes := make(map[int64][]int)
+
+	sysInput := AuthBatch{
+		Principal: Principal{
+			Type: cmdbUser,
+			ID:   user.UserName,
+		},
+		ScopeInfo: ScopeInfo{
+			ScopeType: ScopeTypeIDSystem,
+			ScopeID:   SystemIDCMDB,
+		},
+		ResourceActions: make([]ResourceAction, 0),
+	}
+	sysExactInput := sysInput
+
+	businessesInputs := make(map[int64]AuthBatch)
+	businessesExactInputs := make(map[int64]AuthBatch)
+	for index, rsc := range resources {
+		action, err := AdaptorAction(&rsc)
+		if err != nil {
+			blog.Errorf("auth batch, but adaptor action:%s failed, err: %v, rid: %s", rsc.Action, err, rid)
+			return nil, err
+		}
+
+		// pick out skip resource at first.
+		if permit.ShouldSkipAuthorize(&rsc) {
+			// this resource should be skipped, do not need to verify in auth center.
+			decisions[index].Authorized = true
+			blog.V(5).Infof("skip authorization for resource: %+v, rid: %s", rsc, rid)
+			continue
+		}
+
+		info, err := adaptor(&rsc)
+		if err != nil {
+			blog.Errorf("auth batch, but adaptor resource type:%s failed, err: %v, rid: %s", rsc.Basic.Type, err, rid)
+			return nil, err
+		}
+
+		// modify special resource
+		if rsc.Type == meta.MainlineModel || rsc.Type == meta.ModelTopology {
+			blog.V(4).Infof("force convert scope type to global for resource type: %s, rid: %s", rsc.Type, rid)
+			rsc.BusinessID = 0
+		}
+
+		if rsc.BusinessID > 0 {
+			// this is a business resource.
+			var tmpInputs map[int64]AuthBatch
+			var tmpIndexes map[int64][]int
+			if len(info.ResourceID) > 0 {
+				tmpInputs = businessesExactInputs
+				tmpIndexes = bizInputExactIndexes
+			} else {
+				tmpInputs = businessesInputs
+				tmpIndexes = bizInputIndexes
+
+			}
+
+			if _, exist := tmpInputs[rsc.BusinessID]; !exist {
+				tmpInputs[rsc.BusinessID] = AuthBatch{
+					Principal: Principal{
+						Type: cmdbUser,
+						ID:   user.UserName,
+					},
+					ScopeInfo: ScopeInfo{
+						ScopeType: ScopeTypeIDBiz,
+						ScopeID:   strconv.FormatInt(rsc.BusinessID, 10),
+					},
+				}
+				// initialize the business input indexes.
+				tmpIndexes[rsc.BusinessID] = make([]int, 0)
+			}
+
+			a := tmpInputs[rsc.BusinessID]
+			a.ResourceActions = append(a.ResourceActions, ResourceAction{
+				ActionID:     action,
+				ResourceType: info.ResourceType,
+				ResourceID:   info.ResourceID,
+			})
+			tmpInputs[rsc.BusinessID] = a
+
+			// record it's resource index
+			indexes := tmpIndexes[rsc.BusinessID]
+			indexes = append(indexes, index)
+			tmpIndexes[rsc.BusinessID] = indexes
+		} else {
+
+			if len(info.ResourceID) > 0 {
+				sysExactInput.ResourceActions = append(sysExactInput.ResourceActions, ResourceAction{
+					ActionID:     action,
+					ResourceType: info.ResourceType,
+					ResourceID:   info.ResourceID,
+				})
+
+				// record it's system resource index
+				sysInputExactIndexes = append(sysInputExactIndexes, index)
+			} else {
+				sysInput.ResourceActions = append(sysInput.ResourceActions, ResourceAction{
+					ActionID:     action,
+					ResourceType: info.ResourceType,
+				})
+
+				// record it's system resource index
+				sysInputIndexes = append(sysInputIndexes, index)
+			}
+
+		}
+	}
+
+	// it's time to get the auth status from auth center now.
+	// get biz resource auth status at first.
+	// any business inputs
+	for biz, rsc := range businessesInputs {
+		// if resourceType that not related to resourceID, clear resourceID field
+		for idx, resourceAction := range rsc.ResourceActions {
+			if IsRelatedToResourceID(resourceAction.ResourceType) == false {
+				rsc.ResourceActions[idx].ResourceID = make([]RscTypeAndID, 0)
+			}
+		}
+		statuses, err := ac.authClient.verifyAnyResourceBatch(ctx, header, &rsc)
+		if err != nil {
+			return nil, fmt.Errorf("get any resource[%s/%s] auth status failed, err: %v", rsc.ScopeType, rsc.ScopeID, err)
+		}
+
+		if len(statuses) != len(rsc.ResourceActions) {
+			return nil, fmt.Errorf("got mismatch any biz authorize response from auth center, want: %d, got: %d", len(rsc.ResourceActions), len(statuses))
+		}
+
+		// update the decisions
+		for index, status := range statuses {
+			if rsc.ResourceActions[index].ResourceType != status.ResourceType ||
+				string(rsc.ResourceActions[index].ActionID) != status.ActionID {
+				return nil, fmt.Errorf("got any business auth mismatch info from auth center, with resource type[%s:%s], action[%s:%s]",
+					rsc.ResourceActions[index].ResourceType, status.ResourceType, rsc.ResourceActions[index].ActionID, status.ActionID)
+			}
+			decisions[bizInputIndexes[biz][index]].Authorized = status.IsPass
+		}
+	}
+
+	// exact business inputs
+	for biz, rsc := range businessesExactInputs {
+		// if resourceType that not related to resourceID, clear resourceID field
+		for idx, resourceAction := range rsc.ResourceActions {
+			if IsRelatedToResourceID(resourceAction.ResourceType) == false {
+				rsc.ResourceActions[idx].ResourceID = make([]RscTypeAndID, 0)
+			}
+		}
+		statuses, err := ac.authClient.verifyExactResourceBatch(ctx, header, &rsc)
+		if err != nil {
+			return nil, fmt.Errorf("get exact resource[%s/%s] auth status failed, err: %v", rsc.ScopeType, rsc.ScopeID, err)
+		}
+
+		if len(statuses) != len(rsc.ResourceActions) {
+			return nil, fmt.Errorf("got mismatch exact biz authorize response from auth center, want: %d, got: %d", len(rsc.ResourceActions), len(statuses))
+		}
+
+		// update the decisions
+		for index, status := range statuses {
+			if rsc.ResourceActions[index].ResourceType != status.ResourceType ||
+				string(rsc.ResourceActions[index].ActionID) != status.ActionID {
+				return nil, fmt.Errorf("got exact business auth mismatch info from auth center, with resource type[%s:%s], action[%s:%s]",
+					rsc.ResourceActions[index].ResourceType, status.ResourceType, rsc.ResourceActions[index].ActionID, status.ActionID)
+			}
+			decisions[bizInputExactIndexes[biz][index]].Authorized = status.IsPass
+		}
+	}
+
+	if len(sysInput.ResourceActions) != 0 {
+		// if resourceType that not related to resourceID, clear resourceID field
+		for idx, resourceAction := range sysInput.ResourceActions {
+			if IsRelatedToResourceID(resourceAction.ResourceType) == false {
+				sysInput.ResourceActions[idx].ResourceID = make([]RscTypeAndID, 0)
+			}
+		}
+		// get system resource auth status secondly.
+		statuses, err := ac.authClient.verifyAnyResourceBatch(ctx, header, &sysInput)
+		if err != nil {
+			return nil, fmt.Errorf("get any system resource[%s/%s] auth status failed, err: %v", sysInput.ScopeType, sysInput.ScopeID, err)
+		}
+
+		if len(statuses) != len(sysInput.ResourceActions) {
+			return nil, fmt.Errorf("got mismatch any system authorize response from auth center, want: %d, got: %d", len(sysInput.ResourceActions), len(statuses))
+		}
+
+		// update the system auth decisions
+		for index, status := range statuses {
+			if sysInput.ResourceActions[index].ResourceType != status.ResourceType ||
+				string(sysInput.ResourceActions[index].ActionID) != status.ActionID {
+				return nil, fmt.Errorf("got any system auth mismatch info from auth center, with resource type[%s:%s], action[%s:%s]",
+					sysInput.ResourceActions[index].ResourceType, status.ResourceType,
+					sysInput.ResourceActions[index].ActionID, status.ActionID)
+			}
+			decisions[sysInputIndexes[index]].Authorized = status.IsPass
+		}
+	}
+
+	if len(sysExactInput.ResourceActions) != 0 {
+		// if resourceType that not related to resourceID, clear resourceID field
+		for idx, resourceAction := range sysExactInput.ResourceActions {
+			if IsRelatedToResourceID(resourceAction.ResourceType) == false {
+				sysExactInput.ResourceActions[idx].ResourceID = make([]RscTypeAndID, 0)
+			}
+		}
+		// get system resource auth status secondly.
+		statuses, err := ac.authClient.verifyExactResourceBatch(ctx, header, &sysExactInput)
+		if err != nil {
+			return nil, fmt.Errorf("get exact system resource[%s/%s] auth status failed, err: %v", sysInput.ScopeType, sysInput.ScopeID, err)
+		}
+
+		if len(statuses) != len(sysExactInput.ResourceActions) {
+			return nil, fmt.Errorf("got mismatch exact authorize response from auth center, want: %d, got: %d", len(sysExactInput.ResourceActions), len(statuses))
+		}
+
+		// update the system auth decisions
+		for index, status := range statuses {
+			if sysExactInput.ResourceActions[index].ResourceType != status.ResourceType ||
+				string(sysExactInput.ResourceActions[index].ActionID) != status.ActionID {
+				return nil, fmt.Errorf("got exact system auth mismatch info from auth center, with resource type[%s:%s], action[%s:%s]",
+					sysExactInput.ResourceActions[index].ResourceType, status.ResourceType,
+					sysExactInput.ResourceActions[index].ActionID, status.ActionID)
+			}
+			decisions[sysInputExactIndexes[index]].Authorized = status.IsPass
+		}
+	}
+
+	return decisions, nil
 }
 
 func (ac *AccountCenter) GetAnyAuthorizedBusinessList(ctx context.Context, user meta.UserInfo) ([]int64, error) {

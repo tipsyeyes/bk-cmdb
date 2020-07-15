@@ -104,6 +104,32 @@ type Principal struct {
 	ID   string `json:"principal_id"`
 }
 
+// 批量鉴权参数
+type AuthBatch struct {
+	Principal
+	ScopeInfo
+	ResourceActions []ResourceAction `json:"resources_actions"`
+}
+
+type ResourceAction struct {
+	ResourceType ResourceTypeID 	`json:"resource_type"`
+	ResourceID   []RscTypeAndID 	`json:"resource_id,omitempty"`
+	ActionID     ActionID       	`json:"action_code"`
+}
+
+type BatchResult struct {
+	BaseResponse
+	Data      	[]BatchStatus 		`json:"data"`
+}
+
+type BatchStatus struct {
+	ActionID     string         	`json:"action_id"`
+	ResourceType ResourceTypeID 	`json:"resource_type"`
+	// for authorize confirm use, define if a user have
+	// the permission to this request.
+	IsPass bool 					`json:"is_pass"`
+}
+
 // 注册资源实体信息 RegisterEntityInfo
 type RegisterInfo struct {
 	// 创建者信息，可忽略
