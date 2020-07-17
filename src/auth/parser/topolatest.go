@@ -756,6 +756,7 @@ func (ps *parseStream) objectInstanceLatest() *parseStream {
 			}
 			modelType = meta.MainlineInstance
 		}
+		modelType = ps.checkRBizResourceType(modelType, model.ObjectID)
 
 		ps.Attribute.Resources = []meta.ResourceAttribute{
 			{
@@ -795,6 +796,7 @@ func (ps *parseStream) objectInstanceLatest() *parseStream {
 		if isMainline {
 			modelType = meta.MainlineInstance
 		}
+		modelType = ps.checkRBizResourceType(modelType, objectID)
 
 		bizID, err := metadata.BizIDFromMetadata(ps.RequestCtx.Metadata)
 		if err != nil {
@@ -854,6 +856,7 @@ func (ps *parseStream) objectInstanceLatest() *parseStream {
 		if isMainline {
 			modelType = meta.MainlineInstance
 		}
+		modelType = ps.checkRBizResourceType(modelType, objectID)
 
 		ps.Attribute.Resources = []meta.ResourceAttribute{
 			{
@@ -993,6 +996,7 @@ func (ps *parseStream) objectInstanceLatest() *parseStream {
 			}
 			modelType = meta.MainlineInstance
 		}
+		modelType = ps.checkRBizResourceType(modelType, model.ObjectID)
 
 		ps.Attribute.Resources = []meta.ResourceAttribute{
 			{

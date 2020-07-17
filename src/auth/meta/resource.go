@@ -62,6 +62,10 @@ const (
 	InstallBK                ResourceType = "installBK"
 	SetTemplate              ResourceType = "setTemplate"
 	OperationStatistic       ResourceType = "operationStatistic" // 运营统计
+
+	// add by elias 07/16
+	// 新增资源类型 rBusiness，从通用主线拓扑 mainlineInstance中抽离，表示 rbiz模型实例资源
+	RBusiness                 ResourceType = "rBusiness"
 )
 
 const (

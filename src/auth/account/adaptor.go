@@ -33,6 +33,11 @@ const (
 // 项目级资源类型
 const (
 	BizHostInstance           ResourceTypeID = "proj_host_instance"
+
+	// add by elias 07/16
+	// 新增权限中心 proj_business_instance
+	// 用于注册项目下的业务资源实例
+	BizRBizInstance           ResourceTypeID = "proj_business_instance"
 )
 
 const (
@@ -244,6 +249,9 @@ func ConvertResourceType(resourceType meta.ResourceType, businessID int64) (*Res
 		} else {
 			iamResourceType = SysModel
 		}
+	// add by elias 07/16
+	case meta.RBusiness:
+		iamResourceType = BizRBizInstance
 
 	case meta.ModelModule, meta.ModelSet, meta.MainlineInstance, meta.MainlineInstanceTopology:
 		iamResourceType = BizTopology

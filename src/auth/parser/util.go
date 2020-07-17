@@ -257,3 +257,13 @@ func (ps *parseStream) getModelUnique(cond mapstr.MapStr) (metadata.ObjectUnique
 	}
 	return modelUniqueResult.Data.Info[0], nil
 }
+
+// add by elias 07/16
+// 检测是否为 rbiz资源类型
+// 用于适配新增的 rBusiness资源类型
+func (ps *parseStream) checkRBizResourceType(typ meta.ResourceType, objID string) meta.ResourceType {
+	if objID == common.BKInnerObjIDRealBiz {
+		return meta.RBusiness
+	}
+	return typ
+}
