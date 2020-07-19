@@ -139,4 +139,8 @@ type InitConfig struct {
 	Models           []metadata.Object
 	Classifications  []metadata.Classification
 	AssociationKinds []metadata.AssociationKind
+
+	// add by elias 07/19
+	// 同步项目下的业务资源实例
+	RBizs 			 []metadata.RBizInst
 }

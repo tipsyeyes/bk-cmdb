@@ -30,9 +30,9 @@ func (ac *AccountCenter) initAuthResources(ctx context.Context, header http.Head
 	if err := ac.authClient.UpsertResourceTypeBatch(ctx, header, SystemIDCMDB, ScopeTypeIDSystem, expectSystemResourceType); err != nil {
 		return err
 	}
-	//if err := ac.authClient.UpsertResourceTypeBatch(ctx, header, SystemIDCMDB, ScopeTypeIDBiz, expectBizResourceType); err != nil {
-	//	return err
-	//}
+	if err := ac.authClient.UpsertResourceTypeBatch(ctx, header, SystemIDCMDB, ScopeTypeIDBiz, expectBizResourceType); err != nil {
+		return err
+	}
 
 	/// register resource instance
 	// init business inst
@@ -59,6 +59,34 @@ func (ac *AccountCenter) initAuthResources(ctx context.Context, header http.Head
 			return err
 		}
 	}
+
+	// add by elias 07/19
+	/// register resource instance
+	// init rbiz inst
+	for _, rBiz := range configs.RBizs {
+		bkBiz := RegisterInfo{
+			CreatorID:   "system",
+			CreatorType: "user",
+			Resources: []ResourceEntity{
+				{
+					ResourceType: BizRBizInstance,
+					ResourceID: []RscTypeAndID{
+						{ResourceType: BizRBizInstance, ResourceID: strconv.FormatInt(rBiz.InstanceID, 10)},
+					},
+					ResourceName: rBiz.Name,
+					ScopeInfo: ScopeInfo{
+						ScopeType: ScopeTypeIDBiz,
+						ScopeID: strconv.FormatInt(rBiz.BizID, 10),
+					},
+				},
+			},
+		}
+
+		if err := ac.authClient.registerResource(ctx, header, &bkBiz); err != nil && err != ErrDuplicated {
+			return err
+		}
+	}
+
 
 	return nil
 }

@@ -173,3 +173,11 @@ type SearchHostIdentifierData struct {
 	Count int              `json:"count"`
 	Info  []HostIdentifier `json:"info"`
 }
+
+// add by elias 07/18
+type RBizInst struct {
+	InstanceID int64  `field:"bk_inst_id"`
+	Name       string `field:"bk_inst_name"`
+	BizID      int64  `field:"bk_biz_id"`
+	ObjectID   string `field:"bk_obj_id"`
+}

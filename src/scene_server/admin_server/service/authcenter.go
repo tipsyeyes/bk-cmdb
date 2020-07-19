@@ -167,8 +167,26 @@ func (s *Service) InitAuthAccount(req *restful.Request, resp *restful.Response) 
 		noRscPoolBiz = append(noRscPoolBiz, biz)
 	}
 
+	// search rbiz object instance
+	rBizs := make([]metadata.RBizInst, 0)
+	rBizFilter := map[string]interface{}{
+		common.BKDefaultField: map[string]interface{}{
+			common.BKDBNE: common.DefaultAppFlag,
+		},
+		common.BKObjIDField: common.BKInnerObjIDRealBiz,
+	}
+	if err := s.db.Table(common.BKTableNameBaseInst).Find(rBizFilter).All(s.ctx, &rBizs); err != nil {
+		blog.Errorf("init auth center failed, list rbiz failed, err: %v, rid: %s", err, rid)
+		result := &metadata.RespError{
+			Msg: defErr.Errorf(common.CCErrCommInitAuthCenterFailed, err.Error()),
+		}
+		resp.WriteError(http.StatusInternalServerError, result)
+		return
+	}
+
 	initCfg := meta.InitConfig{
 		Bizs:             noRscPoolBiz,
+		RBizs:  		  rBizs,
 	}
 	if err := s.authCenter.Init(s.ctx, rHeader, initCfg); nil != err {
 		blog.Errorf("init auth center failed, err: %+v, rid: %s", err, rid)
