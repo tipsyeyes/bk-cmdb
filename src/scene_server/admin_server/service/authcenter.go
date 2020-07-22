@@ -148,6 +148,10 @@ func (s *Service) InitAuthAccount(req *restful.Request, resp *restful.Response) 
 		common.BKDefaultField: map[string]interface{}{
 			common.BKDBNE: common.DefaultAppFlag,
 		},
+		// 不注册资源池、默认业务
+		common.BKAppIDField: map[string]interface{}{
+			common.BKDBNIN: []int{1, 2},
+		},
 	}
 	if err := s.db.Table(common.BKTableNameBaseApp).Find(bizFilter).All(s.ctx, &bizs); err != nil {
 		blog.Errorf("init auth center failed, list businesses failed, err: %v, rid: %s", err, rid)
@@ -170,10 +174,11 @@ func (s *Service) InitAuthAccount(req *restful.Request, resp *restful.Response) 
 	// search rbiz object instance
 	rBizs := make([]metadata.RBizInst, 0)
 	rBizFilter := map[string]interface{}{
-		common.BKDefaultField: map[string]interface{}{
-			common.BKDBNE: common.DefaultAppFlag,
-		},
 		common.BKObjIDField: common.BKInnerObjIDRealBiz,
+		// 过滤默认业务下 rbiz
+		common.BKAppIDField: map[string]interface{}{
+			common.BKDBNIN: []int{2},
+		},
 	}
 	if err := s.db.Table(common.BKTableNameBaseInst).Find(rBizFilter).All(s.ctx, &rBizs); err != nil {
 		blog.Errorf("init auth center failed, list rbiz failed, err: %v, rid: %s", err, rid)

@@ -13,6 +13,9 @@
 package operation
 
 import (
+	"configdatabase/src/auth/extensions"
+	"configdatabase/src/auth/meta"
+	"configdatabase/src/common/util"
 	"context"
 	"fmt"
 	"strconv"
@@ -49,9 +52,10 @@ type InstOperationInterface interface {
 }
 
 // NewInstOperation create a new inst operation instance
-func NewInstOperation(client apimachinery.ClientSetInterface) InstOperationInterface {
+func NewInstOperation(client apimachinery.ClientSetInterface, authManager *extensions.AuthManager) InstOperationInterface {
 	return &commonInst{
 		clientSet: client,
+		authManager: authManager,
 	}
 }
 
@@ -75,6 +79,9 @@ type commonInst struct {
 	instFactory  inst.Factory
 	asst         AssociationOperationInterface
 	obj          ObjectOperationInterface
+
+	// add by elias 07/22
+	authManager *extensions.AuthManager
 }
 
 func (c *commonInst) SetProxy(modelFactory model.Factory, instFactory inst.Factory, asst AssociationOperationInterface, obj ObjectOperationInterface) {
@@ -962,6 +969,59 @@ func (c *commonInst) FindInstByAssociationInst(params types.ContextParams, obj m
 	query.Limit = asstParamCond.Page.Limit
 	query.Sort = asstParamCond.Page.Sort
 	query.Start = asstParamCond.Page.Start
+
+	// add by elias 07/22
+	super := util.ExtractRequestSuperFromContext(params.Context)
+	if object.ObjectID == common.BKInnerObjIDRealBiz && c.authManager.Enabled() && !super {
+		// 增加业务资源权限隔离代码
+		// first 先筛选项目
+		// 像与biz一样去判断 biz当前的条件有点复杂，这里直接用 $and取授权的列表与查询的交集，方便一点
+		bizAndOpear := make([]map[string]interface{}, 0)
+		user := meta.UserInfo{UserName: params.User, SupplierAccount: params.SupplierAccount}
+		authBizList, err := c.authManager.Authorize.GetExactAuthorizedBusinessList(params.Context, user)
+		if err != nil {
+			blog.Errorf("[api-rbiz] FindInstByAssociationInst failed, GetExactAuthorizedBusinessList failed, user: %s, err: %s, rid: %s", params.User, err.Error(), params.ReqID)
+			return 0, nil, err
+		}
+		bizAndOpear = append(bizAndOpear, map[string]interface{}{
+			common.BKAppIDField: map[string]interface{}{
+				common.BKDBIN: authBizList,
+			},
+		})
+		if originVal, ok := instCond[common.BKAppIDField]; ok {
+			bizAndOpear = append(bizAndOpear, map[string]interface{}{
+				common.BKAppIDField: originVal,
+			})
+		}
+		if len(bizAndOpear) > 0 {
+			delete(instCond, common.BKAppIDField)
+			instCond[common.BKDBAND] = bizAndOpear
+		}
+
+		// second 再筛选业务
+		rBizAndOpear := make([]map[string]interface{}, 0)
+		authRBizList, err := c.authManager.ListAuthorizedRBizIDs(params.Context, params.User)
+		if err != nil {
+			blog.Errorf("[api-rbiz] FindInstByAssociationInst failed, ListAuthorizedRBizIDs failed, user: %s, err: %s, rid: %s", params.User, err.Error(), params.ReqID)
+			return 0, nil, err
+		}
+		rBizAndOpear = append(rBizAndOpear, map[string]interface{}{
+			common.BKInstIDField: map[string]interface{}{
+				common.BKDBIN: authRBizList,
+			},
+		})
+		if originVal, ok := instCond[common.BKInstIDField]; ok {
+			rBizAndOpear = append(rBizAndOpear, map[string]interface{}{
+				common.BKInstIDField: originVal,
+			})
+		}
+		if len(rBizAndOpear) > 0 {
+			delete(instCond, common.BKInstIDField)
+			allAndOpear := append(bizAndOpear, rBizAndOpear...)
+			instCond[common.BKDBAND] = allAndOpear
+		}
+	}
+
 	blog.V(4).Infof("[FindInstByAssociationInst] search object[%s] with inst condition: %v, rid: %s", object.ObjectID, instCond, params.ReqID)
 	return c.FindInst(params, obj, query, false)
 }

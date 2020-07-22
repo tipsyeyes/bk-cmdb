@@ -176,8 +176,8 @@ type SearchHostIdentifierData struct {
 
 // add by elias 07/18
 type RBizInst struct {
-	InstanceID int64  `field:"bk_inst_id"`
-	Name       string `field:"bk_inst_name"`
-	BizID      int64  `field:"bk_biz_id"`
-	ObjectID   string `field:"bk_obj_id"`
+	InstanceID int64  `field:"bk_inst_id" bson:"bk_inst_id"`
+	Name       string `field:"bk_inst_name" bson:"bk_inst_name"`
+	BizID      int64  `field:"bk_biz_id" bson:"bk_biz_id"`
+	ObjectID   string `field:"bk_obj_id" bson:"bk_obj_id"`
 }

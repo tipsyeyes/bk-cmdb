@@ -64,7 +64,7 @@ func (ac *AccountCenter) initAuthResources(ctx context.Context, header http.Head
 	/// register resource instance
 	// init rbiz inst
 	for _, rBiz := range configs.RBizs {
-		bkBiz := RegisterInfo{
+		bkRBiz := RegisterInfo{
 			CreatorID:   "system",
 			CreatorType: "user",
 			Resources: []ResourceEntity{
@@ -82,11 +82,10 @@ func (ac *AccountCenter) initAuthResources(ctx context.Context, header http.Head
 			},
 		}
 
-		if err := ac.authClient.registerResource(ctx, header, &bkBiz); err != nil && err != ErrDuplicated {
+		if err := ac.authClient.registerResource(ctx, header, &bkRBiz); err != nil && err != ErrDuplicated {
 			return err
 		}
 	}
-
 
 	return nil
 }
