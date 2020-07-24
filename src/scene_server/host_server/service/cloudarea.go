@@ -63,7 +63,9 @@ func (s *Service) FindManyCloudArea(req *restful.Request, resp *restful.Response
 	}
 
 	filter := input.Condition
-	if s.AuthManager.Enabled() {
+	// 取消对 plat的授权资源查询
+	//if s.AuthManager.Enabled() {
+	if false {
 		// auth: get authorized resources
 		authorizedPlatIDs, err := s.AuthManager.ListAuthorizedPlatIDs(srvData.ctx, srvData.user)
 		if err != nil {
